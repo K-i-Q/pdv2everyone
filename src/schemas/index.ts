@@ -8,3 +8,15 @@ export const LoginSchema = z.object({
     message: "Senha é um campo obrigatório",
   }),
 });
+
+export const RegisterSchema = z.object({
+  email: z.string().email({
+    message: "Email inválido",
+  }),
+  password: z.string().min(6, {
+    message: "Mínimo de 6 caracteres obrigatórios",
+  }),
+  name: z.string().min(1, {
+    message: "Nome é obrigatório"
+  })
+});
