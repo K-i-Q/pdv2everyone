@@ -50,6 +50,7 @@ export const LoginForm = () => {
             headerLabel="Bem vindo"
             backButtonLabel="Não possui conta?"
             backButtonHref="/auth/register"
+            showSocial
         >
             <Form {...form}>
                 <form

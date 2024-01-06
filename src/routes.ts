@@ -8,7 +8,7 @@ export const publicRoutes = ["/"];
  * Rotas de autenticação
  * @type {string[]}
  */
-export const authRoutes = ["/auth/login", "/auth/register"];
+export const authRoutes = ["/auth/login", "/auth/register", "/auth/error"];
 
 /**
  * Prefixo para autenticação de rotas de API.
