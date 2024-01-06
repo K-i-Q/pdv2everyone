@@ -2,7 +2,7 @@
  * Rotas públicas que podem ser acessadas sem necessidade de autenticação
  * @type {string[]}
  */
-export const publicRoutes = ["/"];
+export const publicRoutes = ["/", "/auth/new-verification"];
 
 /**
  * Rotas de autenticação
