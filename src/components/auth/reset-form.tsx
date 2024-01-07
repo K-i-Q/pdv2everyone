@@ -1,6 +1,6 @@
 "use client";
 
-import { register } from "@/actions/register";
+import { reset } from "@/actions/reset";
 import { CardWrapper } from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
 import { FormSuccess } from "@/components/form-success";
@@ -14,33 +14,31 @@ import {
     FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RegisterSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-export const RegisterForm = () => {
+export const ResetForm = () => {
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
 
     const [isPending, startTransition] = useTransition();
 
-    const form = useForm<z.infer<typeof RegisterSchema>>({
-        resolver: zodResolver(RegisterSchema),
+    const form = useForm<z.infer<typeof ResetSchema>>({
+        resolver: zodResolver(ResetSchema),
         defaultValues: {
-            email: "",
-            password: "",
-            name: "",
+            email: ""
         }
     });
 
-    const onSubmit = (values: z.infer<typeof RegisterSchema>) => {
+    const onSubmit = (values: z.infer<typeof ResetSchema>) => {
         setError("")
         setSuccess("")
         startTransition(() => {
-            register(values).then((data) => {
-                setError(data.error);
-                setSuccess(data.success)
+            reset(values).then((data) => {
+                setError(data?.error);
+                setSuccess(data?.success)
             })
         })
     }
@@ -48,8 +46,8 @@ export const RegisterForm = () => {
 
     return (
         <CardWrapper
-            headerLabel="Crie sua conta agora mesmo"
-            backButtonLabel="Já possui conta?"
+            headerLabel="Esqueci minha senha"
+            backButtonLabel="Voltar ao login"
             backButtonHref="/auth/login"
         >
             <Form {...form}>
@@ -58,25 +56,6 @@ export const RegisterForm = () => {
                     className="space-y-6"
                 >
                     <div className="space-y-4">
-                    <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Nome
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            placeholder="João Silva"
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <FormField
                             control={form.control}
                             name="email"
@@ -97,31 +76,11 @@ export const RegisterForm = () => {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>
-                                        Senha
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            placeholder="******"
-                                            type="password"
-                                            disabled={isPending}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                     </div>
                     <FormError message={error} />
                     <FormSuccess message={success} />
                     <Button disabled={isPending} type="submit" className="w-full">
-                        Criar conta
+                        Enviar email
                     </Button>
                 </form>
             </Form>
