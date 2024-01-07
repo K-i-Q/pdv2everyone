@@ -1,11 +1,12 @@
-import { auth } from "@/auth";
+"use client";
+
 import { LogoutButton } from "@/components/auth/logout-button";
-const SettingsPage = async () => {
-    const session = await auth();
+import { useCurrentUser } from "@/hooks/use-current-user";
+const SettingsPage = () => {
+    const currentUser = useCurrentUser();
 
     return (
-        <div>
-            {JSON.stringify(session)}
+        <div className="bg-white p-10 rounded-xl">
             <LogoutButton>
                 Sair
             </LogoutButton>
