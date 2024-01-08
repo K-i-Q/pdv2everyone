@@ -5,12 +5,18 @@ import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
 import { getUserByEmail } from "@/data/user";
 import { db } from "@/lib/db";
 import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/lib/mail";
-import { generateTwoFactorToken, generateVerificationToken } from "@/lib/tokens";
+import {
+  generateTwoFactorToken,
+  generateVerificationToken,
+} from "@/lib/tokens";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { LoginSchema } from "@/schemas";
 import { AuthError } from "next-auth";
 import * as z from "zod";
-export const login = async (values: z.infer<typeof LoginSchema>) => {
+export const login = async (
+  values: z.infer<typeof LoginSchema>,
+  callbackUrl?: string | null
+) => {
   const validateFields = LoginSchema.safeParse(values);
 
   if (!validateFields.success) {
@@ -71,14 +77,12 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       }
 
       await db.twoFactorConfirmation.create({
-        data:{
-          userId: existingUser.id
-        }
-      })
+        data: {
+          userId: existingUser.id,
+        },
+      });
     } else {
-      const twoFactorToken = await generateTwoFactorToken(
-        existingUser.email
-      );
+      const twoFactorToken = await generateTwoFactorToken(existingUser.email);
       await sendTwoFactorTokenEmail(twoFactorToken.email, twoFactorToken.token);
 
       return { twoFactor: true };
@@ -89,7 +93,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
     });
   } catch (error) {
     if (error instanceof AuthError) {
