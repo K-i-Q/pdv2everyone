@@ -15,7 +15,7 @@ export default function Home() {
         <h1 className={cn("text-6xl font-semibold text-white drop-shadow-md", font.className)}>
           PDV
         </h1>
-        <LoginButton>
+        <LoginButton mode="modal" asChild>
           <Button variant="secondary" size="lg">Entrar</Button>
         </LoginButton>
       </div>
