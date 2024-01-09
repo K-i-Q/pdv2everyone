@@ -12,7 +12,7 @@ export const UserInfo = ({
     label
 }: UserInfoPros) => {
     return (
-        <Card className="w-[600px] shadow-md">
+        <Card className="md:w-1/3 shadow-md">
             <CardHeader>
                 <p className="text-2xl font-semibold text-center">
                     {label}
