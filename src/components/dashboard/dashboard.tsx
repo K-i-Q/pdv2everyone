@@ -306,194 +306,197 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className='flex flex-col-reverse md:flex-col gap-y-5 pt-10 pb-10 md:p-0'>
-            <div className='mb-5 bg-slate-400 p-4 rounded-md text-white'>
-                <InputFileXlsXlsx onChange={handleFileUpload} />
-            </div>
-            <div className='flex flex-col md:gap-y-4 space-y-2 md:space-y-0'>
-                <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Maior Quantidade Serviços
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-bold">Serviços: {dashboardData?.diaMaiorMovimento?.quantidade}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Dia: {dashboardData?.diaMaiorMovimento?.dia}
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Maior Faturamento
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.valor.toFixed(2)}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Dia: {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.dia}
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Menor Faturamento
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.valor.toFixed(2)}</div>
-                            <p className="text-xs text-muted-foreground">
-                                Dia: {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.dia}
-                            </p>
-                        </CardContent>
-                    </Card>
+        <>
+            <div className='flex flex-col-reverse md:flex-col gap-y-5 pt-10 pb-10 md:p-0'>
+                <div className='mb-5 bg-slate-400 p-4 rounded-md text-white'>
+                    <InputFileXlsXlsx onChange={handleFileUpload} />
                 </div>
+                {dashboardData && (
+                    <div className='flex flex-col md:gap-y-4 space-y-2 md:space-y-0'>
+                        <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        Maior Quantidade Serviços
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-bold">Serviços: {dashboardData?.diaMaiorMovimento?.quantidade}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Dia: {dashboardData?.diaMaiorMovimento?.dia}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        Maior Faturamento
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.valor.toFixed(2)}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Dia: {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.dia}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        Menor Faturamento
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.valor.toFixed(2)}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Dia: {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.dia}
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                TOP 5 Serviços
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-semibold">
-                                <ul>
-                                    {dashboardData?.servicosMaisPrestados.map((item, index) => (
-                                        <li key={index}>
-                                            {item.quantidade} vezes
-                                            <p className="text-xs text-muted-foreground">
-                                                {item.servico}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                Pagamento Colaboradores
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-semibold">
-                                <ul>
-                                    {dashboardData?.totalPagamentoFuncionarios.map((funcionario, index) => (
-                                        <li key={index}>
-                                            R$ {funcionario.totalPagar.toFixed(2)}
-                                            <p className="text-xs text-muted-foreground">
-                                                {funcionario.nome}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className='min-w-[240px]'>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">
-                                TOP 5 Modelos Frequentes
-                            </CardTitle>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                className="h-4 w-4 text-muted-foreground"
-                            >
-                                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="md:text-2xl font-semibold">
-                                <ul>
-                                    {dashboardData?.modeloMaisLavado.map((carro, index) => (
-                                        <li key={index}>
-                                            {carro.quantidade} vezes
-                                            <p className="text-xs text-muted-foreground">
-                                                {carro.modelo}
-                                            </p>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
+                        <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        TOP 5 Serviços
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-semibold">
+                                        <ul>
+                                            {dashboardData?.servicosMaisPrestados.map((item, index) => (
+                                                <li key={index}>
+                                                    {item.quantidade} vezes
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {item.servico}
+                                                    </p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        Pagamento Colaboradores
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-semibold">
+                                        <ul>
+                                            {dashboardData?.totalPagamentoFuncionarios.map((funcionario, index) => (
+                                                <li key={index}>
+                                                    R$ {funcionario.totalPagar.toFixed(2)}
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {funcionario.nome}
+                                                    </p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card className='min-w-[240px]'>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">
+                                        TOP 5 Modelos Frequentes
+                                    </CardTitle>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        className="h-4 w-4 text-muted-foreground"
+                                    >
+                                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                    </svg>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="md:text-2xl font-semibold">
+                                        <ul>
+                                            {dashboardData?.modeloMaisLavado.map((carro, index) => (
+                                                <li key={index}>
+                                                    {carro.quantidade} vezes
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {carro.modelo}
+                                                    </p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+                )
+                }
             </div>
-        </div>
-
+        </>
     );
 };
 
