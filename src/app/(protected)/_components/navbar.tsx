@@ -14,7 +14,7 @@ export const Navbar = ({ className } : NavbarProps) => {
 
    
     return (
-        <nav className={`bg-secondary flex justify-between items-center p-4 w-full shadow-sm ${className}`}>
+        <nav className={`bg-gray-900 flex justify-between items-center p-4 w-full shadow-sm ${className}`}>
             <div className="flex gap-x-2">
                 <Button asChild variant={pathName === '/admin' ? "default" : "outline"}>
                     <Link href="/admin">
@@ -40,6 +40,13 @@ export const Navbar = ({ className } : NavbarProps) => {
                 <Button asChild variant={pathName === '/settings' ? "default" : "outline"}>
                     <Link href="/settings">
                         Settings
+                    </Link>
+                </Button>
+            </div>
+            <div className="flex gap-x-2">
+                <Button asChild variant={pathName === '/dashboard' ? "default" : "outline"}>
+                    <Link href="/dashboard">
+                        Dashboard
                     </Link>
                 </Button>
             </div>
