@@ -5,7 +5,7 @@ export function InputFileXlsXlsx({ onChange }: any) {
     return (
         <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="sheet">Planilha</Label>
-            <Input accept=".xlsx, .xls" id="sheet" type="file" onChange={onChange} />
+            <Input className="bg-white text-slate-950" accept=".xlsx, .xls" id="sheet" type="file" onChange={onChange} />
         </div>
     )
 }
