@@ -10,8 +10,8 @@ import {
 interface CardWrapperProps {
     children: React.ReactNode;
     headerLabel: string;
-    backButtonLabel: string;
-    backButtonHref: string;
+    backButtonLabel?: string;
+    backButtonHref?: string;
     showSocial?: boolean;
 }
 
@@ -35,9 +35,13 @@ export const CardWrapper = ({
                     <Social />
                 </CardFooter>
             }
-            <CardFooter>
-                <BackButton label={backButtonLabel} href={backButtonHref} />
-            </CardFooter>
+            {backButtonLabel && backButtonHref && (
+                <CardFooter>
+                    <BackButton label={backButtonLabel} href={backButtonHref} />
+                </CardFooter>
+            )
+            }
+
         </Card>
     )
 }

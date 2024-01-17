@@ -308,7 +308,7 @@ const Dashboard: React.FC = () => {
     return (
         <>
             <div className='flex flex-col-reverse md:flex-col gap-y-5 pt-10 pb-10 md:p-0'>
-                <div className='mb-5 bg-slate-400 p-4 rounded-md text-white'>
+                <div className='mb-5 bg-slate-950 p-4 rounded-md text-white'>
                     <InputFileXlsXlsx onChange={handleFileUpload} />
                 </div>
                 {dashboardData && (
@@ -316,7 +316,7 @@ const Dashboard: React.FC = () => {
                         <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         Maior Quantidade Serviços
                                     </CardTitle>
                                     <svg
@@ -327,21 +327,21 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-bold">Serviços: {dashboardData?.diaMaiorMovimento?.quantidade}</div>
-                                    <p className="text-xs text-muted-foreground">
+                                    <div className="md:text-2xl font-bold text-yellow-400">Serviços: {dashboardData?.diaMaiorMovimento?.quantidade}</div>
+                                    <p className="text-xs text-white">
                                         Dia: {dashboardData?.diaMaiorMovimento?.dia}
                                     </p>
                                 </CardContent>
                             </Card>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         Maior Faturamento
                                     </CardTitle>
                                     <svg
@@ -352,21 +352,21 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.valor.toFixed(2)}</div>
-                                    <p className="text-xs text-muted-foreground">
+                                    <div className="md:text-2xl font-bold text-yellow-400">R$ {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.valor.toFixed(2)}</div>
+                                    <p className="text-xs text-white">
                                         Dia: {dashboardData?.diaMaiorFaturamento?.maiorFaturamento?.dia}
                                     </p>
                                 </CardContent>
                             </Card>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         Menor Faturamento
                                     </CardTitle>
                                     <svg
@@ -377,14 +377,14 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-bold">R$ {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.valor.toFixed(2)}</div>
-                                    <p className="text-xs text-muted-foreground">
+                                    <div className="md:text-2xl font-bold text-yellow-400">R$ {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.valor.toFixed(2)}</div>
+                                    <p className="text-xs text-white">
                                         Dia: {dashboardData?.diaMaiorFaturamento?.menorFaturamento?.dia}
                                     </p>
                                 </CardContent>
@@ -394,7 +394,7 @@ const Dashboard: React.FC = () => {
                         <div className='md:flex md:flex-row md:gap-x-4 space-y-2 md:space-y-0'>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         TOP 5 Serviços
                                     </CardTitle>
                                     <svg
@@ -405,18 +405,18 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-semibold">
+                                    <div className="md:text-2xl font-semibold text-yellow-400">
                                         <ul>
                                             {dashboardData?.servicosMaisPrestados.map((item, index) => (
                                                 <li key={index}>
                                                     {item.quantidade} vezes
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-white">
                                                         {item.servico}
                                                     </p>
                                                 </li>
@@ -427,7 +427,7 @@ const Dashboard: React.FC = () => {
                             </Card>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         Pagamento Colaboradores
                                     </CardTitle>
                                     <svg
@@ -438,18 +438,18 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-semibold">
+                                    <div className="md:text-2xl font-semibold text-yellow-400">
                                         <ul>
                                             {dashboardData?.totalPagamentoFuncionarios.map((funcionario, index) => (
                                                 <li key={index}>
                                                     R$ {funcionario.totalPagar.toFixed(2)}
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-white">
                                                         {funcionario.nome}
                                                     </p>
                                                 </li>
@@ -460,7 +460,7 @@ const Dashboard: React.FC = () => {
                             </Card>
                             <Card className='min-w-[240px]'>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">
+                                    <CardTitle className="text-sm font-medium text-white">
                                         TOP 5 Modelos Frequentes
                                     </CardTitle>
                                     <svg
@@ -471,18 +471,18 @@ const Dashboard: React.FC = () => {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        className="h-4 w-4 text-muted-foreground"
+                                        className="h-4 w-4 text-yellow-400"
                                     >
                                         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                                     </svg>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="md:text-2xl font-semibold">
+                                    <div className="md:text-2xl font-semibold text-yellow-400">
                                         <ul>
                                             {dashboardData?.modeloMaisLavado.map((carro, index) => (
                                                 <li key={index}>
                                                     {carro.quantidade} vezes
-                                                    <p className="text-xs text-muted-foreground">
+                                                    <p className="text-xs text-white">
                                                         {carro.modelo}
                                                     </p>
                                                 </li>
