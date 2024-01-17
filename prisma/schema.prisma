@@ -11,22 +11,120 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Service {
+  id          String   @id @default(cuid())
+  description String
+  name        String   @unique
+  costPrice   Decimal
+  salePrice   Decimal
+  createAt    DateTime
+}
+
+model Sale {
+  id                String        @id @default(cuid())
+  price             Decimal
+  createAt          DateTime
+  isDeferredPayment Boolean       @default(false)
+  paymentDate       DateTime
+  note              String?
+  items             ItemSale[]
+  paymentMethodId   String
+  paymentMethod     PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+  customerId        String
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([id, customerId])
+}
+
+model Vehicle {
+  id           String     @id @default(cuid())
+  model        String
+  licensePlate String     @unique
+  customerId   String
+  customer     Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  itemSales    ItemSale[]
+
+  @@unique([id, customerId])
+}
+
+model ItemSale {
+  id        String   @id @default(cuid())
+  productId String?
+  serviceId String?
+  isGift    Boolean  @default(false)
+  saleId    String
+  vehicleId String?
+  vechicle  Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model PaymentMethod {
+  id          String   @id @default(cuid())
+  description String
+  createAt    DateTime
+  sales       Sale[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  costPrice   Decimal
+  salePrice   Decimal
+  createAt    DateTime
+  supplierId  String
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+}
+
+model Supplier {
+  id       String    @id @default(cuid())
+  name     String
+  document String    @unique
+  products Product[]
+  phone    String
+}
+
+model Employee {
+  id       String  @id @default(cuid())
+  name     String
+  document String  @unique
+  nickname String?
+  gender   String
+  phone    String
+
+  @@unique([id, document])
+}
+
+model Customer {
+  id       String    @id @default(cuid())
+  name     String
+  birthday DateTime
+  nickname String?
+  gender   String
+  document String    @unique
+  phone    String
+  Sales    Sale[]
+  Vehicles Vehicle[]
+
+  @@unique([id, document])
+}
+
 enum UserRole {
   ADMIN
   USER
 }
 
 model User {
-  id                      String                 @id @default(cuid())
-  name                    String?
-  email                   String?                @unique
-  emailVerified           DateTime?
-  password                String?
-  role                    UserRole               @default(USER)
-  image                   String?
-  accounts                Account[]
-  isTwoFactorEnabled       Boolean                @default(false)
-  twoFactorConfirmation   TwoFactorConfirmation?
+  id                    String                 @id @default(cuid())
+  name                  String?
+  email                 String?                @unique
+  emailVerified         DateTime?
+  password              String?
+  role                  UserRole               @default(USER)
+  image                 String?
+  accounts              Account[]
+  isTwoFactorEnabled    Boolean                @default(false)
+  twoFactorConfirmation TwoFactorConfirmation?
 }
 
 model Account {
