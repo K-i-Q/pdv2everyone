@@ -16,7 +16,18 @@ export const services = async (values: z.infer<typeof ServicesSchema>) => {
   const existingService = await getServiceByName(name);
 
   if (existingService) {
-    return { error: "Serviço já existe com esse nome" };
+    await db.service.update({
+      where: {
+        name,
+      },
+      data: {
+        description,
+        costPrice,
+        salePrice,
+      },
+    });
+
+    return { success: "Serviço atualizado com sucesso" };
   }
 
   const createAt = new Date();
