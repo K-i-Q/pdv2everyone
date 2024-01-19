@@ -65,7 +65,7 @@ const SalesPage = () => {
     return (
         <Card className="md:w-3/4">
             <CardHeader>
-                Cadastro de Serviço
+                Venda
             </CardHeader>
             <CardContent>
                 <Form {...form}>
