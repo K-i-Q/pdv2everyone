@@ -33,7 +33,6 @@ const ServicePage = () => {
                 toast.error(data.error)
             }
             if (data?.success) {
-                toast.error(data.success)
                 setServices(data.services)
             }
         });
@@ -198,6 +197,7 @@ const ServicePage = () => {
                                                     <Input
                                                         {...field}
                                                         placeholder="R$ 50,00"
+                                                        type="number"
                                                         disabled={isPending}
                                                     />
                                                 </FormControl>
@@ -217,6 +217,7 @@ const ServicePage = () => {
                                                     <Input
                                                         {...field}
                                                         placeholder="R$ 100,00"
+                                                        type="number"
                                                         disabled={isPending}
                                                     />
                                                 </FormControl>
