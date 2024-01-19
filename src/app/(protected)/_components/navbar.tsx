@@ -28,14 +28,14 @@ export const Navbar = ({ className } : NavbarProps) => {
                         Client
                     </Link>
                 </Button>
-            </div>
+            </div>*/}
             <div className="flex gap-x-2">
-                <Button asChild variant={pathName === '/server' ? "default" : "outline"}>
-                    <Link href="/server">
-                        Server
+                <Button asChild variant={pathName === '/vehicles' ? "default" : "outline"}>
+                    <Link href="/vehicles">
+                        Veículos
                     </Link>
                 </Button>
-            </div>*/}
+            </div>
             <div className="flex gap-x-2">
                 <Button asChild variant={pathName === '/services' ? "default" : "outline"}>
                     <Link href="/services">

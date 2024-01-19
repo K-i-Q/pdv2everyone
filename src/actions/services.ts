@@ -7,16 +7,19 @@ import * as z from "zod";
 export const createUpdateServices = async (
   values: z.infer<typeof ServicesSchema>
 ) => {
+  console.log("entrou na validação");
   const validateFields = ServicesSchema.safeParse(values);
 
+  console.log("passou pelo safe parse");
   if (!validateFields.success) {
     return { error: "Campos inválidos" };
   }
 
   const { name, description, costPrice, salePrice } = validateFields.data;
-
+  console.log("buscou se existe");
   const existingService = await getServiceByName(name);
-
+  const costFloat = parseFloat(costPrice);
+  const saleFloat = parseFloat(salePrice);
   if (existingService) {
     await db.service.update({
       where: {
@@ -24,8 +27,8 @@ export const createUpdateServices = async (
       },
       data: {
         description,
-        costPrice,
-        salePrice,
+        costPrice: costFloat,
+        salePrice: saleFloat,
       },
     });
 
@@ -33,13 +36,13 @@ export const createUpdateServices = async (
   }
 
   const createAt = new Date();
-
+  console.log("criou na base");
   await db.service.create({
     data: {
       name,
       description,
-      costPrice,
-      salePrice,
+      costPrice: costFloat,
+      salePrice: saleFloat,
       createAt,
     },
   });
