@@ -69,7 +69,6 @@ export const LoginForm = () => {
     return (
         <CardWrapper
             headerLabel="Bem vindo"
-            showSocial
         >
             <Form {...form}>
                 <form

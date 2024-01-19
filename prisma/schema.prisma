@@ -15,14 +15,14 @@ model Service {
   id          String   @id @default(cuid())
   description String
   name        String   @unique
-  costPrice   Decimal
-  salePrice   Decimal
+  costPrice   Float
+  salePrice   Float
   createAt    DateTime
 }
 
 model Sale {
   id                String        @id @default(cuid())
-  price             Decimal
+  price             Float
   createAt          DateTime
   isDeferredPayment Boolean       @default(false)
   paymentDate       DateTime
@@ -30,18 +30,16 @@ model Sale {
   items             ItemSale[]
   paymentMethodId   String
   paymentMethod     PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
-  customerId        String
-  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-
-  @@unique([id, customerId])
+  customerId        String?
+  customer          Customer?      @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model Vehicle {
   id           String     @id @default(cuid())
   model        String
   licensePlate String     @unique
-  customerId   String
-  customer     Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId   String?
+  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: Cascade)
   itemSales    ItemSale[]
 
   @@unique([id, customerId])
@@ -69,17 +67,17 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   description String
-  costPrice   Decimal
-  salePrice   Decimal
+  costPrice   Float
+  salePrice   Float
   createAt    DateTime
-  supplierId  String
-  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  supplierId  String?
+  supplier    Supplier? @relation(fields: [supplierId], references: [id])
 }
 
 model Supplier {
   id       String    @id @default(cuid())
   name     String
-  document String    @unique
+  document String?    @unique
   products Product[]
   phone    String
 }
@@ -97,12 +95,12 @@ model Employee {
 
 model Customer {
   id       String    @id @default(cuid())
-  name     String
+  name     String?
   birthday DateTime
   nickname String?
-  gender   String
+  gender   String?
   document String    @unique
-  phone    String
+  phone    String?
   Sales    Sale[]
   Vehicles Vehicle[]
 
