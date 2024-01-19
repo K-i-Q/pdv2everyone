@@ -1,27 +1,43 @@
 "use client"
-import { services } from "@/actions/services";
-import { FormError } from "@/components/form-error";
-import { FormSuccess } from "@/components/form-success";
+import { createUpdateServices, deleteService, getServices } from "@/actions/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCaption, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { ServicesSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Service } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { FaTrashAlt } from "react-icons/fa";
+import { toast } from "sonner";
 import * as z from "zod";
 
 const ServicePage = () => {
-    const [success, setSuccess] = useState<string | undefined>();
-    const [error, setError] = useState<string | undefined>();
     const [isListContent, setIsListContent] = useState<boolean>(true);
+    const [showModalDelete, setShowModalDelete] = useState<boolean>(true);
+    const [services, setServices] = useState<Service[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const { update } = useSession();
 
+    useEffect(() => {
+        getAllServices();
+    }, [])
+    const getAllServices = () => {
+        getServices().then((data) => {
+            if (data?.error) {
+                toast.error(data.error)
+            }
+            if (data?.success) {
+                toast.error(data.success)
+                setServices(data.services)
+            }
+        });
+    }
     const form = useForm<z.infer<typeof ServicesSchema>>({
         resolver: zodResolver(ServicesSchema),
         defaultValues: {
@@ -34,17 +50,30 @@ const ServicePage = () => {
 
     const onSubmit = (values: z.infer<typeof ServicesSchema>) => {
         startTransition(() => {
-            services(values).then((data) => {
-                setError("");
-                setSuccess("");
+            createUpdateServices(values).then((data) => {
                 if (data.error) {
-                    setError(data.error)
+                    toast.error(data.error)
                 }
                 if (data.success) {
                     update();
-                    setSuccess(data.success)
+                    toast.success(data.success);
+                    getAllServices();
                 }
-            }).catch(() => setError("Algo deu errado"))
+            }).catch(() => toast.error("Algo deu errado"))
+        })
+    }
+
+    const handleDeleteService = (serviceId: any) => {
+        startTransition(() => {
+            deleteService(serviceId).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+                if (data?.success) {
+                    toast.success(data.success);
+                    getAllServices();
+                }
+            })
         })
     }
 
@@ -52,34 +81,58 @@ const ServicePage = () => {
     return (
         <>
             <div className="w-full flex justify-end p-4">
-                <Button onClick={() => setIsListContent(!isListContent)}>Lista</Button>
+                <Button onClick={() => setIsListContent(!isListContent)}>{!isListContent ? "Lista" : "Criar/Atualizar"}</Button>
             </div>
             {isListContent && (
                 <div className="w-full h-screen flex justify-center p-5">
                     <Table className="bg-black text-white">
-                        <TableCaption>A list of your recent invoices.</TableCaption>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">Invoice</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Method</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
+                            <TableRow className="text-white">
+                                <TableHead className="w-[100px]">Nome</TableHead>
+                                <TableHead>Descrição</TableHead>
+                                <TableHead>Preço de custo</TableHead>
+                                <TableHead>Preço de Venda</TableHead>
+                                <TableHead className="text-right">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {/* {invoices.map((invoice) => ( */}
-                                <TableRow key={1}>
-                                    <TableCell className="font-medium">{'invoice.invoice'}</TableCell>
-                                    <TableCell>{'invoice.paymentStatus'}</TableCell>
-                                    <TableCell>{'invoice.paymentMethod'}</TableCell>
-                                    <TableCell className="text-right">{'invoice.totalAmount'}</TableCell>
+                            {services?.map((service) => (
+                                <TableRow key={service.id} className="group">
+                                    <TableCell>{service.name}</TableCell>
+                                    <TableCell>{service.description}</TableCell>
+                                    <TableCell>{service.costPrice.toString()}</TableCell>
+                                    <TableCell>{service.salePrice.toString()}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
+                                                    <FaTrashAlt />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-[425px]">
+                                                <DialogHeader>
+                                                    <DialogTitle>Excluir serviço</DialogTitle>
+                                                    <DialogDescription>
+                                                        Você tem certeza que deseja excluir o serviço {service.name}?
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                    <DialogClose>
+                                                        <Button disabled={isPending} variant="outline" type="button">Cancelar</Button>
+                                                    </DialogClose>
+                                                    <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Confirmar</Button>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+
+                                    </TableCell>
                                 </TableRow>
-                            {/* ))} */}
+                            ))}
                         </TableBody>
                         <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={3}>Total</TableCell>
-                                <TableCell className="text-right">$2,500.00</TableCell>
+                                <TableCell colSpan={4}>Total</TableCell>
+                                <TableCell className="text-right">{services?.length}</TableCell>
                             </TableRow>
                         </TableFooter>
                     </Table>
@@ -172,8 +225,6 @@ const ServicePage = () => {
                                         )}
                                     />
                                 </div>
-                                <FormError message={error} />
-                                <FormSuccess message={success} />
                                 <Button className="w-full" type="submit" disabled={isPending}>
                                     Salvar
                                 </Button>
