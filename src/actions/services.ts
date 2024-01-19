@@ -4,7 +4,9 @@ import { db } from "@/lib/db";
 import { ServicesSchema } from "@/schemas";
 import * as z from "zod";
 
-export const services = async (values: z.infer<typeof ServicesSchema>) => {
+export const createUpdateServices = async (
+  values: z.infer<typeof ServicesSchema>
+) => {
   const validateFields = ServicesSchema.safeParse(values);
 
   if (!validateFields.success) {
@@ -43,4 +45,34 @@ export const services = async (values: z.infer<typeof ServicesSchema>) => {
   });
 
   return { success: "Serviço criado com sucesso" };
+};
+
+export const getServices = async () => {
+  const services = await db.service.findMany();
+
+  if (!services) {
+    return { error: "Nenhum serviço cadastrado" };
+  }
+
+  return { success: "Serviços encontrados", services: services };
+};
+
+export const deleteService = async (serviceId: any) => {
+  const service = await db.service.findUnique({
+    where: {
+      id: serviceId,
+    },
+  });
+
+  if (!service) {
+    return { error: "Serviço não foi encontrado" };
+  }
+
+  await db.service.delete({
+    where: {
+      id: serviceId,
+    },
+  });
+
+  return { success: "Serviço excluído com sucesso" };
 };
