@@ -14,9 +14,9 @@ export const createUpdateServices = async (
   }
 
   const { name, description, costPrice, salePrice } = validateFields.data;
-
   const existingService = await getServiceByName(name);
-
+  const costFloat = parseFloat(costPrice);
+  const saleFloat = parseFloat(salePrice);
   if (existingService) {
     await db.service.update({
       where: {
@@ -24,8 +24,8 @@ export const createUpdateServices = async (
       },
       data: {
         description,
-        costPrice,
-        salePrice,
+        costPrice: costFloat,
+        salePrice: saleFloat,
       },
     });
 
@@ -33,13 +33,12 @@ export const createUpdateServices = async (
   }
 
   const createAt = new Date();
-
   await db.service.create({
     data: {
       name,
       description,
-      costPrice,
-      salePrice,
+      costPrice: costFloat,
+      salePrice: saleFloat,
       createAt,
     },
   });
