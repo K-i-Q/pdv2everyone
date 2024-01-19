@@ -80,11 +80,11 @@ const ServicePage = () => {
 
     return (
         <>
-            <div className="w-full flex justify-end p-4">
+            <div className="w-full h-full flex justify-end p-4">
                 <Button onClick={() => setIsListContent(!isListContent)}>{!isListContent ? "Lista" : "Criar/Atualizar"}</Button>
             </div>
             {isListContent && (
-                <div className="w-full h-screen flex justify-center p-5">
+                <div className="w-full h-full flex justify-center p-5">
                     <Table className="bg-black text-white">
                         <TableHeader>
                             <TableRow className="text-white">
@@ -117,8 +117,8 @@ const ServicePage = () => {
                                                     </DialogDescription>
                                                 </DialogHeader>
                                                 <DialogFooter>
-                                                    <DialogClose>
-                                                        <Button disabled={isPending} variant="outline" type="button">Cancelar</Button>
+                                                    <DialogClose >
+                                                        <Button className="w-full" disabled={isPending} variant="outline" type="button">Cancelar</Button>
                                                     </DialogClose>
                                                     <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Confirmar</Button>
                                                 </DialogFooter>
