@@ -1,4 +1,5 @@
 "use client"
+import { getProducts } from "@/actions/products";
 import { createSale } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SalesSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Service } from "@prisma/client";
+import { Product, Service } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -18,22 +19,11 @@ import * as z from "zod";
 
 const SalesPage = () => {
     const [services, setServices] = useState<Service[] | undefined>();
+    const [products, setProducts] = useState<Product[] | undefined>();
+    const [totalPrice, setTotalPrice] = useState<Number | undefined>();
     const [isPending, startTransition] = useTransition();
     const { update } = useSession();
 
-    useEffect(() => {
-        getAllServices();
-    }, [])
-    const getAllServices = () => {
-        getServices().then((data) => {
-            if (data?.error) {
-                toast.error(data.error)
-            }
-            if (data?.success) {
-                setServices(data.services)
-            }
-        });
-    }
     const form = useForm<z.infer<typeof SalesSchema>>({
         resolver: zodResolver(SalesSchema),
         defaultValues: {
@@ -45,9 +35,54 @@ const SalesPage = () => {
         }
     });
 
+    useEffect(() => {
+        getAllServices();
+        getAllProducts();
+    }, [])
+
+    const calculateTotalPrice = () => {
+        const selectedServices = form.getValues('services') ?? [];
+        const selectedProducts = form.getValues('products') ?? [];
+
+        const selectedServicesPrices = selectedServices.map(serviceId => {
+            const service = services?.find(service => service.id === serviceId);
+            return service?.salePrice ?? 0;
+        });
+
+        const selectedProductsPrices = selectedProducts.map(productId => {
+            const product = products?.find(product => product.id === productId);
+            return product?.salePrice ?? 0;
+        });
+
+        const total = selectedServicesPrices.reduce((acc, price) => acc + Number(price), 0) +
+            selectedProductsPrices.reduce((acc, price) => acc + Number(price), 0);
+
+        setTotalPrice(total)
+        form.setValue('price', total.toString())
+    };
+    const getAllServices = () => {
+        getServices().then((data) => {
+            if (data?.error) {
+                toast.error(data.error)
+            }
+            if (data?.success) {
+                setServices(data.services)
+            }
+        });
+    }
+    const getAllProducts = () => {
+        getProducts().then((data) => {
+            if (data?.error) {
+                toast.error(data.error)
+            }
+            if (data?.success) {
+                setProducts(data.services)
+            }
+        });
+    }
+
     const onSubmit = (values: z.infer<typeof SalesSchema>) => {
         startTransition(() => {
-            console.log('chegou aqui')
             createSale(values).then((data) => {
                 if (data.error) {
                     toast.error(data.error)
@@ -109,57 +144,134 @@ const SalesPage = () => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="services"
-                                render={() => (
-                                    <FormItem>
-                                        <div className="mb-4">
-                                            <FormLabel className="text-base">Serviços</FormLabel>
-                                            <FormDescription>
-                                                Serviços disponíveis
-                                            </FormDescription>
-                                        </div>
-                                        {services?.map((service) => (
-                                            <FormField
-                                                key={service.id}
-                                                control={form.control}
-                                                name="services"
-                                                render={({ field }) => {
-                                                    return (
-                                                        <FormItem
-                                                            key={service.id}
-                                                            className="flex flex-row items-start space-x-3 space-y-0"
-                                                        >
-                                                            <FormControl>
-                                                                <Checkbox
-                                                                    checked={field.value?.includes(service.id)}
-                                                                    onCheckedChange={(checked) => {
-                                                                        return checked
-                                                                            ? field.onChange([...field.value ?? [], service.id])
-                                                                            : field.onChange(
-                                                                                field.value?.filter(
-                                                                                    (value) => value !== service.id
+                            <div className="flex flex-row gap-x-10">
+                                <FormField
+                                    control={form.control}
+                                    name="services"
+                                    render={() => (
+                                        <FormItem>
+                                            <div className="mb-4">
+                                                <FormLabel className="text-base">Serviços</FormLabel>
+                                                <FormDescription>
+                                                    Serviços disponíveis
+                                                </FormDescription>
+                                            </div>
+                                            {services?.map((service) => (
+                                                <FormField
+                                                    key={service.id}
+                                                    control={form.control}
+                                                    name="services"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={service.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(service.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            const retorno = checked
+                                                                                ? field.onChange([...field.value ?? [], service.id])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== service.id
+                                                                                    )
                                                                                 )
-                                                                            )
-                                                                    }}
-                                                                />
-                                                            </FormControl>
-                                                            <FormLabel className="text-sm font-normal">
-                                                                {service.name}
-                                                            </FormLabel>
-                                                            <FormDescription>
-                                                                {service.salePrice}
-                                                            </FormDescription>
-                                                        </FormItem>
-                                                    )
-                                                }}
-                                            />
-                                        ))}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                                                            calculateTotalPrice();
+                                                                            return retorno;
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <div className="flex justify-between w-full">
+                                                                    <FormLabel className="text-sm font-normal">
+                                                                        {service.name}
+                                                                    </FormLabel>
+                                                                    <FormDescription>
+                                                                        {service.salePrice}
+                                                                    </FormDescription>
+                                                                </div>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="products"
+                                    render={() => (
+                                        <FormItem>
+                                            <div className="mb-4">
+                                                <FormLabel className="text-base">Produtos</FormLabel>
+                                                <FormDescription>
+                                                    Produtos disponíveis
+                                                </FormDescription>
+                                            </div>
+                                            {products?.map((product) => (
+                                                <FormField
+                                                    key={product.id}
+                                                    control={form.control}
+                                                    name="products"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={product.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(product.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            const retorno = checked
+                                                                                ? field.onChange([...field.value ?? [], product.id])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== product.id
+                                                                                    )
+                                                                                )
+                                                                            calculateTotalPrice();
+                                                                            return retorno;
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <div className="flex justify-between w-full">
+                                                                    <FormLabel className="text-sm font-normal">
+                                                                        {product.name}
+                                                                    </FormLabel>
+                                                                    <FormDescription>
+                                                                        {product.salePrice}
+                                                                    </FormDescription>
+                                                                </div>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="price"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Total
+                                            </FormLabel>
+                                            <div>
+                                                {totalPrice?.toString()}
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
                         </div>
                         <Button className="w-full" type="submit" disabled={isPending}>
                             Salvar

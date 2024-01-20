@@ -4,17 +4,9 @@ import * as z from "zod";
 export const SalesSchema = z.object({
   licensePlate: z.optional(z.string({ required_error: "Campo obrigatório" })),
   model: z.optional(z.string({ required_error: "Campo obrigatório" })),
-  services: z.optional(
-    z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    })
-  ),
-  price: z.string({ required_error: "Campo obrigatório" }),
-  products: z.optional(
-    z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: "You have to select at least one item.",
-    })
-  ),
+  services: z.optional(z.array(z.string())),
+  price: z.optional(z.string({ required_error: "Campo obrigatório" })),
+  products: z.optional(z.array(z.string())),
 });
 
 export const ServicesSchema = z.object({
