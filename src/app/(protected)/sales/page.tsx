@@ -30,7 +30,9 @@ const SalesPage = () => {
             model: undefined,
             services: [],
             price: undefined,
-            products: []
+            note: undefined,
+            products: [],
+            isDeferredPayment: false
         }
     });
 
@@ -101,9 +103,11 @@ const SalesPage = () => {
         reset({
             licensePlate: '',
             model: '',
+            note: '',
             services: [],
             price: '0',
-            products: []
+            products: [],
+            isDeferredPayment: false
         });
         setTotalPrice(0)
     }
@@ -116,7 +120,6 @@ const SalesPage = () => {
             </CardHeader>
             <CardContent>
                 <ScrollArea className="h-[500px] md:h-full w-full pr-4">
-
                     <Form {...form}>
                         <form className="space-y-3 mb-10" onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="space-y-2">
@@ -148,9 +151,28 @@ const SalesPage = () => {
                                                 Modelo
                                             </FormLabel>
                                             <FormControl>
-                                                <Textarea
+                                                <Input
                                                     {...field}
                                                     placeholder="BMW"
+                                                    disabled={isPending}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="note"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>
+                                                Observações
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    {...field}
+                                                    placeholder="Cliente gostou do atendimento"
                                                     disabled={isPending}
                                                 />
                                             </FormControl>
@@ -271,6 +293,28 @@ const SalesPage = () => {
                                     />
                                     <FormField
                                         control={form.control}
+                                        name="isDeferredPayment"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel>
+                                                        À receber
+                                                    </FormLabel>
+                                                    <FormDescription>
+                                                        Cliente irá pagar depois
+                                                    </FormDescription>
+                                                </div>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
                                         name="price"
                                         render={({ field }) => (
                                             <FormItem>
@@ -285,7 +329,6 @@ const SalesPage = () => {
                                         )}
                                     />
                                 </div>
-
                             </div>
                             <Button className="w-full" type="submit" disabled={isPending}>
                                 Salvar

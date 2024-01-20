@@ -7,6 +7,8 @@ export const SalesSchema = z.object({
   services: z.optional(z.array(z.string())),
   price: z.optional(z.string({ required_error: "Campo obrigatório" })),
   products: z.optional(z.array(z.string())),
+  note: z.optional(z.string()),
+  isDeferredPayment: z.boolean()
 });
 
 export const ServicesSchema = z.object({
