@@ -33,15 +33,15 @@ export const createUpdateServices = async (
   }
 
   const createAt = new Date();
-  await db.service.create({
-    data: {
-      name,
-      description,
-      costPrice: costFloat,
-      salePrice: saleFloat,
-      createAt,
-    },
-  });
+  // await db.service.create({
+  //   data: {
+  //     name,
+  //     description,
+  //     costPrice: costFloat,
+  //     salePrice: saleFloat,
+  //     createAt,
+  //   },
+  // });
 
   return { success: "Serviço criado com sucesso" };
 };
