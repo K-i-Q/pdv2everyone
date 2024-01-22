@@ -11,6 +11,40 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Store {
+  id           String          @id @default(cuid())
+  name         String
+  address      String
+  createAt     DateTime
+  status       Boolean
+  CashRegister CashRegister[]
+  userId       String?
+  User         User?           @relation
+  Employees    EmployeeStore[]
+  Revenues     Revenue[]
+}
+
+model EmployeeStore {
+  employeeId String
+  storeId    String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  store      Store    @relation(fields: [storeId], references: [id])
+  isPrimary  Boolean  @default(false)
+
+  @@id([employeeId, storeId])
+}
+
+model CashRegister {
+  id           String   @id @default(cuid())
+  initialValue Float
+  finalValue   Float?
+  createAt     DateTime
+  storeId      String   @unique
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([id, storeId])
+}
+
 model Service {
   id          String   @id @default(cuid())
   description String
@@ -18,20 +52,91 @@ model Service {
   costPrice   Float
   salePrice   Float
   createAt    DateTime
+  status      Boolean
 }
 
 model Sale {
-  id                String        @id @default(cuid())
-  price             Float
+  id                String              @id @default(cuid())
+  grossPrice        Float
+  netPrice          Float
+  discount          Float?
   createAt          DateTime
-  isDeferredPayment Boolean       @default(false)
-  paymentDate       DateTime
+  isDeferredPayment Boolean             @default(false)
+  deferredPayments  DeferredPayment[]
   note              String?
   items             ItemSale[]
-  paymentMethodId   String
-  paymentMethod     PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
-  customerId        String?
-  customer          Customer?      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  employees         EmployeeSale[]
+  salePayments      SalePaymentMethod[]
+  customerId        String
+  customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model DeferredPayment {
+  id       String   @id @default(cuid())
+  amount   Float // Valor a ser pago
+  dueDate  DateTime // Data de vencimento do pagamento
+  paid     Boolean  @default(false)
+  forgiven Boolean  @default(false)
+  saleId   String
+  sale     Sale     @relation(fields: [saleId], references: [id])
+}
+
+model SalePaymentMethod {
+  saleId          String
+  paymentMethodId String
+  amount          Float // Valor pago por este método de pagamento
+  sale            Sale          @relation(fields: [saleId], references: [id])
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+
+  @@id([saleId, paymentMethodId])
+}
+
+model EmployeeSale {
+  employeeId String
+  saleId     String
+  commission Float
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  sale       Sale     @relation(fields: [saleId], references: [id])
+
+  @@id([employeeId, saleId])
+}
+
+model ExpenseType {
+  id       String    @id @default(cuid())
+  name     String // Ex: Manutenção, Cliente, Aluguel, Dívida perdoada, etc.
+  expenses Expense[]
+}
+
+model Expense {
+  id                  String      @id @default(cuid())
+  amount              Float // Valor da despesa
+  description         String
+  createAt            DateTime
+  dueDate             DateTime? // Data de vencimento da despesa
+  isRecurring         Boolean     @default(false) // Indica se a despesa é recorrente
+  recurrenceFrequency String? // Frequência da recorrência (por exemplo, 'mensal', 'anual', etc.)
+  nextDueDate         DateTime? // Próxima data de vencimento para despesas recorrentes
+  isActive            Boolean     @default(true) // Indica se a despesa recorrente está ativa
+  expenseType         ExpenseType @relation(fields: [expenseTypeId], references: [id])
+  expenseTypeId       String
+}
+
+model Revenue {
+  id                String   @id @default(cuid())
+  createAt          DateTime
+  totalSales        Float
+  totalExpenses     Float
+  serviceRevenue    Float // Receita de serviços
+  productRevenue    Float // Receita de produtos
+  laborCosts        Float // Custos de mão de obra
+  materialCosts     Float // Custos de materiais/suprimentos
+  equipmentCosts    Float // Custos com equipamentos
+  adminExpenses     Float // Despesas administrativas
+  marketingExpenses Float // Despesas de marketing
+  serviceCount      Int // Número de serviços realizados
+  averageTicket     Float // Ticket médio
+  storeId           String
+  store             Store    @relation(fields: [storeId], references: [id])
 }
 
 model Vehicle {
@@ -39,7 +144,7 @@ model Vehicle {
   model        String
   licensePlate String     @unique
   customerId   String?
-  customer     Customer?   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer     Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
   itemSales    ItemSale[]
 
   @@unique([id, customerId])
@@ -51,20 +156,22 @@ model ItemSale {
   serviceId String?
   isGift    Boolean  @default(false)
   saleId    String
+  quantity  Int
   vehicleId String?
   vechicle  Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
 
 model PaymentMethod {
-  id          String   @id @default(cuid())
-  description String
-  createAt    DateTime
-  sales       Sale[]
+  id           String              @id @default(cuid())
+  description  String
+  createAt     DateTime
+  salePayments SalePaymentMethod[]
+  status       Boolean
 }
 
 model Product {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String
   costPrice   Float
@@ -72,44 +179,83 @@ model Product {
   createAt    DateTime
   supplierId  String?
   supplier    Supplier? @relation(fields: [supplierId], references: [id])
+  status      Boolean
 }
 
 model Supplier {
   id       String    @id @default(cuid())
   name     String
-  document String?    @unique
+  email    String?
+  document String    @unique
   products Product[]
   phone    String
 }
 
 model Employee {
-  id       String  @id @default(cuid())
-  name     String
-  document String  @unique
-  nickname String?
-  gender   String
-  phone    String
+  id         String          @id @default(cuid())
+  name       String
+  document   String          @unique
+  nickname   String?
+  gender     String
+  phone      String
+  createAt   DateTime
+  birthday   DateTime
+  status     Boolean
+  commission Float
+  stores     EmployeeStore[]
+  sales      EmployeeSale[]
+  salaries   Salary[]
+  advances   Advance[]
+  user       User?           @relation
 
   @@unique([id, document])
 }
 
+model Salary {
+  id         String   @id @default(cuid())
+  amount     Float // Valor do salário do dia
+  createAt   DateTime // Data do salário
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Advance {
+  id         String   @id @default(cuid())
+  amount     Float // Valor do adiantamento
+  createAt   DateTime // Data do adiantamento
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+}
+
 model Customer {
-  id       String    @id @default(cuid())
-  name     String?
+  id       String           @id @default(cuid())
+  name     String
   birthday DateTime
   nickname String?
   gender   String?
-  document String    @unique
-  phone    String?
+  document String           @unique
+  phone    String
   Sales    Sale[]
+  credits  CustomerCredit[]
   Vehicles Vehicle[]
 
   @@unique([id, document])
 }
 
-enum UserRole {
-  ADMIN
-  USER
+model CustomerCredit {
+  id         String   @id @default(cuid())
+  amount     Float // Valor do crédito
+  createAt   DateTime // Data de criação do crédito
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
+
+model Profile {
+  id       String   @id @default(cuid())
+  name     String   @unique
+  status   Boolean
+  createAt DateTime
+  users    User[]
 }
 
 model User {
@@ -118,7 +264,14 @@ model User {
   email                 String?                @unique
   emailVerified         DateTime?
   password              String?
-  role                  UserRole               @default(USER)
+  status                Boolean
+  createAt              DateTime
+  employee              Employee?              @relation(fields: [employeeId], references: [id])
+  store                 Store?                 @relation(fields: [storeId], references: [id])
+  profile               Profile?               @relation(fields: [profileId], references: [id])
+  employeeId            String?                @unique
+  storeId               String?                @unique
+  profileId             String?                @unique
   image                 String?
   accounts              Account[]
   isTwoFactorEnabled    Boolean                @default(false)
@@ -142,6 +295,14 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model TwoFactorConfirmation {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
 
 model VerificationToken {
@@ -171,13 +332,6 @@ model TwoFactorToken {
   @@unique([email, token])
 }
 
-model TwoFactorConfirmation {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId])
-}
 model Lead {
   id       String @id @default(cuid())
   name     String
