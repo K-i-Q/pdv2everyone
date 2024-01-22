@@ -178,3 +178,10 @@ model TwoFactorConfirmation {
 
   @@unique([userId])
 }
+model Lead {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  whatsapp String
+  codigo   String
+}
