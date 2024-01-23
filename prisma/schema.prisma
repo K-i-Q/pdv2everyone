@@ -333,9 +333,10 @@ model TwoFactorToken {
 }
 
 model Lead {
-  id       String @id @default(cuid())
-  name     String
-  email    String @unique
-  whatsapp String
-  codigo   String
+  id           String  @id @default(cuid())
+  name         String
+  email        String  @unique
+  whatsapp     String
+  code         String
+  isDownloaded Boolean
 }
