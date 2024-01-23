@@ -13,10 +13,11 @@ export const createUpdateServices = async (
     return { error: "Campos inválidos" };
   }
 
-  const { name, description, costPrice, salePrice } = validateFields.data;
+  const { name, description, costPrice, salePrice, status } = validateFields.data;
   const existingService = await getServiceByName(name);
   const costFloat = parseFloat(costPrice);
   const saleFloat = parseFloat(salePrice);
+  //TODO: separar create de update
   if (existingService) {
     await db.service.update({
       where: {
@@ -33,15 +34,17 @@ export const createUpdateServices = async (
   }
 
   const createAt = new Date();
-  // await db.service.create({
-  //   data: {
-  //     name,
-  //     description,
-  //     costPrice: costFloat,
-  //     salePrice: saleFloat,
-  //     createAt,
-  //   },
-  // });
+
+  await db.service.create({
+    data: {
+      name,
+      description,
+      costPrice: costFloat,
+      salePrice: saleFloat,
+      createAt,
+      status
+    },
+  });
 
   return { success: "Serviço criado com sucesso" };
 };

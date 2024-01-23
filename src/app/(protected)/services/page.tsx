@@ -2,8 +2,9 @@
 import { createUpdateServices, deleteService, getServices } from "@/actions/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +44,8 @@ const ServicePage = () => {
             name: undefined,
             description: undefined,
             costPrice: undefined,
-            salePrice: undefined
+            salePrice: undefined,
+            status: false
         }
     });
 
@@ -222,6 +224,28 @@ const ServicePage = () => {
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                                                <FormControl>
+                                                    <Checkbox
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel>
+                                                        Este serviço ficará imediatamente ativo?
+                                                    </FormLabel>
+                                                    <FormDescription>
+                                                        Se marcar essa opção ele ficará imediatamente disponível para ser usado nas vendas
+                                                    </FormDescription>
+                                                </div>
                                             </FormItem>
                                         )}
                                     />

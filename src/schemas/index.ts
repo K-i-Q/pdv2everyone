@@ -15,6 +15,7 @@ export const ServicesSchema = z.object({
   description: z.string({ required_error: "Campo obrigatório" }),
   costPrice: z.string({ required_error: "Campo obrigatório" }),
   salePrice: z.string({ required_error: "Campo obrigatório" }),
+  status: z.boolean({ required_error: "Campo obrigatório" }),
 });
 
 export const SettingsSchema = z
