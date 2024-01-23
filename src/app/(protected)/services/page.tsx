@@ -1,5 +1,5 @@
 "use client"
-import { createUpdateServices, deleteService, getServices } from "@/actions/services";
+import { createUpdateServices, deleteService, getServices, setStatusService } from "@/actions/services";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,6 +8,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ServicesSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Service } from "@prisma/client";
@@ -28,7 +29,7 @@ const ServicePage = () => {
     useEffect(() => {
         getAllServices();
     }, [])
-    const getAllServices = () => {
+    const getAllServices = (showToast: boolean = true) => {
         getServices().then((data) => {
             if (data?.error) {
                 toast.error(data.error)
@@ -78,6 +79,20 @@ const ServicePage = () => {
         })
     }
 
+    const handleAtivarStatus = (id: string) => {
+        startTransition(() => {
+            setStatusService(id).then((data) => {
+                if (data.error) {
+                    toast.error(data.error)
+                }
+                if (data.success) {
+                    toast.success(data.success);
+                    getAllServices(false);
+                }
+            }).catch(() => toast.error("Algo deu errado"))
+        })
+    }
+
 
     return (
         <>
@@ -93,6 +108,7 @@ const ServicePage = () => {
                                 <TableHead>Descrição</TableHead>
                                 <TableHead>Preço de custo</TableHead>
                                 <TableHead>Preço de Venda</TableHead>
+                                <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Ações</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -103,6 +119,41 @@ const ServicePage = () => {
                                     <TableCell>{service.description}</TableCell>
                                     <TableCell>{service.costPrice.toString()}</TableCell>
                                     <TableCell>{service.salePrice.toString()}</TableCell>
+                                    <TableCell>
+                                        {service.status && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
+                                                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z" />
+                                                            </svg>
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Ativado. Clique para desativar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+
+                                        )}
+                                        {!service.status && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-square-fill" viewBox="0 0 16 16">
+                                                                <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
+                                                            </svg>
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Desativado. Clique para ativar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-right">
                                         <Dialog>
                                             <DialogTrigger asChild>
@@ -132,7 +183,7 @@ const ServicePage = () => {
                         </TableBody>
                         <TableFooter>
                             <TableRow>
-                                <TableCell colSpan={4}>Total</TableCell>
+                                <TableCell colSpan={5}>Total</TableCell>
                                 <TableCell className="text-right">{services?.length}</TableCell>
                             </TableRow>
                         </TableFooter>

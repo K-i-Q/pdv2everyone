@@ -13,7 +13,8 @@ export const createUpdateServices = async (
     return { error: "Campos inválidos" };
   }
 
-  const { name, description, costPrice, salePrice, status } = validateFields.data;
+  const { name, description, costPrice, salePrice, status } =
+    validateFields.data;
   const existingService = await getServiceByName(name);
   const costFloat = parseFloat(costPrice);
   const saleFloat = parseFloat(salePrice);
@@ -42,7 +43,7 @@ export const createUpdateServices = async (
       costPrice: costFloat,
       salePrice: saleFloat,
       createAt,
-      status
+      status,
     },
   });
 
@@ -57,6 +58,30 @@ export const getServices = async () => {
   }
 
   return { success: "Serviços encontrados", services: services };
+};
+
+export const setStatusService = async (id: string) => {
+  if (!id) {
+    return { error: "Referência de ID faltando" };
+  }
+  const service = await db.service.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!service) {
+    return { error: "Nenhum serviço encontrado com esse ID" };
+  }
+  await db.service.update({
+    where:{
+      id
+    },
+    data:{
+      status: !service.status
+    }
+  })
+  return { success: `Serviço: ${service.name} atualizado para ${!service.status ? 'Ativado' : 'Desativado'}` };
 };
 
 export const deleteService = async (serviceId: any) => {
