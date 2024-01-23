@@ -1,6 +1,6 @@
 "use client";
 
-import { useCurrentRole } from "@/hooks/use-current-role";
+// import { useCurrentRole } from "@/hooks/use-current-role";
 
 interface RoleGateProps {
     children: React.ReactNode;
@@ -8,7 +8,7 @@ interface RoleGateProps {
 }
 
 export const RoleGate = ({ children }: RoleGateProps) => {
-    const role = useCurrentRole();
+    // const role = useCurrentRole();
     // if (role !== allowedRole) {
     //     return (
     //         <FormError message="Você não tem permissão para ver esse conteúdo" />
