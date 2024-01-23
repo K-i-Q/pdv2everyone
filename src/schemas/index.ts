@@ -11,6 +11,7 @@ export const SalesSchema = z.object({
 });
 
 export const ServicesSchema = z.object({
+  id: z.optional(z.string({ required_error: "Campo obrigatório" })),
   name: z.string({ required_error: "Campo obrigatório" }),
   description: z.string({ required_error: "Campo obrigatório" }),
   costPrice: z.string({ required_error: "Campo obrigatório" }),
