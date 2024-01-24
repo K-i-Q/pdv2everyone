@@ -91,6 +91,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 placeholder="COMPLETO"
                                                 disabled={isPending}
                                                 autoComplete="off"
+                                                maxLength={50}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -110,6 +111,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 {...field}
                                                 placeholder="Lavagem externa e interna"
                                                 disabled={isPending}
+                                                maxLength={150}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -131,6 +133,12 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 type="number"
                                                 disabled={isPending}
                                                 autoComplete="off"
+                                                onChange={(e) => {
+                                                    if (e.target.value.length > 6) {
+                                                        e.target.value = e.target.value.slice(0, 6);
+                                                    }
+                                                    field.onChange(e);
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -152,6 +160,12 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 type="number"
                                                 disabled={isPending}
                                                 autoComplete="off"
+                                                onChange={(e) => {
+                                                    if (e.target.value.length > 6) {
+                                                        e.target.value = e.target.value.slice(0, 6);
+                                                    }
+                                                    field.onChange(e);
+                                                }}
                                             />
                                         </FormControl>
                                         <FormMessage />
