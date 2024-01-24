@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import * as z from "zod";
 
 export const SalesSchema = z.object({
@@ -12,17 +11,19 @@ export const SalesSchema = z.object({
 });
 
 export const ServicesSchema = z.object({
+  id: z.optional(z.string({ required_error: "Campo obrigatório" })),
   name: z.string({ required_error: "Campo obrigatório" }),
   description: z.string({ required_error: "Campo obrigatório" }),
   costPrice: z.string({ required_error: "Campo obrigatório" }),
   salePrice: z.string({ required_error: "Campo obrigatório" }),
+  status: z.boolean({ required_error: "Campo obrigatório" }),
 });
 
 export const SettingsSchema = z
   .object({
     name: z.optional(z.string()),
     isTwoFactorEnabled: z.optional(z.boolean()),
-    role: z.enum([UserRole.ADMIN, UserRole.USER]),
+    // role: z.enum([UserRole.ADMIN, UserRole.USER]),
     email: z.optional(z.string().email()),
     password: z.optional(z.string().min(6)),
     newPassword: z.optional(z.string().min(6)),

@@ -51,9 +51,9 @@ export const UserInfo = ({
                     <p className="text-sm font-medium">
                         Regra
                     </p>
-                    <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
+                    {/* <p className="truncate text-xs max-w-[180px] font-mono p-1 bg-slate-100 rounded-md">
                         {user?.role}
-                    </p>
+                    </p> */}
                 </div>
                 <div className="flex flex-row items-center justify-between rounded-lg
                 border p-3 shadow-sm">
