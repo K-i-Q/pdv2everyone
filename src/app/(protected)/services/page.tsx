@@ -180,7 +180,7 @@ const ServicePage = () => {
                                                             </Dialog>
                                                             <Dialog>
                                                                 <DialogTrigger asChild>
-                                                                    <div onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black py-2.5 px-4 rounded-md flex items-center justify-center shadow hover:bg-yellow-300/90 md:text-2xl">
+                                                                    <div onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black py-2.5 px-4 rounded-md flex items-center justify-center shadow hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
                                                                         <FaTrashAlt />
                                                                     </div>
                                                                 </DialogTrigger>
