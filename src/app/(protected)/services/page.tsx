@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaCheckSquare, FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { MdAddToPhotos } from "react-icons/md";
 import { toast } from "sonner";
 import { CardService } from "./_components/card-service";
@@ -92,126 +92,147 @@ const ServicePage = () => {
             {
                 services && (
                     <>
-                        <div className="w-full h-full flex justify-end p-4">
+                        {
+                            services.length > 0 && (
+                                <div className="flex flex-col-reverse md:flex-col">
+                                    <div className="w-full h-full flex justify-end p-4">
+                                        <Dialog>
+                                            <DialogClose asChild>
+                                                <div id="close-dialog-create" className="hidden">
+                                                    Close
+                                                </div>
+                                            </DialogClose>
+                                            <DialogTrigger>
+                                                <div className="text-black md:text-4xl md:py-6 md:px-14 py-3 px-4 rounded-md bg-yellow-400 flex items-center justify-center shadow hover:bg-yellow-300/90">
+                                                    <MdAddToPhotos />
+                                                </div>
+                                            </DialogTrigger>
+                                            <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                <CardService onServiceUpdate={() => handleServiceUpdate()} />
+                                            </DialogContent>
+                                        </Dialog>
+                                    </div>
+                                    <div className="w-full h-full flex justify-center p-5">
+                                        <Table className="bg-black text-white">
+                                            <TableHeader>
+                                                <TableRow className="text-white">
+                                                    <TableHead className="w-[100px]">Nome</TableHead>
+                                                    <TableHead className="hidden md:table-cell">Descrição</TableHead>
+                                                    <TableHead className="hidden md:table-cell">Preço de custo</TableHead>
+                                                    <TableHead>Preço de Venda</TableHead>
+                                                    <TableHead>Status</TableHead>
+                                                    <TableHead className="text-right">Ações</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {services?.map((service) => (
+                                                    <TableRow key={service.id} className="group">
+                                                        <TableCell>{service.name}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{service.description}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{service.costPrice.toString()}</TableCell>
+                                                        <TableCell>{service.salePrice.toString()}</TableCell>
+                                                        <TableCell>
+                                                            {service.status && (
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div onClick={() => handleAtivarStatus(service.id)} className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
+                                                                                <FaCheckSquare />
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Ativado. Clique para desativar</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+
+                                                            )}
+                                                            {!service.status && (
+                                                                <TooltipProvider>
+                                                                    <Tooltip>
+                                                                        <TooltipTrigger asChild>
+                                                                            <div onClick={() => handleAtivarStatus(service.id)} className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
+                                                                                <FaTimes />
+                                                                            </div>
+                                                                        </TooltipTrigger>
+                                                                        <TooltipContent>
+                                                                            <p>Desativado. Clique para ativar</p>
+                                                                        </TooltipContent>
+                                                                    </Tooltip>
+                                                                </TooltipProvider>
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell className="text-right space-x-2 flex flex-row">
+                                                            <Dialog>
+                                                                <DialogClose asChild>
+                                                                    <div id="close-dialog-update" className="hidden">
+                                                                        Close
+                                                                    </div>
+                                                                </DialogClose>
+                                                                <DialogTrigger>
+                                                                    <div className="bg-transparent text-yellow-400 group-hover:text-black py-2.5 px-4 rounded-md flex items-center justify-center shadow hover:bg-yellow-300/90 md:text-2xl">
+                                                                        <FaEdit />
+                                                                    </div>
+                                                                </DialogTrigger>
+                                                                <DialogContent className="p-0 w-ful bg-transparent boder-none">
+                                                                    <CardService service={service} onServiceUpdate={() => handleServiceUpdate()} />
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                            <Dialog>
+                                                                <DialogTrigger asChild>
+                                                                    <div onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black py-2.5 px-4 rounded-md flex items-center justify-center shadow hover:bg-yellow-300/90 md:text-2xl">
+                                                                        <FaTrashAlt />
+                                                                    </div>
+                                                                </DialogTrigger>
+                                                                <DialogContent className="sm:max-w-[425px]">
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Excluir serviço</DialogTitle>
+                                                                        <DialogDescription>
+                                                                            Você tem certeza que deseja excluir o serviço {service.name}?
+                                                                        </DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <DialogFooter>
+                                                                        <DialogClose className="border-none">
+                                                                            <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
+                                                                        </DialogClose>
+                                                                        <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
+                                                                    </DialogFooter>
+                                                                </DialogContent>
+                                                            </Dialog>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                            <TableFooter>
+                                                <TableRow>
+                                                    <TableCell colSpan={colSpan}>Total</TableCell>
+                                                    <TableCell className="text-right">{services?.length}</TableCell>
+                                                </TableRow>
+                                            </TableFooter>
+                                        </Table>
+                                    </div>
+                                </div>
+                            )
+                        }
+                        {!(services.length > 0) && (
                             <Dialog>
                                 <DialogClose asChild>
-                                    <Button type="button" id="close-dialog-create" className="hidden">
+                                    <div id="close-dialog-create" className="hidden">
                                         Close
-                                    </Button>
+                                    </div>
                                 </DialogClose>
                                 <DialogTrigger>
-                                    <Button type="button">
+                                    <div className="text-black md:text-4xl md:py-6 md:px-14 py-3 px-4 rounded-md bg-yellow-400 flex flex-col items-center justify-center shadow hover:bg-yellow-300/90">
                                         <MdAddToPhotos />
-                                    </Button>
+                                        Adicionar Serviço
+                                    </div>
                                 </DialogTrigger>
                                 <DialogContent className="p-0 w-full bg-transparent boder-none">
-                                    <CardService onServiceUpdate={handleServiceUpdate} />
+                                    <CardService onServiceUpdate={() => handleServiceUpdate()} />
                                 </DialogContent>
                             </Dialog>
-                        </div>
-                        <div className="w-full h-full flex justify-center p-5">
-                            <Table className="bg-black text-white">
-                                <TableHeader>
-                                    <TableRow className="text-white">
-                                        <TableHead className="w-[100px]">Nome</TableHead>
-                                        <TableHead className="hidden md:table-cell">Descrição</TableHead>
-                                        <TableHead className="hidden md:table-cell">Preço de custo</TableHead>
-                                        <TableHead>Preço de Venda</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Ações</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {services?.map((service) => (
-                                        <TableRow key={service.id} className="group">
-                                            <TableCell>{service.name}</TableCell>
-                                            <TableCell className="hidden md:table-cell">{service.description}</TableCell>
-                                            <TableCell className="hidden md:table-cell">{service.costPrice.toString()}</TableCell>
-                                            <TableCell>{service.salePrice.toString()}</TableCell>
-                                            <TableCell>
-                                                {service.status && (
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
-                                                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z" />
-                                                                    </svg>
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>Ativado. Clique para desativar</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-
-                                                )}
-                                                {!service.status && (
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
-                                                                    </svg>
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>Desativado. Clique para ativar</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Dialog>
-                                                    <DialogClose asChild>
-                                                        <Button type="button" id="close-dialog-update" className="hidden">
-                                                            Close
-                                                        </Button>
-                                                    </DialogClose>
-                                                    <DialogTrigger>
-                                                        <Button className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                            <FaEdit />
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="p-0 w-ful bg-transparent boder-none">
-                                                        <CardService service={service} onServiceUpdate={handleServiceUpdate} />
-                                                    </DialogContent>
-                                                </Dialog>
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                            <FaTrashAlt />
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[425px]">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Excluir serviço</DialogTitle>
-                                                            <DialogDescription>
-                                                                Você tem certeza que deseja excluir o serviço {service.name}?
-                                                            </DialogDescription>
-                                                        </DialogHeader>
-                                                        <DialogFooter>
-                                                            <DialogClose >
-                                                                <Button className="w-full" disabled={isPending} variant="outline" type="button">Cancelar</Button>
-                                                            </DialogClose>
-                                                            <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                                <TableFooter>
-                                    <TableRow>
-                                        <TableCell colSpan={colSpan}>Total</TableCell>
-                                        <TableCell className="text-right">{services?.length}</TableCell>
-                                    </TableRow>
-                                </TableFooter>
-                            </Table>
-                        </div>
+                        )
+                        }
                     </>
                 )}
             {
