@@ -24,16 +24,16 @@ export const createSale = async (values: z.infer<typeof SalesSchema>) => {
   }
 
   const createAt = new Date();
-  await db.sale.create({
-    data: {
-      paymentDate: createAt,
-      createAt,
-      price: priceFloat,
-      paymentMethodId: paymentMethod.id,
-      note,
-      isDeferredPayment
-    },
-  });
+  // await db.sale.create({
+  //   data: {
+  //     paymentDate: createAt,
+  //     createAt,
+  //     price: priceFloat,
+  //     paymentMethodId: paymentMethod.id,
+  //     note,
+  //     isDeferredPayment
+  //   },
+  // });
 
   return { success: "Venda concluída com sucesso" };
 };

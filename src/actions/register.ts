@@ -1,10 +1,10 @@
 "use server";
 import { getUserByEmail } from "@/data/user";
-import { db } from "@/lib/db";
 import { RegisterSchema } from "@/schemas";
 import bcrypt from "bcryptjs";
 import * as z from "zod";
 
+import { db } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 
@@ -23,11 +23,14 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
       error: "Email já está sendo utilizado",
     };
   }
+  const createAt = new Date();
   await db.user.create({
     data: {
       name,
       email,
       password: hashedPassword,
+      status: false,
+      createAt,
     },
   });
 

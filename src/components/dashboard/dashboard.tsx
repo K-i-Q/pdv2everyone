@@ -44,8 +44,6 @@ type FuncionarioTotal = {
     totalPagar: number;
 };
 
-// Simulando a leitura dos dados da planilha processados anteriormente
-
 const Dashboard: React.FC = () => {
     const [dashboardData, setDashboardData] = useState<DashboardData | undefined>();
 
