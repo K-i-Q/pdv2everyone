@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
-import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import { FaCheckSquare, FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { MdAddToPhotos } from "react-icons/md";
 import { toast } from "sonner";
 import { CardService } from "./_components/card-service";
@@ -91,7 +91,7 @@ const ServicePage = () => {
         <>
             {
                 services && (
-                    <>
+                    <div className="flex flex-col-reverse md:flex-col">
                         <div className="w-full h-full flex justify-end p-4">
                             <Dialog>
                                 <DialogClose asChild>
@@ -100,9 +100,9 @@ const ServicePage = () => {
                                     </Button>
                                 </DialogClose>
                                 <DialogTrigger>
-                                    <Button type="button">
+                                    <div className="text-black md:text-4xl md:py-6 md:px-14 py-3 px-4 rounded-md bg-yellow-400 flex items-center justify-center shadow hover:bg-yellow-300/90">
                                         <MdAddToPhotos />
-                                    </Button>
+                                    </div>
                                 </DialogTrigger>
                                 <DialogContent className="p-0 w-full bg-transparent boder-none">
                                     <CardService onServiceUpdate={handleServiceUpdate} />
@@ -133,10 +133,8 @@ const ServicePage = () => {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square-fill" viewBox="0 0 16 16">
-                                                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm10.03 4.97a.75.75 0 0 1 .011 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.75.75 0 0 1 1.08-.022z" />
-                                                                    </svg>
+                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black md:text-2xl" type="button">
+                                                                    <FaCheckSquare />
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
@@ -150,10 +148,8 @@ const ServicePage = () => {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-square-fill" viewBox="0 0 16 16">
-                                                                        <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm3.354 4.646L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 1 1 .708-.708" />
-                                                                    </svg>
+                                                                <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} className="bg-transparent text-yellow-400 group-hover:text-black md:text-2xl" type="button">
+                                                                    <FaTimes />
                                                                 </Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
@@ -163,7 +159,7 @@ const ServicePage = () => {
                                                     </TooltipProvider>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className="text-right space-x-2">
                                                 <Dialog>
                                                     <DialogClose asChild>
                                                         <Button type="button" id="close-dialog-update" className="hidden">
@@ -171,9 +167,9 @@ const ServicePage = () => {
                                                         </Button>
                                                     </DialogClose>
                                                     <DialogTrigger>
-                                                        <Button className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
+                                                        <div className="bg-transparent text-yellow-400 group-hover:text-black py-2.5 px-4 rounded-md flex items-center justify-center shadow hover:bg-yellow-300/90 md:text-2xl">
                                                             <FaEdit />
-                                                        </Button>
+                                                        </div>
                                                     </DialogTrigger>
                                                     <DialogContent className="p-0 w-ful bg-transparent boder-none">
                                                         <CardService service={service} onServiceUpdate={handleServiceUpdate} />
@@ -181,7 +177,7 @@ const ServicePage = () => {
                                                 </Dialog>
                                                 <Dialog>
                                                     <DialogTrigger asChild>
-                                                        <Button onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black" type="button">
+                                                        <Button onClick={() => setShowModalDelete(true)} className="bg-transparent text-yellow-400 group-hover:text-black md:text-2xl" type="button">
                                                             <FaTrashAlt />
                                                         </Button>
                                                     </DialogTrigger>
@@ -212,7 +208,7 @@ const ServicePage = () => {
                                 </TableFooter>
                             </Table>
                         </div>
-                    </>
+                    </div>
                 )}
             {
                 !services && (

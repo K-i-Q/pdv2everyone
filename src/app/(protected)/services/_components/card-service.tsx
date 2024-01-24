@@ -27,11 +27,11 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
     const form = useForm<z.infer<typeof ServicesSchema>>({
         resolver: zodResolver(ServicesSchema),
         defaultValues: {
-            id: service?.id || undefined,
-            name: service?.name || undefined,
-            description: service?.description || undefined,
-            costPrice: service?.costPrice.toString() || undefined,
-            salePrice: service?.salePrice.toString() || undefined,
+            id: service?.id || '',
+            name: service?.name || '',
+            description: service?.description || '',
+            costPrice: service?.costPrice.toString() || '',
+            salePrice: service?.salePrice.toString() || '',
             status: service?.status || false
         }
     });
@@ -90,6 +90,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 {...field}
                                                 placeholder="COMPLETO"
                                                 disabled={isPending}
+                                                autoComplete="off"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -129,6 +130,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 placeholder="R$ 50,00"
                                                 type="number"
                                                 disabled={isPending}
+                                                autoComplete="off"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -149,6 +151,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                                 placeholder="R$ 100,00"
                                                 type="number"
                                                 disabled={isPending}
+                                                autoComplete="off"
                                             />
                                         </FormControl>
                                         <FormMessage />
