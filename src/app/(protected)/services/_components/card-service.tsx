@@ -18,9 +18,9 @@ import * as z from "zod";
 
 interface CardServiceProps {
     service?: Service | undefined;
-    onServiceUpdate?: () => void;
+    onServiceUpdate: () => void;
 }
-export const CardService = ({ service }: CardServiceProps) => {
+export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
     const [isPending, startTransition] = useTransition();
     const { update } = useSession();
 
@@ -47,7 +47,9 @@ export const CardService = ({ service }: CardServiceProps) => {
                         update();
                         toast.success(data.success);
                     }
-                }).catch(() => toast.error("Algo deu errado"))
+                }).catch(() => toast.error("Algo deu errado")).finally(() => {
+                    onServiceUpdate();
+                })
             } else {
                 createService(values).then((data) => {
                     if (data.error) {
@@ -57,7 +59,9 @@ export const CardService = ({ service }: CardServiceProps) => {
                         update();
                         toast.success(data.success);
                     }
-                }).catch(() => toast.error("Algo deu errado"))
+                }).catch(() => toast.error("Algo deu errado")).finally(() => {
+                    onServiceUpdate();
+                })
             }
 
         })
@@ -176,6 +180,9 @@ export const CardService = ({ service }: CardServiceProps) => {
                         </div>
                         <Button className="w-full" type="submit" disabled={isPending}>
                             Salvar
+                        </Button>
+                        <Button className="w-full" onClick={onServiceUpdate} variant="outline" type="button" disabled={isPending}>
+                            Cancelar
                         </Button>
                     </form>
                 </Form>
