@@ -6,12 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { SettingsSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -30,7 +28,7 @@ const SettingsPage = () => {
             email: user?.email || undefined,
             password: undefined,
             newPassword: undefined,
-            role: user?.role || undefined,
+            // role: user?.role || undefined,
             isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
         }
     });
@@ -147,7 +145,7 @@ const SettingsPage = () => {
                                 </>
                             )
                             }
-                            <FormField
+                            {/* <FormField
                                 control={form.control}
                                 name="role"
                                 render={({ field }) => (
@@ -173,7 +171,7 @@ const SettingsPage = () => {
                                         <FormMessage />
                                     </FormItem>
                                 )}
-                            />
+                            /> */}
                             {user?.isOAth === false && (
                                 <FormField
                                     control={form.control}
