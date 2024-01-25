@@ -133,42 +133,40 @@ const ServicePage = () => {
                                                         <TableCell className="hidden md:table-cell">{service.costPrice.toString()}</TableCell>
                                                         <TableCell>{service.salePrice.toString()}</TableCell>
                                                         <TableCell>
-                                                            <>
-                                                                <Dialog>
-                                                                    <DialogTrigger asChild>
-                                                                        <div className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
-                                                                            {service.status && (
-                                                                                <FaCheckSquare />
-                                                                            )}
-                                                                            {!service.status && (
-                                                                                <FaTimes />
-                                                                            )}
+                                                            <Dialog>
+                                                                <DialogTrigger asChild>
+                                                                    <div className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
+                                                                        {service.status && (
+                                                                            <FaCheckSquare />
+                                                                        )}
+                                                                        {!service.status && (
+                                                                            <FaTimes />
+                                                                        )}
+                                                                    </div>
+                                                                </DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogClose asChild>
+                                                                        <div id="close-dialog-activate" className="hidden">
+                                                                            Close
                                                                         </div>
-                                                                    </DialogTrigger>
-                                                                    <DialogContent className="sm:max-w-[425px]">
-                                                                        <DialogClose asChild>
-                                                                            <div id="close-dialog-activate" className="hidden">
-                                                                                Close
-                                                                            </div>
+                                                                    </DialogClose>
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Confirmar</DialogTitle>
+                                                                        <DialogDescription>
+                                                                            {service.status ? 'Desativar' : 'Ativar'}
+                                                                        </DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <div>
+                                                                        {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
+                                                                    </div>
+                                                                    <DialogFooter className="gap-y-3">
+                                                                        <DialogClose className="border-none">
+                                                                            <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
                                                                         </DialogClose>
-                                                                        <DialogHeader>
-                                                                            <DialogTitle>Confirmar</DialogTitle>
-                                                                            <DialogDescription>
-                                                                                {service.status ? 'Desativar' : 'Ativar'}
-                                                                            </DialogDescription>
-                                                                        </DialogHeader>
-                                                                        <div>
-                                                                            {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}
-                                                                        </div>
-                                                                        <DialogFooter>
-                                                                            <DialogClose className="border-none">
-                                                                                <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
-                                                                            </DialogClose>
-                                                                            <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} type="button">Confirmar</Button>
-                                                                        </DialogFooter>
-                                                                    </DialogContent>
-                                                                </Dialog>
-                                                            </>
+                                                                        <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} type="button">Confirmar</Button>
+                                                                    </DialogFooter>
+                                                                </DialogContent>
+                                                            </Dialog>
                                                         </TableCell>
                                                         <TableCell className="text-right space-x-2 flex flex-row">
                                                             <Dialog>
@@ -192,7 +190,7 @@ const ServicePage = () => {
                                                                         <FaTrashAlt />
                                                                     </div>
                                                                 </DialogTrigger>
-                                                                <DialogContent className="sm:max-w-[425px]">
+                                                                <DialogContent>
                                                                     <DialogHeader>
                                                                         <DialogTitle>Confirmar</DialogTitle>
                                                                         <DialogDescription>
@@ -202,7 +200,7 @@ const ServicePage = () => {
                                                                     <div>
                                                                         Você tem certeza que deseja excluir o serviço {service.name}?
                                                                     </div>
-                                                                    <DialogFooter>
+                                                                    <DialogFooter className="gap-y-3">
                                                                         <DialogClose className="border-none">
                                                                             <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
                                                                         </DialogClose>
