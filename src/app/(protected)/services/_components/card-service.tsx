@@ -1,5 +1,6 @@
 "use client"
 import { createService, updateService } from "@/actions/services";
+import MoneyInput from "@/components/custom/MoneyInput";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -118,59 +119,21 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
+                            <MoneyInput
+                                form={form}
+                                label="Preço de Custo"
                                 name="costPrice"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Preço de Custo
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                {...field}
-                                                placeholder="R$ 50,00"
-                                                type="number"
-                                                disabled={isPending}
-                                                autoComplete="off"
-                                                onChange={(e) => {
-                                                    if (e.target.value.length > 6) {
-                                                        e.target.value = e.target.value.slice(0, 6);
-                                                    }
-                                                    field.onChange(e);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                placeholder="R$ 50,00"
+                                autoComlete="off"
+                                disabled={isPending}
                             />
-                            <FormField
-                                control={form.control}
+                            <MoneyInput
+                                form={form}
+                                label="Preço de Venda"
                                 name="salePrice"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>
-                                            Preço de Venda
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                {...field}
-                                                placeholder="R$ 100,00"
-                                                type="number"
-                                                disabled={isPending}
-                                                autoComplete="off"
-                                                onChange={(e) => {
-                                                    if (e.target.value.length > 6) {
-                                                        e.target.value = e.target.value.slice(0, 6);
-                                                    }
-                                                    field.onChange(e);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                placeholder="R$ 100,00"
+                                autoComlete="off"
+                                disabled={isPending}
                             />
                             <FormField
                                 control={form.control}
