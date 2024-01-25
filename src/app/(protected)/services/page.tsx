@@ -4,6 +4,7 @@ import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatPriceBRL } from "@/utils/mask";
 import { Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
 import { FaCheckSquare, FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
@@ -130,8 +131,8 @@ const ServicePage = () => {
                                                     <TableRow key={service.id} className="group">
                                                         <TableCell>{service.name}</TableCell>
                                                         <TableCell className="hidden md:table-cell">{service.description}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{service.costPrice.toString()}</TableCell>
-                                                        <TableCell>{service.salePrice.toString()}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{formatPriceBRL(service.costPrice)}</TableCell>
+                                                        <TableCell>{formatPriceBRL(service.salePrice)}</TableCell>
                                                         <TableCell>
                                                             <Dialog>
                                                                 <DialogTrigger asChild>
@@ -214,7 +215,7 @@ const ServicePage = () => {
                                             </TableBody>
                                             <TableFooter>
                                                 <TableRow>
-                                                    <TableCell colSpan={colSpan}>Total</TableCell>
+                                                    <TableCell colSpan={colSpan}>Quantidade serviços</TableCell>
                                                     <TableCell className="text-right">{services?.length}</TableCell>
                                                 </TableRow>
                                             </TableFooter>
