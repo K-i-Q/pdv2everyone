@@ -16,7 +16,6 @@ const ServicePage = () => {
     const [showModalDelete, setShowModalDelete] = useState<boolean>(true);
     const [services, setServices] = useState<Service[] | undefined>();
     const [isPending, startTransition] = useTransition();
-    const [isDialogOpen, setDialogOpen] = useState(false);
     const [colSpan, setColSpan] = useState(5);
 
     useEffect(() => {
