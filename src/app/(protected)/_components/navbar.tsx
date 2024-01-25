@@ -8,11 +8,11 @@ import { usePathname } from "next/navigation";
 interface NavbarProps {
     className?: string;
 }
-export const Navbar = ({ className } : NavbarProps) => {
+export const Navbar = ({ className }: NavbarProps) => {
     const pathName = usePathname();
 
 
-   
+
     return (
         <nav className={`bg-gray-900 flex justify-between items-center p-4 w-full shadow-sm ${className}`}>
             {/* <div className="flex gap-x-2">
@@ -28,7 +28,7 @@ export const Navbar = ({ className } : NavbarProps) => {
                         Client
                     </Link>
                 </Button>
-            </div>*/}
+            </div>
             <div className="flex gap-x-2">
                 <Button asChild variant={pathName === '/sales' ? "default" : "outline"}>
                     <Link href="/sales">
@@ -37,16 +37,16 @@ export const Navbar = ({ className } : NavbarProps) => {
                 </Button>
             </div>
             <div className="flex gap-x-2">
-                <Button asChild variant={pathName === '/services' ? "default" : "outline"}>
-                    <Link href="/services">
-                        Serviços
-                    </Link>
-                </Button>
-            </div> 
-            <div className="flex gap-x-2">
                 <Button asChild variant={pathName === '/dashboard' ? "default" : "outline"}>
                     <Link href="/dashboard">
                         Dashboard
+                    </Link>
+                </Button>
+            </div>*/}
+            <div className="flex gap-x-2">
+                <Button asChild variant={pathName === '/services' ? "default" : "outline"}>
+                    <Link href="/services">
+                        Serviços
                     </Link>
                 </Button>
             </div>
