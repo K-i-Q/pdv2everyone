@@ -4,7 +4,7 @@ import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { formatPriceBRL } from "@/utils/mask";
 import { Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
 import { FaCheckSquare, FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
@@ -57,7 +57,7 @@ const ServicePage = () => {
                     toast.success(data.success);
                     getAllServices();
                 }
-            }).catch(() => toast.error("Algo deu errado"))
+            }).catch(() => toast.error("Algo deu errado")).finally(() => closeDialogs())
         })
     }
 
@@ -71,6 +71,8 @@ const ServicePage = () => {
         if (dialogCreate) dialogCreate.click();
         const dialogUpdate = document.getElementById('close-dialog-update') as HTMLElement;
         if (dialogUpdate) dialogUpdate.click();
+        const dialogActivate = document.getElementById('close-dialog-activate') as HTMLElement;
+        if (dialogActivate) dialogActivate.click();
     }
 
 
@@ -129,38 +131,43 @@ const ServicePage = () => {
                                                     <TableRow key={service.id} className="group">
                                                         <TableCell>{service.name}</TableCell>
                                                         <TableCell className="hidden md:table-cell">{service.description}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{service.costPrice.toString()}</TableCell>
-                                                        <TableCell>{service.salePrice.toString()}</TableCell>
+                                                        <TableCell className="hidden md:table-cell">{formatPriceBRL(service.costPrice)}</TableCell>
+                                                        <TableCell>{formatPriceBRL(service.salePrice)}</TableCell>
                                                         <TableCell>
-                                                            {service.status && (
-                                                                <TooltipProvider>
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger asChild>
-                                                                            <div onClick={() => handleAtivarStatus(service.id)} className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
-                                                                                <FaCheckSquare />
-                                                                            </div>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipContent>
-                                                                            <p>Ativado. Clique para desativar</p>
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </TooltipProvider>
-
-                                                            )}
-                                                            {!service.status && (
-                                                                <TooltipProvider>
-                                                                    <Tooltip>
-                                                                        <TooltipTrigger asChild>
-                                                                            <div onClick={() => handleAtivarStatus(service.id)} className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
-                                                                                <FaTimes />
-                                                                            </div>
-                                                                        </TooltipTrigger>
-                                                                        <TooltipContent>
-                                                                            <p>Desativado. Clique para ativar</p>
-                                                                        </TooltipContent>
-                                                                    </Tooltip>
-                                                                </TooltipProvider>
-                                                            )}
+                                                            <Dialog>
+                                                                <DialogTrigger asChild>
+                                                                    <div className="bg-transparent text-yellow-400 py-2 px-3 rounded-md group-hover:text-black hover:bg-yellow-300/90 md:text-2xl cursor-pointer">
+                                                                        {service.status && (
+                                                                            <FaCheckSquare />
+                                                                        )}
+                                                                        {!service.status && (
+                                                                            <FaTimes />
+                                                                        )}
+                                                                    </div>
+                                                                </DialogTrigger>
+                                                                <DialogContent>
+                                                                    <DialogClose asChild>
+                                                                        <div id="close-dialog-activate" className="hidden">
+                                                                            Close
+                                                                        </div>
+                                                                    </DialogClose>
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Confirmar</DialogTitle>
+                                                                        <DialogDescription>
+                                                                            {service.status ? 'Desativar' : 'Ativar'}
+                                                                        </DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <div>
+                                                                        {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
+                                                                    </div>
+                                                                    <DialogFooter className="gap-y-3">
+                                                                        <DialogClose className="border-none">
+                                                                            <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
+                                                                        </DialogClose>
+                                                                        <Button onClick={() => handleAtivarStatus(service.id)} disabled={isPending} type="button">Confirmar</Button>
+                                                                    </DialogFooter>
+                                                                </DialogContent>
+                                                            </Dialog>
                                                         </TableCell>
                                                         <TableCell className="text-right space-x-2 flex flex-row">
                                                             <Dialog>
@@ -184,14 +191,17 @@ const ServicePage = () => {
                                                                         <FaTrashAlt />
                                                                     </div>
                                                                 </DialogTrigger>
-                                                                <DialogContent className="sm:max-w-[425px]">
+                                                                <DialogContent>
                                                                     <DialogHeader>
-                                                                        <DialogTitle>Excluir serviço</DialogTitle>
+                                                                        <DialogTitle>Confirmar</DialogTitle>
                                                                         <DialogDescription>
-                                                                            Você tem certeza que deseja excluir o serviço {service.name}?
+                                                                            Excluir serviço
                                                                         </DialogDescription>
                                                                     </DialogHeader>
-                                                                    <DialogFooter>
+                                                                    <div>
+                                                                        Você tem certeza que deseja excluir o serviço {service.name}?
+                                                                    </div>
+                                                                    <DialogFooter className="gap-y-3">
                                                                         <DialogClose className="border-none">
                                                                             <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
                                                                         </DialogClose>
@@ -205,7 +215,7 @@ const ServicePage = () => {
                                             </TableBody>
                                             <TableFooter>
                                                 <TableRow>
-                                                    <TableCell colSpan={colSpan}>Total</TableCell>
+                                                    <TableCell colSpan={colSpan}>Quantidade serviços</TableCell>
                                                     <TableCell className="text-right">{services?.length}</TableCell>
                                                 </TableRow>
                                             </TableFooter>
