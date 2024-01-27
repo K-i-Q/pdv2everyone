@@ -161,7 +161,7 @@ export const CardService = ({ service, onServiceUpdate }: CardServiceProps) => {
                         <Button className="w-full" type="submit" disabled={isPending}>
                             Salvar
                         </Button>
-                        <Button className="w-full" onClick={() => onServiceUpdate()} variant="outline" type="button" disabled={isPending}>
+                        <Button className="w-full" onClick={onServiceUpdate} variant="outline" type="button" disabled={isPending}>
                             Cancelar
                         </Button>
                     </form>
