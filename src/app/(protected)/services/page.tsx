@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatPriceBRL } from "@/utils/mask";
 import { Service } from "@prisma/client";
+import { useWindowWidth } from '@react-hook/window-size';
 import { useEffect, useState, useTransition } from "react";
 import { FaCheckSquare, FaEdit, FaTimes, FaTrashAlt } from "react-icons/fa";
 import { MdAddToPhotos } from "react-icons/md";
@@ -17,10 +18,16 @@ const ServicePage = () => {
     const [services, setServices] = useState<Service[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const [colSpan, setColSpan] = useState(5);
+    const onlyWidth = useWindowWidth()
 
     useEffect(() => {
         getAllServices();
     }, [])
+    
+    useEffect(() => {
+        setColSpan(onlyWidth > 768 ? 4 : 2);
+    }, [onlyWidth]);
+
     const getAllServices = () => {
         getServices().then((data) => {
             if (data?.error) {
@@ -73,20 +80,6 @@ const ServicePage = () => {
         const dialogActivate = document.getElementById('close-dialog-activate') as HTMLElement;
         if (dialogActivate) dialogActivate.click();
     }
-
-
-    useEffect(() => {
-        const handleResize = () => {
-            setColSpan(window.innerWidth > 768 ? 4 : 2);
-        };
-
-        handleResize();
-
-        window.addEventListener('resize', handleResize);
-
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
 
     return (
         <>
