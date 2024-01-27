@@ -4,6 +4,7 @@ import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatPriceBRL } from "@/utils/mask";
 import { Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
@@ -76,7 +77,7 @@ const ServicePage = () => {
 
     useEffect(() => {
         const handleResize = () => {
-            setColSpan(window.innerWidth > 768 ? 4 : 3);
+            setColSpan(window.innerWidth > 768 ? 4 : 2);
         };
 
         handleResize();
@@ -91,7 +92,7 @@ const ServicePage = () => {
         <>
             {
                 services && (
-                    <>
+                    <TooltipProvider>
                         {
                             services.length > 0 && (
                                 <div className="flex flex-col-reverse md:flex-col">
@@ -131,18 +132,20 @@ const ServicePage = () => {
                                                         <TableCell className="hidden md:table-cell">{service.description}</TableCell>
                                                         <TableCell className="hidden md:table-cell">{formatPriceBRL(service.costPrice)}</TableCell>
                                                         <TableCell>{formatPriceBRL(service.salePrice)}</TableCell>
-                                                        <TableCell className="md:space-x-3 space-y-2 flex flex-col md:flex-row items-center justify-center">
+                                                        <TableCell className="md:space-x-3 md:space-y-0 space-y-2 flex flex-col md:flex-row items-center justify-center">
                                                             <Dialog>
-                                                                <DialogTrigger asChild>
-                                                                    <Button className="md:text-2xl">
-                                                                        {service.status && (
-                                                                            <FaCheckSquare />
-                                                                        )}
-                                                                        {!service.status && (
-                                                                            <FaTimes />
-                                                                        )}
-                                                                    </Button>
-                                                                </DialogTrigger>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <DialogTrigger asChild>
+                                                                            <Button className="md:text-2xl">
+                                                                                {service.status ? <FaCheckSquare /> : <FaTimes />}
+                                                                            </Button>
+                                                                        </DialogTrigger>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>
+                                                                        {service.status ? 'Desativar' : 'Ativar'} serviço {service.name}
+                                                                    </TooltipContent>
+                                                                </Tooltip>
                                                                 <DialogContent>
                                                                     <DialogClose asChild>
                                                                         <Button id="close-dialog-activate" className="hidden">
@@ -172,21 +175,36 @@ const ServicePage = () => {
                                                                         Close
                                                                     </Button>
                                                                 </DialogClose>
-                                                                <DialogTrigger asChild>
-                                                                    <Button className="md:text-2xl">
-                                                                        <FaEdit />
-                                                                    </Button>
-                                                                </DialogTrigger>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <DialogTrigger asChild>
+                                                                            <Button className="md:text-2xl">
+                                                                                <FaEdit />
+                                                                            </Button>
+                                                                        </DialogTrigger>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>
+                                                                        <p>Editar serviço {service.name}</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
+
                                                                 <DialogContent className="p-0 w-ful bg-transparent boder-none">
                                                                     <CardService service={service} onServiceUpdate={() => handleServiceUpdate()} />
                                                                 </DialogContent>
                                                             </Dialog>
                                                             <Dialog>
-                                                                <DialogTrigger asChild>
-                                                                    <Button className="md:text-2xl">
-                                                                        <FaTrashAlt />
-                                                                    </Button>
-                                                                </DialogTrigger>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <DialogTrigger asChild>
+                                                                            <Button className="md:text-2xl">
+                                                                                <FaTrashAlt />
+                                                                            </Button>
+                                                                        </DialogTrigger>
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>
+                                                                        <p>Excluir serviço {service.name}</p>
+                                                                    </TooltipContent>
+                                                                </Tooltip>
                                                                 <DialogContent>
                                                                     <DialogHeader>
                                                                         <DialogTitle>Confirmar</DialogTitle>
@@ -239,7 +257,7 @@ const ServicePage = () => {
                             </Dialog>
                         )
                         }
-                    </>
+                    </TooltipProvider>
                 )}
             {
                 !services && (
