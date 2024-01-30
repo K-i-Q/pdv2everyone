@@ -3,14 +3,10 @@ import { getEmployees } from "@/actions/employees";
 import { getProducts } from "@/actions/products";
 import { createSale } from "@/actions/sales";
 import { getServices } from "@/actions/services";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SalesSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Employee, Product, Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 const SalesPage = () => {
     const [employees, setEmployees] = useState<Employee[] | undefined>();
@@ -18,19 +14,9 @@ const SalesPage = () => {
     const [products, setProducts] = useState<Product[] | undefined>();
     const [totalPrice, setTotalPrice] = useState<Number | undefined>();
     const [isPending, startTransition] = useTransition();
-
-    const form = useForm<z.infer<typeof SalesSchema>>({
-        resolver: zodResolver(SalesSchema),
-        defaultValues: {
-            licensePlate: undefined,
-            model: undefined,
-            services: [],
-            price: undefined,
-            note: undefined,
-            products: [],
-            isDeferredPayment: false
-        }
-    });
+    const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
+    const [currentStep, setCurrentStep] = useState(0);
+    const [slideDirection, setSlideDirection] = useState("left-to-right");
 
     useEffect(() => {
         getAllServices();
@@ -60,6 +46,7 @@ const SalesPage = () => {
             }
         });
     }
+
     const getAllProducts = () => {
         getProducts().then((data) => {
             if (data?.error) {
@@ -71,61 +58,55 @@ const SalesPage = () => {
         });
     }
 
-    const onSubmit = (values: z.infer<typeof SalesSchema>) => {
+    const handleStartSale = (employeeId: string) => {
         startTransition(() => {
-            createSale(values).then((data) => {
+            createSale(employeeId).then((data) => {
                 if (data.error) {
                     toast.error(data.error)
                 }
                 if (data.success) {
-                    resetaFormulario();
-                    toast.success(data.success);
-                    getAllServices();
+                    setCurrentStep(currentStep + 1);
+                    setSlideDirection("left-to-right");
                 }
             }).catch(() => toast.error("Algo deu errado"))
         })
     }
 
-    const resetaFormulario = () => {
-        const { reset } = form;
-
-        reset({
-            licensePlate: '',
-            model: '',
-            note: '',
-            services: [],
-            price: '0',
-            products: [],
-            isDeferredPayment: false
-        });
-        setTotalPrice(0)
-    }
-
 
     return (
-        <>
-            <Card className="md:w-3/4">
-                <CardHeader>
-                    Venda
-                </CardHeader>
-                <CardContent>
+        <div className="w-3/4 md:px-10">
+            <>
+                {employees && (
                     <>
-                        {employees && (
-                            <ul>
-                                {employees.length > 0 && (
-                                    employees.map((employee) => (
-                                        <li key={employee.id}>
-                                            {employee.nickname}
-                                        </li>
-                                    ))
-                                )}
-                            </ul>
+                        {currentStep === 0 && (
+                            <div className={`grid grid-cols-3 gap-5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                                {
+                                    employees.length > 0 && (
+                                        employees.map((employee, index) => (
+                                            <Card
+                                                key={employee.id}
+                                                className={`cursor-pointer hover:bg-black/85`}
+                                                style={{ backgroundColor: colors[index % colors.length] }}
+                                                onClick={() => handleStartSale(employee.id)}
+                                            >
+                                                <CardHeader>
+                                                    {employee.name}
+                                                </CardHeader>
+                                            </Card>
+                                        ))
+                                    )
+                                }
+                            </div>
+                        )}
+                        {currentStep === 1 && (
+                            <div className={`alguma-outro-div-com-conteúdo ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                               DEUBOA
+                            </div>
                         )}
                     </>
-
-                </CardContent>
-            </Card>
-        </>
+                )}
+            </>
+        </div>
     )
 }
 

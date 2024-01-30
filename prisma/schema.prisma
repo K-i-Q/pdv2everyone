@@ -61,14 +61,14 @@ model Sale {
   netPrice          Float
   discount          Float?
   createAt          DateTime
-  isDeferredPayment Boolean             @default(false)
+  isDeferredPayment Boolean?             @default(false)
   deferredPayments  DeferredPayment[]
   note              String?
   items             ItemSale[]
   employees         EmployeeSale[]
   salePayments      SalePaymentMethod[]
-  customerId        String
-  customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId        String?
+  customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model DeferredPayment {
@@ -92,11 +92,12 @@ model SalePaymentMethod {
 }
 
 model EmployeeSale {
-  employeeId String
-  saleId     String
-  commission Float
-  employee   Employee @relation(fields: [employeeId], references: [id])
-  sale       Sale     @relation(fields: [saleId], references: [id])
+  employeeId          String
+  saleId              String
+  employee            Employee @relation(fields: [employeeId], references: [id])
+  sale                Sale     @relation(fields: [saleId], references: [id])
+  initiatedByEmployee Boolean  @default(false)
+  completedByEmployee Boolean  @default(false)
 
   @@id([employeeId, saleId])
 }

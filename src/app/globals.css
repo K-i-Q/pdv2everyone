@@ -8,6 +8,33 @@ body,
   height: 100%;
 }
 
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.slide-left {
+  animation: slideLeft 0.5s forwards;
+}
+
+.slide-right {
+  animation: slideRight 0.5s forwards;
+}
+
+
 @layer base {
   :root {
     --background: 0 0% 100%;
