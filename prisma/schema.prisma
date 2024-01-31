@@ -40,7 +40,7 @@ model CashRegister {
   finalValue   Float?
   createAt     DateTime
   storeId      String   @unique
-  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: SetDefault)
 
   @@unique([id, storeId])
 }
@@ -68,7 +68,7 @@ model Sale {
   employees         EmployeeSale[]
   salePayments      SalePaymentMethod[]
   customerId        String?
-  customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
 }
 
 model DeferredPayment {
@@ -78,15 +78,15 @@ model DeferredPayment {
   paid     Boolean  @default(false)
   forgiven Boolean  @default(false)
   saleId   String
-  sale     Sale     @relation(fields: [saleId], references: [id])
+  sale     Sale     @relation(fields: [saleId], references: [id], onDelete: SetDefault)
 }
 
 model SalePaymentMethod {
   saleId          String
   paymentMethodId String
   amount          Float // Valor pago por este método de pagamento
-  sale            Sale          @relation(fields: [saleId], references: [id])
-  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  sale            Sale          @relation(fields: [saleId], references: [id], onDelete: SetDefault)
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: SetDefault)
 
   @@id([saleId, paymentMethodId])
 }
@@ -94,8 +94,8 @@ model SalePaymentMethod {
 model EmployeeSale {
   employeeId          String
   saleId              String
-  employee            Employee @relation(fields: [employeeId], references: [id])
-  sale                Sale     @relation(fields: [saleId], references: [id])
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
+  sale                Sale     @relation(fields: [saleId], references: [id], onDelete: SetDefault)
   initiatedByEmployee Boolean  @default(false)
   completedByEmployee Boolean  @default(false)
 
@@ -118,7 +118,7 @@ model Expense {
   recurrenceFrequency String? // Frequência da recorrência (por exemplo, 'mensal', 'anual', etc.)
   nextDueDate         DateTime? // Próxima data de vencimento para despesas recorrentes
   isActive            Boolean     @default(true) // Indica se a despesa recorrente está ativa
-  expenseType         ExpenseType @relation(fields: [expenseTypeId], references: [id])
+  expenseType         ExpenseType @relation(fields: [expenseTypeId], references: [id], onDelete: SetDefault)
   expenseTypeId       String
 }
 
@@ -137,7 +137,7 @@ model Revenue {
   serviceCount      Int // Número de serviços realizados
   averageTicket     Float // Ticket médio
   storeId           String
-  store             Store    @relation(fields: [storeId], references: [id])
+  store             Store    @relation(fields: [storeId], references: [id], onDelete: SetDefault)
 }
 
 model Vehicle {
@@ -145,7 +145,7 @@ model Vehicle {
   model        String
   licensePlate String     @unique
   customerId   String?
-  customer     Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer     Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
   itemSales    ItemSale[]
 
   @@unique([id, customerId])
@@ -159,7 +159,7 @@ model ItemSale {
   saleId    String
   quantity  Int
   vehicleId String?
-  vechicle  Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vechicle  Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
 
@@ -179,7 +179,7 @@ model Product {
   salePrice   Float
   createAt    DateTime
   supplierId  String?
-  supplier    Supplier? @relation(fields: [supplierId], references: [id])
+  supplier    Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   status      Boolean
 }
 
@@ -217,7 +217,7 @@ model Salary {
   amount     Float // Valor do salário do dia
   createAt   DateTime // Data do salário
   employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
 }
 
 model Advance {
@@ -225,17 +225,17 @@ model Advance {
   amount     Float // Valor do adiantamento
   createAt   DateTime // Data do adiantamento
   employeeId String
-  employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
 }
 
 model Customer {
   id       String           @id @default(cuid())
-  name     String
-  birthday DateTime
+  name     String?
+  birthday DateTime?
   nickname String?
   gender   String?
   document String           @unique
-  phone    String
+  phone    String?
   Sales    Sale[]
   credits  CustomerCredit[]
   Vehicles Vehicle[]
@@ -248,7 +248,7 @@ model CustomerCredit {
   amount     Float // Valor do crédito
   createAt   DateTime // Data de criação do crédito
   customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: SetDefault)
 }
 
 model Profile {
@@ -267,9 +267,9 @@ model User {
   password              String?
   status                Boolean
   createAt              DateTime
-  employee              Employee?              @relation(fields: [employeeId], references: [id])
-  store                 Store?                 @relation(fields: [storeId], references: [id])
-  profile               Profile?               @relation(fields: [profileId], references: [id])
+  employee              Employee?              @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
+  store                 Store?                 @relation(fields: [storeId], references: [id], onDelete: SetDefault)
+  profile               Profile?               @relation(fields: [profileId], references: [id], onDelete: SetDefault)
   employeeId            String?                @unique
   storeId               String?                @unique
   profileId             String?                @unique
