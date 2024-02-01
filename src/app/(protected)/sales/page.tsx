@@ -15,15 +15,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatPriceBRL } from "@/utils/mask";
 import { Employee, PaymentMethod, Product, Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
-import { FaCheckCircle } from "react-icons/fa";
-import { GrLinkNext } from "react-icons/gr";
+import { FaCheckCircle, FaList } from "react-icons/fa";
+import { FaCirclePlus } from "react-icons/fa6";
+import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { toast } from "sonner";
 
 const SalesPage = () => {
     const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
     const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [isPending, startTransition] = useTransition();
-    const [currentStep, setCurrentStep] = useState(6);
+    const [currentStep, setCurrentStep] = useState(0);
     const [slideDirection, setSlideDirection] = useState("left-to-right");
 
     const [services, setServices] = useState<Service[] | undefined>();
@@ -51,12 +52,12 @@ const SalesPage = () => {
     }, [])
 
     useEffect(() => {
-        if (currentStep === 6) {
+        if (currentStep === 7) {
             setTimeout(() => {
                 setCurrentStep(0);
                 setSlideDirection("right-to-left");
                 resetForm();
-            },3000)
+            }, 3000)
         }
     }, [currentStep])
 
@@ -67,11 +68,11 @@ const SalesPage = () => {
         setModel('');
         setPlate('');
         setSelectedServices([]);
-        setSelectedTime(undefined); 
+        setSelectedTime(undefined);
         setIsPaymentLater(false);
-        setSelectedPaymentMethod(undefined); 
+        setSelectedPaymentMethod(undefined);
         setCelPhone(undefined);
-        setNote(undefined); 
+        setNote(undefined);
     };
 
     const populateTimes = () => {
@@ -149,12 +150,21 @@ const SalesPage = () => {
                     toast.error(data.error)
                 }
                 if (data.success) {
-                    setCurrentStep(currentStep + 1);
-                    setSlideDirection("left-to-right");
+                    nextStep();
                     setSaleId(data.saleId)
                 }
             }).catch(() => toast.error("Algo deu errado"))
         })
+    }
+
+    const nextStep = () => {
+        setCurrentStep(currentStep + 1);
+        setSlideDirection("left-to-right");
+    }
+
+    const prevStep = () => {
+        setCurrentStep(currentStep - 1);
+        setSlideDirection("right-to-left");
     }
 
     const handleSaveCustomer = (saleId: string, customerDocument: string) => {
@@ -169,8 +179,7 @@ const SalesPage = () => {
                 }
 
                 if (data?.success) {
-                    setCurrentStep(currentStep + 1);
-                    setSlideDirection("left-to-right");
+                    nextStep();
                 }
             })
         })
@@ -185,7 +194,6 @@ const SalesPage = () => {
             })
         })
     }
-
 
     const handleServiceClick = (serviceId: string) => {
         if (selectedServices.includes(serviceId)) {
@@ -202,8 +210,7 @@ const SalesPage = () => {
                     toast.error(data.error)
                 }
                 if (data?.success) {
-                    setCurrentStep(currentStep + 1);
-                    setSlideDirection("left-to-right");
+                    nextStep();
                     const sumOfPrices = data.prices.reduce((acc, currentValue) => acc + currentValue.salePrice, 0);
                     setTotalPrice(sumOfPrices)
                 }
@@ -222,8 +229,7 @@ const SalesPage = () => {
                 }
 
                 if (data?.success) {
-                    setCurrentStep(currentStep + 1);
-                    setSlideDirection("left-to-right");
+                    nextStep();
                 }
             })
         })
@@ -259,8 +265,7 @@ const SalesPage = () => {
                     toast.error(data.error)
                 }
                 if (data?.success) {
-                    setCurrentStep(currentStep + 1);
-                    setSlideDirection("left-to-right");
+                    nextStep();
                     //TODO: enviar resumo do pedido para o whats do cliente
                 }
             })
@@ -268,12 +273,31 @@ const SalesPage = () => {
     }
 
     return (
-        <div className="w-3/4 md:px-10">
+        <div className="w-3/4 md:px-10 flex flex-col items-center justify-center">
             <>
                 {employees && (
                     <>
                         {currentStep === 0 && (
-                            <div className={`grid grid-cols-3 gap-5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                            <div className={`space-y-5 w-2/5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                                <Card
+                                    className="bg-yellow-400 text-black font-bold hover:cursor-pointer hover:bg-yellow-400/70"
+                                    onClick={nextStep}
+                                >
+                                    <CardHeader className="flex-row items-center justify-between">
+                                        Novo Atendimento
+                                        <FaCirclePlus className="w-6 h-6" />
+                                    </CardHeader>
+                                </Card>
+                                <Card className="font-bold hover:cursor-pointer hover:bg-black/80">
+                                    <CardHeader className="flex-row items-center justify-between">
+                                        Consultar Atendimentos
+                                        <FaList className="w-6 h-6" />
+                                    </CardHeader>
+                                </Card>
+                            </div>
+                        )}
+                        {currentStep === 1 && (
+                            <div className={`grid grid-cols-2 gap-5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 {
                                     employees.length > 0 && (
                                         employees.map((employee, index) => (
@@ -290,9 +314,13 @@ const SalesPage = () => {
                                         ))
                                     )
                                 }
+                                <Button variant="outline" className="w-full col-span-2 gap-x-3" onClick={prevStep}>
+                                    <GrLinkPrevious />
+                                    Voltar
+                                </Button>
                             </div>
                         )}
-                        {currentStep === 1 && (
+                        {currentStep === 2 && (
                             <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 <CardHeader>
                                     <Label>CPF</Label>
@@ -303,7 +331,7 @@ const SalesPage = () => {
                                         onChange={(event) => setCustomerDocument(event.target.value)}
                                         value={customerDocument} />
                                 </CardContent>
-                                <CardFooter className="flex-row-reverse">
+                                <CardFooter className="flex-row-reverse gap-x-5">
                                     <Button
                                         className="gap-x-3"
                                         disabled={isPending}
@@ -312,62 +340,71 @@ const SalesPage = () => {
                                         Próximo
                                         <GrLinkNext />
                                     </Button>
+                                    <Button className="w-full gap-x-3" variant="outline" onClick={prevStep}>
+                                        <GrLinkPrevious />
+                                        Voltar
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         )}
-                        {currentStep === 2 && (
-                            <div className="grid grid-cols-4 gap-x-4">
+                        {currentStep === 3 && (
+                            <div className="flex flex-col gap-x-4 gap-y-3">
                                 <>
-                                    <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
-                                        <CardHeader>
-                                            Veículo
-                                        </CardHeader>
-                                        <CardContent>
-                                            <Label>Modelo</Label>
-                                            <Input
-                                                placeholder="Digite aqui o modelo do veículo"
-                                                onChange={(event) => setModel(event.target.value)}
-                                                value={model} />
-                                            <Label>Placa</Label>
-                                            <Input
-                                                placeholder="Digite aqui a placa do veículo"
-                                                onChange={(event) => setPlate(event.target.value)}
-                                                value={plate} />
-                                        </CardContent>
-                                    </Card>
-                                    {
-                                        services?.map((service) => (
-                                            <Card
-                                                onClick={() => handleServiceClick(service.id)}
-                                                key={service.id}
-                                                className={`hover:bg-slate-700 cursor-pointer ${selectedServices.includes(service.id) ? 'bg-slate-700' : ''} ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
-                                                <CardHeader>
-                                                    <Label>{service.name}</Label>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    {service.description}
-                                                </CardContent>
-                                                <CardFooter>
-                                                    {formatPriceBRL(service.salePrice)}
-                                                </CardFooter>
-                                            </Card>
-                                        ))
-                                    }
-                                    <Button
-                                        className="gap-x-3"
-                                        disabled={isPending || !model || !plate}
-                                        onClick={() => handleSaveServices(saleId)}
-                                    >
-                                        Próximo
-                                        <GrLinkNext />
-                                    </Button>
+                                    <div className="col-span-4">
+                                        <Card className={`pt-4 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                                            <CardContent className="space-y-3">
+                                                <div className="space-y-2">
+                                                    <Label>Modelo</Label>
+                                                    <Input
+                                                        placeholder="Digite aqui o modelo do veículo"
+                                                        onChange={(event) => setModel(event.target.value)}
+                                                        value={model} />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Placa</Label>
+                                                    <Input
+                                                        placeholder="Digite aqui a placa do veículo"
+                                                        onChange={(event) => setPlate(event.target.value)}
+                                                        value={plate} />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-3">
+                                        {
+                                            services?.map((service) => (
+                                                <Card
+                                                    onClick={() => handleServiceClick(service.id)}
+                                                    key={service.id}
+                                                    className={`hover:bg-slate-700 cursor-pointer ${selectedServices.includes(service.id) ? 'bg-slate-700' : ''} ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                                                    <CardHeader>
+                                                        <Label>{service.name}: {formatPriceBRL(service.salePrice)}</Label>
+                                                    </CardHeader>
+                                                </Card>
+                                            ))
+                                        }
+                                    </div>
+                                    <div className="flex flex-row items-center justify-between gap-x-3">
+                                        <Button className="gap-x-3 w-full" variant="outline" onClick={prevStep}>
+                                            <GrLinkPrevious />
+                                            Voltar
+                                        </Button>
+                                        <Button
+                                            className="gap-x-3 w-full"
+                                            disabled={isPending || !model || !plate}
+                                            onClick={() => handleSaveServices(saleId)}
+                                        >
+                                            Próximo
+                                            <GrLinkNext />
+                                        </Button>
+                                    </div>
                                 </>
                             </div>
 
                         )}
-                        {currentStep === 3 && (
-                            <div className="grid grid-cols-4 gap-x-4">
-                                <>
+                        {currentStep === 4 && (
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-4 gap-x-4">
                                     {
                                         times?.map((time) => (
                                             <Card
@@ -380,19 +417,27 @@ const SalesPage = () => {
                                             </Card>
                                         ))
                                     }
+                                </div>
+
+                                <div className="flex gap-3 w-full justify-between">
+                                    <Button className="gap-x-3 w-full" variant="outline" onClick={prevStep}>
+                                        <GrLinkPrevious />
+                                        Voltar
+                                    </Button>
                                     <Button
-                                        className="gap-x-3"
+                                        className="gap-x-3 w-full"
                                         disabled={isPending || !selectedTime}
                                         onClick={handleSaveTime}
                                     >
                                         Próximo
                                         <GrLinkNext />
                                     </Button>
-                                </>
+                                </div>
+
                             </div>
 
                         )}
-                        {currentStep === 4 && (
+                        {currentStep === 5 && (
                             <div className="flex items-center justify-center">
                                 <Card className="min-w-[230px]">
                                     <CardHeader>
@@ -436,7 +481,7 @@ const SalesPage = () => {
                                         <div className="flex flex-row-reverse">
                                             <Button
                                                 className="gap-x-3"
-                                                disabled={isPending || isPaymentLater || (!isPaymentLater && !selectedPaymentMethod)}
+                                                disabled={(isPending) || (!isPaymentLater && !selectedPaymentMethod)}
                                                 onClick={handleSavePaymentMethod}
                                             >
                                                 Próximo
@@ -448,7 +493,7 @@ const SalesPage = () => {
                             </div>
 
                         )}
-                        {currentStep === 5 && (
+                        {currentStep === 6 && (
                             <>
                                 <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                     <CardHeader>
@@ -479,7 +524,7 @@ const SalesPage = () => {
                                 </Card>
                             </>
                         )}
-                        {currentStep === 6 && (
+                        {currentStep === 7 && (
                             <div className="flex items-center justify-center">
                                 <Card className="md:w-2/4">
                                     <CardHeader className="items-center justify-center">
