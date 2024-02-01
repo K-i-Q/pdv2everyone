@@ -1,4 +1,7 @@
 "use server";
+import { getCustomerById } from "@/data/customer";
+import { getPaymentMethodById } from "@/data/paymentMethod";
+import { getSaleById } from "@/data/sale";
 import { db } from "@/lib/db";
 import { Vehicle } from "@prisma/client";
 
@@ -34,6 +37,12 @@ export const saveCustomer = async (
   if (!saleId || !customerDocument) {
     return { error: "Campos invalidos" };
   }
+  const existingSale = await getSaleById(saleId);
+
+  if (!existingSale) {
+    return { error: "Ordem de serviço não foi encontradas" };
+  }
+
   const existingCustomer = await db.customer.findUnique({
     where: {
       document: customerDocument,
@@ -66,18 +75,18 @@ export const saveServices = async (
     return { error: "Dados inválidos" };
   }
 
-  const existingSale = await db.sale.findUnique({
-    where: {
-      id: saleId,
-    },
-    include: {
-      customer: true,
-    },
-  });
+  const existingSale = await getSaleById(saleId);
 
   if (!existingSale) {
     return { error: "Ordem de serviço não foi encontrada" };
   }
+
+  // Primeiro, desvincular todos os serviços atuais da venda
+  await db.itemSale.deleteMany({
+    where: {
+      saleId: saleId,
+    },
+  });
 
   const existingVehicle = await db.vehicle.findUnique({
     where: {
@@ -95,12 +104,33 @@ export const saveServices = async (
     });
 
     await createItemsOnSale(saleId, servicesIds, newVehicle);
-    return { success: "Inserção de veículo com sucesso" };
+    const prices = await db.service.findMany({
+      where: {
+        id: {
+          in: servicesIds,
+        },
+      },
+      select: {
+        salePrice: true,
+      },
+    });
+    return { success: "Inserção de veículo com sucesso", prices };
   }
+
+  const prices = await db.service.findMany({
+    where: {
+      id: {
+        in: servicesIds,
+      },
+    },
+    select: {
+      salePrice: true,
+    },
+  });
 
   await createItemsOnSale(saleId, servicesIds, existingVehicle);
 
-  return { success: "Inserção de veículo com sucesso" };
+  return { success: "Inserção de veículo com sucesso", prices };
 };
 
 export const createEmployees = async () => {
@@ -157,11 +187,7 @@ export const saveTime = async (saleId: string, pickupTime: string) => {
     return { error: "Dados inválidos" };
   }
 
-  const existingSale = await db.sale.findUnique({
-    where: {
-      id: saleId,
-    },
-  });
+  const existingSale = await getSaleById(saleId);
 
   if (!existingSale) {
     return { error: "Não localizei a Ordem de serviço" };
@@ -176,6 +202,79 @@ export const saveTime = async (saleId: string, pickupTime: string) => {
     },
   });
   return { success: "Horário salvo com sucesso" };
+};
+
+export const savePaymentMethod = async (
+  saleId: string,
+  paymentMethodId: string,
+  amount: number
+) => {
+  if (!saleId || !paymentMethodId || !amount) {
+    return { error: "Dados inválidos" };
+  }
+
+  const existingSale = await getSaleById(saleId);
+
+  if (!existingSale) {
+    return { error: "Ordem de serviço não foi encontrada" };
+  }
+
+  const existingPaymentMethod = await getPaymentMethodById(paymentMethodId);
+
+  if (!existingPaymentMethod) {
+    return { error: "Forma de pagamento não foi encontrada" };
+  }
+
+  await db.salePaymentMethod.create({
+    data: {
+      saleId: existingSale.id,
+      paymentMethodId: existingPaymentMethod.id,
+      amount,
+    },
+  });
+
+  return { success: "Forma de pagamento adicionada com sucesso" };
+};
+
+export const saveContact = async (
+  saleId: string,
+  phone: string,
+  note?: string
+) => {
+  if (!saleId || !phone) {
+    return { error: "Dados inválidos" };
+  }
+
+  const existingSale = await getSaleById(saleId);
+  if (!existingSale) {
+    return { error: "Ordem de serviço não foi encontrada" };
+  }
+
+  const existingCustomer = await getCustomerById(existingSale.customerId || "");
+
+  if (!existingCustomer) {
+    return {
+      error: "Cliente não foi vínculado corretamente à essa ordem de serviço",
+    };
+  }
+
+  await db.customer.update({
+    where: {
+      id: existingCustomer.id,
+    },
+    data: {
+      phone,
+    },
+  });
+
+  if (note) {
+    await db.sale.update({
+      where: { id: existingSale.id },
+      data: { note },
+    });
+  }
+
+  return { success: "Ordem de serviço finalizada com sucesso" };
 };
 
 const updateCustomerOnSale = async (saleId: string, customerId: string) => {

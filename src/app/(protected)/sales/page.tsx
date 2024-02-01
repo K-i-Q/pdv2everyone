@@ -2,7 +2,7 @@
 import { getEmployees } from "@/actions/employees";
 import { getPayments } from "@/actions/payments";
 import { getProducts } from "@/actions/products";
-import { createEmployees, createSale, saveCustomer, saveServices, saveTime } from "@/actions/sales";
+import { createEmployees, createSale, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
@@ -11,30 +11,36 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { formatPriceBRL } from "@/utils/mask";
 import { Employee, PaymentMethod, Product, Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 import { GrLinkNext } from "react-icons/gr";
 import { toast } from "sonner";
 
 const SalesPage = () => {
+    const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
     const [employees, setEmployees] = useState<Employee[] | undefined>();
+    const [isPending, startTransition] = useTransition();
+    const [currentStep, setCurrentStep] = useState(6);
+    const [slideDirection, setSlideDirection] = useState("left-to-right");
+
     const [services, setServices] = useState<Service[] | undefined>();
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | undefined>();
     const [products, setProducts] = useState<Product[] | undefined>();
-    const [totalPrice, setTotalPrice] = useState<Number | undefined>();
+    const [totalPrice, setTotalPrice] = useState<number | undefined>();
     const [saleId, setSaleId] = useState<string>('');
     const [customerDocument, setCustomerDocument] = useState<string>('');
     const [model, setModel] = useState<string>('');
     const [plate, setPlate] = useState<string>('');
-    const [isPending, startTransition] = useTransition();
-    const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
-    const [currentStep, setCurrentStep] = useState(4);
-    const [slideDirection, setSlideDirection] = useState("left-to-right");
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [isPaymentLater, setIsPaymentLater] = useState<boolean>(false);
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>();
+    const [celPhone, setCelPhone] = useState<string>();
+    const [note, setNote] = useState<string>();
 
     useEffect(() => {
         getAllServices();
@@ -43,6 +49,30 @@ const SalesPage = () => {
         populateTimes();
         getAllPaymentMethods();
     }, [])
+
+    useEffect(() => {
+        if (currentStep === 6) {
+            setTimeout(() => {
+                setCurrentStep(0);
+                setSlideDirection("right-to-left");
+                resetForm();
+            },3000)
+        }
+    }, [currentStep])
+
+    const resetForm = () => {
+        setTotalPrice(undefined);
+        setSaleId('');
+        setCustomerDocument('');
+        setModel('');
+        setPlate('');
+        setSelectedServices([]);
+        setSelectedTime(undefined); 
+        setIsPaymentLater(false);
+        setSelectedPaymentMethod(undefined); 
+        setCelPhone(undefined);
+        setNote(undefined); 
+    };
 
     const populateTimes = () => {
         const currentTime = new Date();
@@ -156,17 +186,6 @@ const SalesPage = () => {
         })
     }
 
-    const handleInputCustomerChange = (event: any) => {
-        setCustomerDocument(event.target.value);
-    };
-
-    const handleInputModelChange = (event: any) => {
-        setModel(event.target.value);
-    };
-
-    const handleInputPlateChange = (event: any) => {
-        setPlate(event.target.value);
-    };
 
     const handleServiceClick = (serviceId: string) => {
         if (selectedServices.includes(serviceId)) {
@@ -185,6 +204,8 @@ const SalesPage = () => {
                 if (data?.success) {
                     setCurrentStep(currentStep + 1);
                     setSlideDirection("left-to-right");
+                    const sumOfPrices = data.prices.reduce((acc, currentValue) => acc + currentValue.salePrice, 0);
+                    setTotalPrice(sumOfPrices)
                 }
             })
         })
@@ -203,6 +224,44 @@ const SalesPage = () => {
                 if (data?.success) {
                     setCurrentStep(currentStep + 1);
                     setSlideDirection("left-to-right");
+                }
+            })
+        })
+    }
+
+    const handleSavePaymentMethod = () => {
+        if (!isPaymentLater && !selectedPaymentMethod && !totalPrice) {
+            return
+        }
+
+        startTransition(() => {
+            savePaymentMethod(saleId, selectedPaymentMethod || '', totalPrice || 0)
+                .then((data) => {
+                    if (data?.error) {
+                        toast.error(data.error);
+                    }
+
+                    if (data?.success) {
+                        setCurrentStep(currentStep + 1);
+                        setSlideDirection("left-to-right");
+                    }
+                })
+        })
+    }
+
+    const handleSaveContact = () => {
+        if (!celPhone) {
+            return
+        }
+        startTransition(() => {
+            saveContact(saleId, celPhone, note).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error)
+                }
+                if (data?.success) {
+                    setCurrentStep(currentStep + 1);
+                    setSlideDirection("left-to-right");
+                    //TODO: enviar resumo do pedido para o whats do cliente
                 }
             })
         })
@@ -239,7 +298,10 @@ const SalesPage = () => {
                                     <Label>CPF</Label>
                                 </CardHeader>
                                 <CardContent>
-                                    <Input placeholder="Digite aqui o CPF do cliente" onChange={handleInputCustomerChange} value={customerDocument} />
+                                    <Input
+                                        placeholder="Digite aqui o CPF do cliente"
+                                        onChange={(event) => setCustomerDocument(event.target.value)}
+                                        value={customerDocument} />
                                 </CardContent>
                                 <CardFooter className="flex-row-reverse">
                                     <Button
@@ -262,9 +324,15 @@ const SalesPage = () => {
                                         </CardHeader>
                                         <CardContent>
                                             <Label>Modelo</Label>
-                                            <Input placeholder="Digite aqui o modelo do veículo" onChange={handleInputModelChange} value={model} />
+                                            <Input
+                                                placeholder="Digite aqui o modelo do veículo"
+                                                onChange={(event) => setModel(event.target.value)}
+                                                value={model} />
                                             <Label>Placa</Label>
-                                            <Input placeholder="Digite aqui a placa do veículo" onChange={handleInputPlateChange} value={plate} />
+                                            <Input
+                                                placeholder="Digite aqui a placa do veículo"
+                                                onChange={(event) => setPlate(event.target.value)}
+                                                value={plate} />
                                         </CardContent>
                                     </Card>
                                     {
@@ -326,7 +394,7 @@ const SalesPage = () => {
                         )}
                         {currentStep === 4 && (
                             <div className="flex items-center justify-center">
-                                <Card>
+                                <Card className="min-w-[230px]">
                                     <CardHeader>
                                         <div className="space-x-2">
                                             <Checkbox className="border-gray-50" id="isPaymentLater" checked={isPaymentLater} onCheckedChange={() => setIsPaymentLater(!isPaymentLater)} />
@@ -338,10 +406,10 @@ const SalesPage = () => {
                                             </Label>
                                         </div>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="space-y-3">
                                         {paymentMethods && paymentMethods?.length > 0 && !isPaymentLater && (
                                             <>
-                                                <Select>
+                                                <Select onValueChange={(value) => setSelectedPaymentMethod(value)} defaultValue={selectedPaymentMethod}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Selecione uma forma de pagamento" />
                                                     </SelectTrigger>
@@ -360,24 +428,68 @@ const SalesPage = () => {
                                                         </SelectGroup>
                                                     </SelectContent>
                                                 </Select>
+                                                <Label>Total: {formatPriceBRL(totalPrice || 0)}</Label>
                                             </>
                                         )
 
                                         }
+                                        <div className="flex flex-row-reverse">
+                                            <Button
+                                                className="gap-x-3"
+                                                disabled={isPending || isPaymentLater || (!isPaymentLater && !selectedPaymentMethod)}
+                                                onClick={handleSavePaymentMethod}
+                                            >
+                                                Próximo
+                                                <GrLinkNext />
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
 
+                        )}
+                        {currentStep === 5 && (
+                            <>
+                                <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
+                                    <CardHeader>
+                                        <Label>Contato</Label>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <Label>WhatsApp</Label>
+                                        <Input
+                                            placeholder="Digite aqui o WhatsApp do cliente"
+                                            onChange={(event) => setCelPhone(event.target.value)}
+                                            value={celPhone} />
+                                        <Label>Observações</Label>
+                                        <Textarea
+                                            placeholder="Digite aqui alguma observação (opcional)"
+                                            onChange={(event) => setNote(event.target.value)}
+                                            value={note}></Textarea>
+                                    </CardContent>
+                                    <CardFooter className="flex-row-reverse">
                                         <Button
                                             className="gap-x-3"
-                                            disabled={isPending || !selectedTime}
-                                            onClick={handleSaveTime}
+                                            disabled={isPending || !celPhone}
+                                            onClick={handleSaveContact}
                                         >
                                             Próximo
                                             <GrLinkNext />
                                         </Button>
-                                    </CardContent>
-
+                                    </CardFooter>
+                                </Card>
+                            </>
+                        )}
+                        {currentStep === 6 && (
+                            <div className="flex items-center justify-center">
+                                <Card className="md:w-2/4">
+                                    <CardHeader className="items-center justify-center">
+                                        Ordem de serviço criada com sucesso
+                                    </CardHeader>
+                                    <CardFooter className="items-center justify-center">
+                                        <FaCheckCircle className="w-10 h-10 text-yellow-400" />
+                                    </CardFooter>
                                 </Card>
                             </div>
-
                         )}
                     </>
                 )}
