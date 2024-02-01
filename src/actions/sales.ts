@@ -1,5 +1,6 @@
 "use server";
 import { db } from "@/lib/db";
+import { Vehicle } from "@prisma/client";
 
 export const createSale = async (employeeId: string) => {
   if (!employeeId) {
@@ -33,23 +34,73 @@ export const saveCustomer = async (
   if (!saleId || !customerDocument) {
     return { error: "Campos invalidos" };
   }
-
-  const customer = await db.customer.create({
-    data: {
+  const existingCustomer = await db.customer.findUnique({
+    where: {
       document: customerDocument,
     },
   });
+  if (!existingCustomer) {
+    const customer = await db.customer.create({
+      data: {
+        document: customerDocument,
+      },
+    });
 
-  const sale = await db.sale.update({
+    await updateCustomerOnSale(saleId, customer.id);
+
+    return { success: "Cliente adicionado" };
+  }
+
+  await updateCustomerOnSale(saleId, existingCustomer.id);
+
+  return { success: "Cliente adicionado" };
+};
+
+export const saveServices = async (
+  saleId: string,
+  servicesIds: string[],
+  model: string,
+  plate: string
+) => {
+  if (!saleId || !servicesIds || servicesIds?.length < 1) {
+    return { error: "Dados inválidos" };
+  }
+
+  const existingSale = await db.sale.findUnique({
     where: {
       id: saleId,
     },
-    data: {
-      customerId: customer.id,
+    include: {
+      customer: true,
     },
   });
 
-  return { success: "Cliente adicionado" };
+  if (!existingSale) {
+    return { error: "Ordem de serviço não foi encontrada" };
+  }
+
+  const existingVehicle = await db.vehicle.findUnique({
+    where: {
+      licensePlate: plate,
+    },
+  });
+
+  if (!existingVehicle) {
+    const newVehicle = await db.vehicle.create({
+      data: {
+        licensePlate: plate,
+        model,
+        customerId: existingSale.customerId,
+      },
+    });
+
+    await createItemsOnSale(saleId, servicesIds, newVehicle);
+    return { success: "Inserção de veículo com sucesso" };
+  }
+
+  await createItemsOnSale(saleId, servicesIds, existingVehicle);
+
+  return { success: "Inserção de veículo com sucesso" };
 };
 
 export const createEmployees = async () => {
@@ -99,4 +150,58 @@ export const createEmployees = async () => {
   });
 
   return { success: "Funcionarios criados" };
+};
+
+export const saveTime = async (saleId: string, pickupTime: string) => {
+  if (!saleId || !pickupTime) {
+    return { error: "Dados inválidos" };
+  }
+
+  const existingSale = await db.sale.findUnique({
+    where: {
+      id: saleId,
+    },
+  });
+
+  if (!existingSale) {
+    return { error: "Não localizei a Ordem de serviço" };
+  }
+
+  await db.sale.update({
+    where: {
+      id: existingSale.id,
+    },
+    data: {
+      pickupTime,
+    },
+  });
+  return { success: "Horário salvo com sucesso" };
+};
+
+const updateCustomerOnSale = async (saleId: string, customerId: string) => {
+  const sale = await db.sale.update({
+    where: {
+      id: saleId,
+    },
+    data: {
+      customerId: customerId,
+    },
+  });
+};
+
+const createItemsOnSale = async (
+  saleId: string,
+  servicesIds: string[],
+  vehicle: Vehicle
+) => {
+  for (const serviceId of servicesIds) {
+    await db.itemSale.create({
+      data: {
+        saleId: saleId,
+        serviceId: serviceId,
+        quantity: 1,
+        vehicleId: vehicle.id,
+      },
+    });
+  }
 };

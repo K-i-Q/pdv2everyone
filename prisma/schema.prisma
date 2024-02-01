@@ -61,7 +61,8 @@ model Sale {
   netPrice          Float
   discount          Float?
   createAt          DateTime
-  isDeferredPayment Boolean?             @default(false)
+  isDeferredPayment Boolean?            @default(false)
+  pickupTime        String?
   deferredPayments  DeferredPayment[]
   note              String?
   items             ItemSale[]
