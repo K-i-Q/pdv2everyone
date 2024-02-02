@@ -277,7 +277,7 @@ const SalesPage = () => {
             <>
                 {employees && (
                     <>
-                        {currentStep === 0 && (
+                        {currentStep === 0 && (// 2 botões com ícone no final e função de click
                             <div className={`space-y-5 w-2/5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 <Card
                                     className="bg-yellow-400 text-black font-bold hover:cursor-pointer hover:bg-yellow-400/70"
@@ -296,7 +296,7 @@ const SalesPage = () => {
                                 </Card>
                             </div>
                         )}
-                        {currentStep === 1 && (
+                        {currentStep === 1 && (// tabela com 2 colunas, info de nome e função de click
                             <div className={`grid grid-cols-2 gap-5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 {
                                     employees.length > 0 && (
@@ -314,13 +314,17 @@ const SalesPage = () => {
                                         ))
                                     )
                                 }
-                                <Button variant="outline" className="w-full col-span-2 gap-x-3" onClick={prevStep}>
+                                <Button
+                                    variant="outline"
+                                    className="w-full col-span-2 gap-x-3"
+                                    disabled={isPending}
+                                    onClick={prevStep}>
                                     <GrLinkPrevious />
                                     Voltar
                                 </Button>
                             </div>
                         )}
-                        {currentStep === 2 && (
+                        {currentStep === 2 && (//1 label e input com event change e 2 botões
                             <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 <CardHeader>
                                     <Label>CPF</Label>
@@ -329,6 +333,7 @@ const SalesPage = () => {
                                     <Input
                                         placeholder="Digite aqui o CPF do cliente"
                                         onChange={(event) => setCustomerDocument(event.target.value)}
+                                        disabled={isPending}
                                         value={customerDocument} />
                                 </CardContent>
                                 <CardFooter className="flex-row-reverse gap-x-5">
@@ -340,14 +345,18 @@ const SalesPage = () => {
                                         Próximo
                                         <GrLinkNext />
                                     </Button>
-                                    <Button className="w-full gap-x-3" variant="outline" onClick={prevStep}>
+                                    <Button
+                                        className="w-full gap-x-3"
+                                        variant="outline"
+                                        disabled={isPending}
+                                        onClick={prevStep}>
                                         <GrLinkPrevious />
                                         Voltar
                                     </Button>
                                 </CardFooter>
                             </Card>
                         )}
-                        {currentStep === 3 && (
+                        {currentStep === 3 && (//2 input; 1 grid col 4; 2 botões
                             <div className="flex flex-col gap-x-4 gap-y-3">
                                 <>
                                     <div className="col-span-4">
@@ -358,6 +367,7 @@ const SalesPage = () => {
                                                     <Input
                                                         placeholder="Digite aqui o modelo do veículo"
                                                         onChange={(event) => setModel(event.target.value)}
+                                                        disabled={isPending}
                                                         value={model} />
                                                 </div>
                                                 <div className="space-y-2">
@@ -365,6 +375,7 @@ const SalesPage = () => {
                                                     <Input
                                                         placeholder="Digite aqui a placa do veículo"
                                                         onChange={(event) => setPlate(event.target.value)}
+                                                        disabled={isPending}
                                                         value={plate} />
                                                 </div>
                                             </CardContent>
@@ -385,7 +396,11 @@ const SalesPage = () => {
                                         }
                                     </div>
                                     <div className="flex flex-row items-center justify-between gap-x-3">
-                                        <Button className="gap-x-3 w-full" variant="outline" onClick={prevStep}>
+                                        <Button
+                                            className="gap-x-3 w-full"
+                                            variant="outline"
+                                            disabled={isPending}
+                                            onClick={prevStep}>
                                             <GrLinkPrevious />
                                             Voltar
                                         </Button>
@@ -402,7 +417,7 @@ const SalesPage = () => {
                             </div>
 
                         )}
-                        {currentStep === 4 && (
+                        {currentStep === 4 && (//1 grid col 4;2 botões
                             <div className="space-y-3">
                                 <div className="grid grid-cols-4 gap-x-4">
                                     {
@@ -420,7 +435,11 @@ const SalesPage = () => {
                                 </div>
 
                                 <div className="flex gap-3 w-full justify-between">
-                                    <Button className="gap-x-3 w-full" variant="outline" onClick={prevStep}>
+                                    <Button
+                                        className="gap-x-3 w-full"
+                                        variant="outline"
+                                        disabled={isPending}
+                                        onClick={prevStep}>
                                         <GrLinkPrevious />
                                         Voltar
                                     </Button>
@@ -437,12 +456,17 @@ const SalesPage = () => {
                             </div>
 
                         )}
-                        {currentStep === 5 && (
+                        {currentStep === 5 && (//1 checkbox; 1 select; 2 botões
                             <div className="flex items-center justify-center">
                                 <Card className="min-w-[230px]">
                                     <CardHeader>
                                         <div className="space-x-2">
-                                            <Checkbox className="border-gray-50" id="isPaymentLater" checked={isPaymentLater} onCheckedChange={() => setIsPaymentLater(!isPaymentLater)} />
+                                            <Checkbox
+                                                className="border-gray-50"
+                                                id="isPaymentLater"
+                                                checked={isPaymentLater}
+                                                disabled={isPending}
+                                                onCheckedChange={() => setIsPaymentLater(!isPaymentLater)} />
                                             <Label
                                                 htmlFor="isPaymentLater"
                                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -454,7 +478,10 @@ const SalesPage = () => {
                                     <CardContent className="space-y-3">
                                         {paymentMethods && paymentMethods?.length > 0 && !isPaymentLater && (
                                             <>
-                                                <Select onValueChange={(value) => setSelectedPaymentMethod(value)} defaultValue={selectedPaymentMethod}>
+                                                <Select
+                                                    onValueChange={(value) => setSelectedPaymentMethod(value)}
+                                                    disabled={isPending}
+                                                    defaultValue={selectedPaymentMethod}>
                                                     <SelectTrigger className="w-[180px]">
                                                         <SelectValue placeholder="Selecione uma forma de pagamento" />
                                                     </SelectTrigger>
@@ -478,7 +505,15 @@ const SalesPage = () => {
                                         )
 
                                         }
-                                        <div className="flex flex-row-reverse">
+                                        <div className="flex gap-3 w-full justify-between">
+                                            <Button
+                                                className="gap-x-3 w-full"
+                                                variant="outline"
+                                                disabled={isPending}
+                                                onClick={prevStep}>
+                                                <GrLinkPrevious />
+                                                Voltar
+                                            </Button>
                                             <Button
                                                 className="gap-x-3"
                                                 disabled={(isPending) || (!isPaymentLater && !selectedPaymentMethod)}
@@ -493,7 +528,7 @@ const SalesPage = () => {
                             </div>
 
                         )}
-                        {currentStep === 6 && (
+                        {currentStep === 6 && (//1 input; 1 textarea; 2 botões
                             <>
                                 <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                     <CardHeader>
@@ -504,14 +539,24 @@ const SalesPage = () => {
                                         <Input
                                             placeholder="Digite aqui o WhatsApp do cliente"
                                             onChange={(event) => setCelPhone(event.target.value)}
+                                            disabled={isPending}
                                             value={celPhone} />
                                         <Label>Observações</Label>
                                         <Textarea
                                             placeholder="Digite aqui alguma observação (opcional)"
                                             onChange={(event) => setNote(event.target.value)}
+                                            disabled={isPending}
                                             value={note}></Textarea>
                                     </CardContent>
-                                    <CardFooter className="flex-row-reverse">
+                                    <CardFooter className="flex gap-3 w-full justify-between">
+                                        <Button
+                                            className="gap-x-3 w-full"
+                                            variant="outline"
+                                            disabled={isPending}
+                                            onClick={prevStep}>
+                                            <GrLinkPrevious />
+                                            Voltar
+                                        </Button>
                                         <Button
                                             className="gap-x-3"
                                             disabled={isPending || !celPhone}
