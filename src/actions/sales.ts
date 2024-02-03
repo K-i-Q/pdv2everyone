@@ -32,9 +32,10 @@ export const createSale = async (employeeId: string) => {
 
 export const saveCustomer = async (
   saleId: string,
-  customerDocument: string
+  customerDocument: string,
+  customerName: string
 ) => {
-  if (!saleId || !customerDocument) {
+  if (!saleId || !customerDocument || !customerName) {
     return { error: "Campos invalidos" };
   }
   const existingSale = await getSaleById(saleId);
@@ -52,6 +53,7 @@ export const saveCustomer = async (
     const customer = await db.customer.create({
       data: {
         document: customerDocument,
+        name: customerName
       },
     });
 
