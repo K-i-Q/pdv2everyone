@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Textarea } from "@/components/ui/textarea";
 import { formatPriceBRL } from "@/utils/mask";
 import { Employee, PaymentMethod, Product, Service } from "@prisma/client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { FaCheckCircle, FaList } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
@@ -21,6 +22,7 @@ import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
 import { toast } from "sonner";
 
 const SalesPage = () => {
+    const router = useRouter();
     const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
     const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [isPending, startTransition] = useTransition();
@@ -277,11 +279,11 @@ const SalesPage = () => {
     }
 
     return (
-        <div className="w-3/4 md:px-10 flex flex-col items-center justify-center">
+        <div className="md:px-10 px-5 flex flex-col items-center justify-center">
             <>
                 {employees && (
                     <>
-                        {currentStep === 0 && (// 2 botões com ícone no final e função de click
+                        {currentStep === 0 && (// etapa escolher ativar ou listar
                             <div className={`space-y-5 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
                                 <Button
                                     className="w-full items-center py-8 font-semibold uppercase border-zinc-50 border-2 justify-between"
@@ -293,7 +295,7 @@ const SalesPage = () => {
                                 </Button>
                                 <Button
                                     className="w-full items-center py-8 font-semibold uppercase border-zinc-50 border-2 justify-between"
-                                    onClick={() => setCurrentStep(8)}
+                                    onClick={() => router.push('/sales/list')}
                                     disabled={isPending}
                                 >
                                     Consultar Atendimentos
@@ -607,22 +609,6 @@ const SalesPage = () => {
                                         <FaCheckCircle className="w-10 h-10 text-yellow-400" />
                                     </CardFooter>
                                 </Card>
-                            </div>
-                        )}
-                        {currentStep === 8 && (
-                            <div className="flex flex-col items-center justify-center gap-3">
-                                <Card className="md:w-2/4">
-                                    <CardHeader className="items-center justify-center">
-                                        LISTAGEM
-                                    </CardHeader>
-                                </Card>
-                                <Button
-                                    className="gap-x-3 w-full justify-between"
-                                    variant="outline"
-                                    onClick={() => setCurrentStep(0)}>
-                                    <GrLinkPrevious />
-                                    Voltar
-                                </Button>
                             </div>
                         )}
                     </>
