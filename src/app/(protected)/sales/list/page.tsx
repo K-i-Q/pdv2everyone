@@ -149,7 +149,7 @@ const SalesListPage = () => {
                     )}
                     {sales.length === 0 && (
                         <>
-                            Não tem Sale my nigga
+                            Nenhuma Ordem de serviço encontrada
                         </>
                     )}
                 </>
