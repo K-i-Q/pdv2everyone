@@ -160,7 +160,7 @@ model ItemSale {
   saleId    String
   quantity  Int
   vehicleId String?
-  vechicle  Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
 

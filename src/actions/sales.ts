@@ -53,7 +53,7 @@ export const saveCustomer = async (
     const customer = await db.customer.create({
       data: {
         document: customerDocument,
-        name: customerName
+        name: customerName,
       },
     });
 
@@ -277,6 +277,31 @@ export const saveContact = async (
   }
 
   return { success: "Ordem de serviço finalizada com sucesso" };
+};
+
+export const getSales = async () => {
+  const sales = await db.sale.findMany({
+    where: {
+      pickupTime: {
+        not: null,
+      },
+    },
+    include:{
+      customer: true,
+      items: {
+        include: {
+          vehicle: true
+        }
+      }
+
+    }
+  });
+
+  if (!sales) {
+    return { error: "Nenhuma ordem de serviço encontrada" };
+  }
+
+  return { success: "Ordens de serviço encontradas", sales };
 };
 
 const updateCustomerOnSale = async (saleId: string, customerId: string) => {
