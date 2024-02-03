@@ -125,7 +125,7 @@ const ServicePage = () => {
                                             </DialogContent>
                                         </Dialog>
                                     </div>
-                                    <ScrollArea className="h-[400px] w-full pr-4">
+                                    <ScrollArea className="max-h-[400px] w-full pr-4">
                                         <Table className="bg-black text-white">
                                             <TableHeader>
                                                 <TableRow className="text-white">
