@@ -136,7 +136,7 @@ export const LoginForm = () => {
                                                 disabled={isPending}
                                             />
                                         </FormControl>
-                                        <Button size="sm" variant="link" asChild className="px-0 font-normal">
+                                        <Button size="sm" variant="link" asChild className="px-0 font-normal text-white">
                                             <Link href="/auth/reset">Esqueci minha senha</Link>
                                         </Button>
                                         <FormMessage />
