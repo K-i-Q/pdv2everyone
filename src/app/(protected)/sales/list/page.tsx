@@ -3,8 +3,14 @@
 import { getSales } from "@/actions/sales";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { FaEye } from "react-icons/fa";
@@ -29,7 +35,6 @@ type ItemSale = {
 type SalePaymentMethod = {
     // Defina a estrutura de SalePaymentMethod conforme necessário
 };
-
 
 type Vehicle = {
     id: string;
@@ -112,7 +117,7 @@ const SalesListPage = () => {
             {sales && (
                 <>
                     {sales.length > 0 && (
-                        <ScrollArea className="h-[400px] w-full pr-4">
+                        <ScrollArea className="h-[400px] w-full md:px-10">
                             <Table className="bg-black text-white w-full">
                                 <TableHeader>
                                     <TableRow className="text-white">
@@ -137,9 +142,50 @@ const SalesListPage = () => {
                                                 {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
                                             </TableCell>
                                             <TableCell className="flex items-center justify-center text-yellow-400">
-                                                <Button>
-                                                    <FaEye />
-                                                </Button>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button>
+                                                            <FaEye />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                        <Card>
+                                                            <CardHeader>
+                                                                Resumo
+                                                            </CardHeader>
+                                                            <CardContent className="flex flex-col md:gap-y-3">
+                                                                <Label>Cliente: João da Silva (41) 9 9515-900</Label>
+                                                                <Separator />
+                                                                <Label>Veículo: Gol ABC123</Label>
+                                                                <Separator />
+                                                                <Label>Serviços: COMPLETO, CERA, BAIXO, MOTOR</Label>
+                                                                <Separator />
+                                                                <Label>Horário: 13:30</Label>
+                                                                <Separator />
+                                                                <Label>Pagamento: Não pagou ainda</Label>
+                                                                <Separator />
+                                                                <Label>Observações</Label>
+                                                                <Textarea></Textarea>
+                                                                <Separator />
+                                                                <Label>Total: R$ 100,00</Label>
+                                                            </CardContent>
+                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                                <DialogClose asChild>
+                                                                    <Button
+                                                                        className="w-full"
+                                                                        variant="outline"
+                                                                    >
+                                                                        Fechar
+                                                                    </Button>
+                                                                </DialogClose>
+                                                                <Button
+                                                                    className="w-full"
+                                                                >Finalizar</Button>
+                                                            </CardFooter>
+                                                        </Card>
+                                                    </DialogContent>
+                                                </Dialog>
+
                                             </TableCell>
                                         </TableRow>
                                     ))}
