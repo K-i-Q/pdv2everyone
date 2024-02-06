@@ -279,7 +279,7 @@ export const saveContact = async (
   return { success: "Ordem de serviço finalizada com sucesso" };
 };
 
-export const getSales = async () => {
+export const getSales = async (): Promise<any> => {
   const sales = await db.sale.findMany({
     where: {
       pickupTime: {
@@ -290,7 +290,9 @@ export const getSales = async () => {
       customer: true,
       items: {
         include: {
-          vehicle: true
+          vehicle: true,
+          service: true,
+          product: true
         }
       }
 

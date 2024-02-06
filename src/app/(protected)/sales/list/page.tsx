@@ -15,63 +15,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { FaEye } from "react-icons/fa";
 import { toast } from "sonner";
+import PaymentInfoSale from "./_components/paymentinfosale";
+import ServiceSale from "./_components/servicesale";
+import VehicleSale from "./_components/vehiclesale";
 
-type DeferredPayment = {
-    // Defina a estrutura de DeferredPayment conforme necessário
-};
-
-type ItemSale = {
-    id: string;
-    productId?: string; // O campo é opcional
-    serviceId?: string; // O campo é opcional
-    isGift: boolean;
-    saleId: string;
-    quantity: number;
-    vehicleId?: string; // O campo é opcional
-    vehicle?: Vehicle; // Assumindo que o tipo Vehicle será ajustado para incluir esta relação
-    sale: Sale; // Assumindo que você já tem um tipo Sale definido
-};
-
-type SalePaymentMethod = {
-    // Defina a estrutura de SalePaymentMethod conforme necessário
-};
-
-type Vehicle = {
-    id: string;
-    model: string;
-    licensePlate: string;
-    customerId?: string; // O campo é opcional
-    customer?: Customer; // Assumindo que você já tem um tipo Customer definido
-    itemSales: ItemSale[]; // Relação de um para muitos com ItemSale
-};
-
-type Customer = {
-    id: string;
-    name: string | null;
-    birthday: Date | null;
-    nickname: string | null;
-    gender: string | null;
-    document: string;
-    phone: string | null;
-    Sales: Sale[]; // Note que este é um relacionamento de um para muitos
-    Vehicles: Vehicle[];
-};
-
-type Sale = {
-    id: string;
-    grossPrice: number;
-    netPrice: number;
-    discount: number | null;
-    createAt: Date;
-    isDeferredPayment: boolean | null;
-    pickupTime: string | null;
-    deferredPayments: DeferredPayment[];
-    note: string | null;
-    items: ItemSale[];
-    salePayments: SalePaymentMethod[];
-    customerId: string | null;
-    customer: Customer | null; // Este campo reflete o relacionamento opcional com Customer
-};
 
 
 const SalesListPage = () => {
@@ -96,15 +43,14 @@ const SalesListPage = () => {
                                 salePayments: sale.salePayments || [],
                                 // Outras propriedades conforme necessário
                             };
-                        }).sort((a, b) => {
+                        }).sort((a: Sale, b: Sale) => {
                             // Comparando as strings de pickupTime diretamente
-                            return a.pickupTime.localeCompare(b.pickupTime);
+                            return a.pickupTime?.localeCompare(b.pickupTime || '');
                         });
                         setSales(formattedSales);
                     }
                 });
             });
-            console.log(123)
         }, 3000); // Chama a função a cada 3 segundos
 
         // Limpeza: é chamada quando o componente é desmontado
@@ -154,15 +100,15 @@ const SalesListPage = () => {
                                                                 Resumo
                                                             </CardHeader>
                                                             <CardContent className="flex flex-col md:gap-y-3">
-                                                                <Label>Cliente: João da Silva (41) 9 9515-900</Label>
+                                                                <Label>Cliente: {sale.customer?.name} {sale.customer?.phone}</Label>
                                                                 <Separator />
-                                                                <Label>Veículo: Gol ABC123</Label>
+                                                                <VehicleSale sale={sale} />
                                                                 <Separator />
-                                                                <Label>Serviços: COMPLETO, CERA, BAIXO, MOTOR</Label>
+                                                                <ServiceSale sale={sale}/>
                                                                 <Separator />
-                                                                <Label>Horário: 13:30</Label>
+                                                                <Label>Horário: {sale.pickupTime}</Label>
                                                                 <Separator />
-                                                                <Label>Pagamento: Não pagou ainda</Label>
+                                                                <PaymentInfoSale sale={sale}/>
                                                                 <Separator />
                                                                 <Label>Observações</Label>
                                                                 <Textarea></Textarea>
