@@ -286,17 +286,22 @@ export const getSales = async (): Promise<any> => {
         not: null,
       },
     },
-    include:{
+    include: {
       customer: true,
       items: {
         include: {
           vehicle: true,
           service: true,
-          product: true
+          product: true,
+        },
+      },
+      deferredPayments: true,
+      salePayments: {
+        include:{
+          paymentMethod: true
         }
       }
-
-    }
+    },
   });
 
   if (!sales) {

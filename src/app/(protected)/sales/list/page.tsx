@@ -111,7 +111,7 @@ const SalesListPage = () => {
                                                                 <PaymentInfoSale sale={sale}/>
                                                                 <Separator />
                                                                 <Label>Observações</Label>
-                                                                <Textarea></Textarea>
+                                                                <Textarea value={sale?.note || ''}></Textarea>
                                                                 <Separator />
                                                                 <Label>Total: R$ 100,00</Label>
                                                             </CardContent>
