@@ -178,9 +178,37 @@ const SalesListPage = () => {
                                                                         Fechar
                                                                     </Button>
                                                                 </DialogClose>
-                                                                <Button
-                                                                    className="w-full"
-                                                                >Finalizar</Button>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild>
+                                                                        <Button
+                                                                            className="w-full"
+                                                                        >Finalizar</Button>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                        <Card>
+                                                                            <CardHeader>
+                                                                                Confirmar Entrega
+                                                                            </CardHeader>
+                                                                            <CardContent className="flex flex-col md:gap-y-3">
+                                                                                <Label>Tem certeza que deseja finalizar a ordem de servio do João da Silva?</Label>
+                                                                            </CardContent>
+                                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                                                <DialogClose asChild>
+                                                                                    <Button
+                                                                                        className="w-full"
+                                                                                        variant="outline"
+                                                                                    >
+                                                                                        Cancelar
+                                                                                    </Button>
+                                                                                </DialogClose>
+
+                                                                                <Button
+                                                                                    className="w-full"
+                                                                                >Confirmar</Button>
+                                                                            </CardFooter>
+                                                                        </Card>
+                                                                    </DialogContent>
+                                                                </Dialog>
                                                             </CardFooter>
                                                         </Card>
                                                     </DialogContent>
