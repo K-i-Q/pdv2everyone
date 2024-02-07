@@ -1,15 +1,15 @@
-const withPWA = require('next-pwa');
-const runtimeCaching = require('next-pwa/cache');
+/** @type {import('next').NextConfig} */
 
-/**
- * @type {import('next').NextConfig}
- **/
-const nextConfig = withPWA({
-  pwa: {
-    dest: 'public',
-    disable: process.env.NODE_ENV === 'development',
-    runtimeCaching,
-  },
+const withPWA = require("@ducanh2912/next-pwa").default({
+  dest: "public",
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+  disable: process.env.NODE_ENV === 'development',
+  workboxOptions:{
+    disableDevLogs: true
+  }
 });
-
-module.exports = nextConfig;
+const nextConfig = {};
+module.exports = withPWA(nextConfig);
