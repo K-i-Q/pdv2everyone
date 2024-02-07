@@ -46,13 +46,14 @@ model CashRegister {
 }
 
 model Service {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   description String
-  name        String   @unique
+  name        String     @unique
   costPrice   Float
   salePrice   Float
   createAt    DateTime
   status      Boolean
+  itemSales   ItemSale[]
 }
 
 model Sale {
@@ -70,6 +71,16 @@ model Sale {
   salePayments      SalePaymentMethod[]
   customerId        String?
   customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  statusSaleId      String
+  statusSale        StatusSale          @relation(fields: [statusSaleId], references: [id], onDelete: SetDefault)
+}
+
+model StatusSale {
+  id          String   @id @default(cuid())
+  description String   @unique
+  createAt    DateTime
+  status      Boolean
+  sales       Sale[]
 }
 
 model DeferredPayment {
@@ -154,12 +165,14 @@ model Vehicle {
 
 model ItemSale {
   id        String   @id @default(cuid())
-  productId String?
-  serviceId String?
   isGift    Boolean  @default(false)
   saleId    String
   quantity  Int
+  productId String?
+  serviceId String?
   vehicleId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   vehicle   Vehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   sale      Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
@@ -173,15 +186,16 @@ model PaymentMethod {
 }
 
 model Product {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String
   costPrice   Float
   salePrice   Float
   createAt    DateTime
   supplierId  String?
-  supplier    Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplier    Supplier?  @relation(fields: [supplierId], references: [id], onDelete: SetNull)
   status      Boolean
+  itemSales   ItemSale[]
 }
 
 model Supplier {
