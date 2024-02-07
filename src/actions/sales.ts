@@ -9,6 +9,15 @@ export const createSale = async (employeeId: string) => {
   if (!employeeId) {
     return { error: "Colaborador não foi selecionado" };
   }
+  const statusSale = await db.statusSale.findFirst({
+    where: {
+      description: "Em atendimento",
+    },
+  });
+
+  if (!statusSale) {
+    return { error: "Erro ao busca status da OS" };
+  }
 
   const createAt = new Date();
   const sale = await db.sale.create({
@@ -16,6 +25,7 @@ export const createSale = async (employeeId: string) => {
       createAt,
       grossPrice: 0,
       netPrice: 0,
+      statusSaleId: statusSale.id,
       employees: {
         create: [
           {
@@ -135,55 +145,6 @@ export const saveServices = async (
   return { success: "Inserção de veículo com sucesso", prices };
 };
 
-export const createEmployees = async () => {
-  await db.employee.createMany({
-    data: [
-      {
-        name: "Alice",
-        document: "12345678901",
-        gender: "Feminino",
-        phone: "11999999999",
-        createAt: new Date(),
-        birthday: new Date("1990-01-01"),
-        status: true,
-        commission: 0.1,
-      },
-      {
-        name: "Bob",
-        document: "23456789012",
-        gender: "Masculino",
-        phone: "11888888888",
-        createAt: new Date(),
-        birthday: new Date("1991-02-02"),
-        status: true,
-        commission: 0.15,
-      },
-      {
-        name: "Carol",
-        document: "34567890123",
-        gender: "Feminino",
-        phone: "11777777777",
-        createAt: new Date(),
-        birthday: new Date("1992-03-03"),
-        status: true,
-        commission: 0.12,
-      },
-      {
-        name: "Dave",
-        document: "45678901234",
-        gender: "Masculino",
-        phone: "11666666666",
-        createAt: new Date(),
-        birthday: new Date("1993-04-04"),
-        status: true,
-        commission: 0.1,
-      },
-    ],
-  });
-
-  return { success: "Funcionarios criados" };
-};
-
 export const saveTime = async (saleId: string, pickupTime: string) => {
   if (!saleId || !pickupTime) {
     return { error: "Dados inválidos" };
@@ -297,10 +258,10 @@ export const getSales = async (): Promise<any> => {
       },
       deferredPayments: true,
       salePayments: {
-        include:{
-          paymentMethod: true
-        }
-      }
+        include: {
+          paymentMethod: true,
+        },
+      },
     },
   });
 

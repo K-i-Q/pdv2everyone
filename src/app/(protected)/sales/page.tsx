@@ -1,9 +1,10 @@
 "use client"
-import { getEmployees } from "@/actions/employees";
-import { getPayments } from "@/actions/payments";
+import { createEmployees, getEmployees } from "@/actions/employees";
+import { createPaymentMethods, getPayments } from "@/actions/payments";
 import { getProducts } from "@/actions/products";
-import { createEmployees, createSale, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
+import { createSale, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
 import { getServices } from "@/actions/services";
+import { createStatusSales } from "@/actions/status-sale";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
@@ -189,11 +190,27 @@ const SalesPage = () => {
         })
     }
 
-    const handleCreateEmployees = () => {
+    const handleCreateEmployeesPaymentMethodAndStatusMock = () => {
         startTransition(() => {
             createEmployees().then((data) => {
                 if (data?.success) {
                     toast.success(data.success)
+                }
+            });
+
+            createPaymentMethods().then((data)=>{
+                if(data?.success){
+                    toast.success(data.success)
+                }else{
+                    toast.error('Erro ao criar formas de pagamento')
+                }
+            });
+
+            createStatusSales().then((data)=>{
+                if(data?.success){
+                    toast.success(data.success)
+                }else{
+                    toast.error('Erro ao criar status da OS')
                 }
             })
         })
@@ -621,7 +638,7 @@ const SalesPage = () => {
                 {
                     (!employees || employees?.length === 0) && (
                         <>
-                            <Button disabled={isPending} onClick={handleCreateEmployees}>Criar funcionarios</Button>
+                            <Button disabled={isPending} onClick={handleCreateEmployeesPaymentMethodAndStatusMock}>Colaboradores, Formas de pagamento e Status</Button>
                         </>
                     )
                 }

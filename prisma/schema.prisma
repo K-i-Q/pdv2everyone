@@ -71,6 +71,16 @@ model Sale {
   salePayments      SalePaymentMethod[]
   customerId        String?
   customer          Customer?           @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  statusSaleId      String
+  statusSale        StatusSale          @relation(fields: [statusSaleId], references: [id], onDelete: SetDefault)
+}
+
+model StatusSale {
+  id          String   @id @default(cuid())
+  description String   @unique
+  createAt    DateTime
+  status      Boolean
+  sales       Sale[]
 }
 
 model DeferredPayment {
