@@ -1,6 +1,6 @@
 {
-    "short_name": "App",
-    "name": "Meu Aplicativo Next.js PWA",
+    "short_name": "Lava Car",
+    "name": "Lava Car Central",
     "icons": [
       {
         "src": "/icons/icon-192x192.png",
