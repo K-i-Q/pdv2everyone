@@ -1,72 +1,26 @@
 "use client";
 
-import { getSales } from "@/actions/sales";
+import { cancelSale, getPendingSales } from "@/actions/sales";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { DialogClose } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { FaEye } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
 import { toast } from "sonner";
+import PaymentInfoSale from "./_components/paymentinfosale";
+import ServiceSale from "./_components/servicesale";
+import TotalPriceSale from "./_components/totalpricesale";
+import VehicleSale from "./_components/vehiclesale";
 
-type DeferredPayment = {
-    // Defina a estrutura de DeferredPayment conforme necessário
-};
-
-type ItemSale = {
-    id: string;
-    productId?: string; // O campo é opcional
-    serviceId?: string; // O campo é opcional
-    isGift: boolean;
-    saleId: string;
-    quantity: number;
-    vehicleId?: string; // O campo é opcional
-    vehicle?: Vehicle; // Assumindo que o tipo Vehicle será ajustado para incluir esta relação
-    sale: Sale; // Assumindo que você já tem um tipo Sale definido
-};
-
-type SalePaymentMethod = {
-    // Defina a estrutura de SalePaymentMethod conforme necessário
-};
-
-
-type Vehicle = {
-    id: string;
-    model: string;
-    licensePlate: string;
-    customerId?: string; // O campo é opcional
-    customer?: Customer; // Assumindo que você já tem um tipo Customer definido
-    itemSales: ItemSale[]; // Relação de um para muitos com ItemSale
-};
-
-type Customer = {
-    id: string;
-    name: string | null;
-    birthday: Date | null;
-    nickname: string | null;
-    gender: string | null;
-    document: string;
-    phone: string | null;
-    Sales: Sale[]; // Note que este é um relacionamento de um para muitos
-    Vehicles: Vehicle[];
-};
-
-type Sale = {
-    id: string;
-    grossPrice: number;
-    netPrice: number;
-    discount: number | null;
-    createAt: Date;
-    isDeferredPayment: boolean | null;
-    pickupTime: string | null;
-    deferredPayments: DeferredPayment[];
-    note: string | null;
-    items: ItemSale[];
-    salePayments: SalePaymentMethod[];
-    customerId: string | null;
-    customer: Customer | null; // Este campo reflete o relacionamento opcional com Customer
-};
 
 
 const SalesListPage = () => {
@@ -77,7 +31,7 @@ const SalesListPage = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             startTransition(() => {
-                getSales().then((data) => {
+                getPendingSales().then((data) => {
                     if (data?.error) {
                         toast.error(data.error);
                     }
@@ -91,28 +45,40 @@ const SalesListPage = () => {
                                 salePayments: sale.salePayments || [],
                                 // Outras propriedades conforme necessário
                             };
-                        }).sort((a, b) => {
+                        }).sort((a: Sale, b: Sale) => {
                             // Comparando as strings de pickupTime diretamente
-                            return a.pickupTime.localeCompare(b.pickupTime);
+                            return a.pickupTime?.localeCompare(b.pickupTime || '');
                         });
                         setSales(formattedSales);
                     }
                 });
             });
-            console.log(123)
         }, 3000); // Chama a função a cada 3 segundos
 
         // Limpeza: é chamada quando o componente é desmontado
         return () => clearInterval(intervalId);
     }, []); // Array de dependências vazio significa que o useEffect rodará apenas uma vez após o componente montar
 
+    const handleCancelSale = (saleId: string) => {
+        startTransition(() => {
+            cancelSale(saleId).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+
+                if (data?.success) {
+                    toast.success(data.success);
+                }
+            })
+        })
+    }
 
     return (
         <>
             {sales && (
                 <>
                     {sales.length > 0 && (
-                        <ScrollArea className="h-[400px] w-full pr-4">
+                        <ScrollArea className="h-[400px] w-full md:px-10">
                             <Table className="bg-black text-white w-full">
                                 <TableHeader>
                                     <TableRow className="text-white">
@@ -137,9 +103,86 @@ const SalesListPage = () => {
                                                 {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
                                             </TableCell>
                                             <TableCell className="flex items-center justify-center text-yellow-400">
-                                                <Button>
-                                                    <FaEye />
-                                                </Button>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button>
+                                                            <FaEye />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                        <Card>
+                                                            <CardHeader>
+                                                                Resumo
+                                                            </CardHeader>
+                                                            <CardContent className="flex flex-col md:gap-y-3">
+                                                                <Label>Cliente: {sale.customer?.name} {sale.customer?.phone}</Label>
+                                                                <Separator />
+                                                                <VehicleSale sale={sale} />
+                                                                <Separator />
+                                                                <ServiceSale sale={sale} />
+                                                                <Separator />
+                                                                <Label>Horário: {sale.pickupTime}</Label>
+                                                                <Separator />
+                                                                <PaymentInfoSale sale={sale} />
+                                                                <Separator />
+                                                                <Label>Observações</Label>
+                                                                <Textarea value={sale?.note || ''}></Textarea>
+                                                                <Separator />
+                                                                <TotalPriceSale sale={sale} />
+                                                            </CardContent>
+                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                                <Button
+                                                                    className="gap-x-3"
+                                                                    variant="secondary"
+                                                                    onClick={() => handleCancelSale(sale.id)}
+                                                                >
+                                                                    <MdOutlineCancel />
+                                                                    Cancelar Atendimento
+                                                                </Button>
+                                                                <DialogClose asChild>
+                                                                    <Button
+                                                                        className="w-full"
+                                                                        variant="outline"
+                                                                    >
+                                                                        Fechar
+                                                                    </Button>
+                                                                </DialogClose>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild>
+                                                                        <Button
+                                                                            className="w-full"
+                                                                        >Finalizar</Button>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                        <Card>
+                                                                            <CardHeader>
+                                                                                Confirmar Entrega
+                                                                            </CardHeader>
+                                                                            <CardContent className="flex flex-col md:gap-y-3">
+                                                                                <Label>Tem certeza que deseja finalizar a ordem de servio do João da Silva?</Label>
+                                                                            </CardContent>
+                                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                                                <DialogClose asChild>
+                                                                                    <Button
+                                                                                        className="w-full"
+                                                                                        variant="outline"
+                                                                                    >
+                                                                                        Cancelar
+                                                                                    </Button>
+                                                                                </DialogClose>
+
+                                                                                <Button
+                                                                                    className="w-full"
+                                                                                >Confirmar</Button>
+                                                                            </CardFooter>
+                                                                        </Card>
+                                                                    </DialogContent>
+                                                                </Dialog>
+                                                            </CardFooter>
+                                                        </Card>
+                                                    </DialogContent>
+                                                </Dialog>
+
                                             </TableCell>
                                         </TableRow>
                                     ))}
