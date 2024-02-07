@@ -2,7 +2,7 @@
 import { createEmployees, getEmployees } from "@/actions/employees";
 import { createPaymentMethods, getPayments } from "@/actions/payments";
 import { getProducts } from "@/actions/products";
-import { createSale, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
+import { cancelSale, createSale, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import { createStatusSales } from "@/actions/status-sale";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
@@ -20,6 +20,7 @@ import { useEffect, useState, useTransition } from "react";
 import { FaCheckCircle, FaList } from "react-icons/fa";
 import { FaCirclePlus } from "react-icons/fa6";
 import { GrLinkNext, GrLinkPrevious } from "react-icons/gr";
+import { MdOutlineCancel } from "react-icons/md";
 import { toast } from "sonner";
 
 const SalesPage = () => {
@@ -117,10 +118,9 @@ const SalesPage = () => {
     const getAllEmployees = () => {
         getEmployees().then((data) => {
             if (data?.error) {
-                console.log('erro: ', data?.error)
+                toast.error(data?.error)
             }
             if (data?.success) {
-                console.log('success: ', data?.success)
                 setEmployees(data.employees)
             }
         })
@@ -198,18 +198,18 @@ const SalesPage = () => {
                 }
             });
 
-            createPaymentMethods().then((data)=>{
-                if(data?.success){
+            createPaymentMethods().then((data) => {
+                if (data?.success) {
                     toast.success(data.success)
-                }else{
+                } else {
                     toast.error('Erro ao criar formas de pagamento')
                 }
             });
 
-            createStatusSales().then((data)=>{
-                if(data?.success){
+            createStatusSales().then((data) => {
+                if (data?.success) {
                     toast.success(data.success)
-                }else{
+                } else {
                     toast.error('Erro ao criar status da OS')
                 }
             })
@@ -290,6 +290,21 @@ const SalesPage = () => {
                 if (data?.success) {
                     nextStep();
                     //TODO: enviar resumo do pedido para o whats do cliente
+                }
+            })
+        })
+    }
+
+    const handleCancelSale = () => {
+        startTransition(() => {
+            cancelSale(saleId).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+
+                if (data?.success) {
+                    toast.success(data.success);
+                    setCurrentStep(0);
                 }
             })
         })
@@ -379,11 +394,20 @@ const SalesPage = () => {
                                         <GrLinkPrevious />
                                         Voltar
                                     </Button>
+                                    <Button
+                                        className="gap-x-3"
+                                        disabled={isPending}
+                                        variant="secondary"
+                                        onClick={handleCancelSale}
+                                    >
+                                        <MdOutlineCancel />
+                                        Cancelar Atendimento
+                                    </Button>
                                 </CardFooter>
                             </Card>
                         )}
                         {currentStep === 3 && (//2 input; 1 grid col 4; 2 botões
-                            <div className="flex flex-col gap-x-4 gap-y-3 md:w-2/4">
+                            <div className="flex flex-col gap-x-4 gap-y-3">
                                 <>
                                     <div className="col-span-4">
                                         <Card className={`pt-4 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
@@ -434,6 +458,15 @@ const SalesPage = () => {
                                     </div>
                                     <div className="flex flex-row items-center justify-between gap-x-3">
                                         <Button
+                                            className="gap-x-3"
+                                            disabled={isPending}
+                                            variant="secondary"
+                                            onClick={handleCancelSale}
+                                        >
+                                            <MdOutlineCancel />
+                                            Cancelar Atendimento
+                                        </Button>
+                                        <Button
                                             className="gap-x-3 w-full  justify-between"
                                             variant="outline"
                                             disabled={isPending}
@@ -452,7 +485,6 @@ const SalesPage = () => {
                                     </div>
                                 </>
                             </div>
-
                         )}
                         {currentStep === 4 && (//1 grid col 4;2 botões
                             <div className="space-y-3">
@@ -477,6 +509,15 @@ const SalesPage = () => {
 
                                 <div className="flex gap-3 w-full justify-between">
                                     <Button
+                                        className="gap-x-3"
+                                        disabled={isPending}
+                                        variant="secondary"
+                                        onClick={handleCancelSale}
+                                    >
+                                        <MdOutlineCancel />
+                                        Cancelar Atendimento
+                                    </Button>
+                                    <Button
                                         className="gap-x-3 w-full  justify-between"
                                         variant="outline"
                                         disabled={isPending}
@@ -493,9 +534,7 @@ const SalesPage = () => {
                                         <GrLinkNext />
                                     </Button>
                                 </div>
-
                             </div>
-
                         )}
                         {currentStep === 5 && (//1 checkbox; 1 select; 2 botões
                             <div className="flex items-center justify-center">
@@ -548,25 +587,34 @@ const SalesPage = () => {
                                         )
 
                                         }
-                                        <div className="flex gap-3 w-full justify-between">
-                                            <Button
-                                                className="gap-x-3 w-full  justify-between"
-                                                variant="outline"
-                                                disabled={isPending}
-                                                onClick={prevStep}>
-                                                <GrLinkPrevious />
-                                                Voltar
-                                            </Button>
-                                            <Button
-                                                className="gap-x-3 w-full  justify-between"
-                                                disabled={(isPending) || (!isPaymentLater && !selectedPaymentMethod)}
-                                                onClick={handleSavePaymentMethod}
-                                            >
-                                                Próximo
-                                                <GrLinkNext />
-                                            </Button>
-                                        </div>
                                     </CardContent>
+                                    <CardFooter className="flex gap-3 w-full justify-between">
+                                        <Button
+                                            className="gap-x-3"
+                                            disabled={isPending}
+                                            variant="secondary"
+                                            onClick={handleCancelSale}
+                                        >
+                                            <MdOutlineCancel />
+                                            Cancelar Atendimento
+                                        </Button>
+                                        <Button
+                                            className="gap-x-3 w-full  justify-between"
+                                            variant="outline"
+                                            disabled={isPending}
+                                            onClick={prevStep}>
+                                            <GrLinkPrevious />
+                                            Voltar
+                                        </Button>
+                                        <Button
+                                            className="gap-x-3 w-full  justify-between"
+                                            disabled={(isPending) || (!isPaymentLater && !selectedPaymentMethod)}
+                                            onClick={handleSavePaymentMethod}
+                                        >
+                                            Próximo
+                                            <GrLinkNext />
+                                        </Button>
+                                    </CardFooter>
                                 </Card>
                             </div>
 
@@ -596,6 +644,15 @@ const SalesPage = () => {
                                         </div>
                                     </CardContent>
                                     <CardFooter className="flex gap-3 w-full justify-between">
+                                        <Button
+                                            className="gap-x-3"
+                                            disabled={isPending}
+                                            variant="secondary"
+                                            onClick={handleCancelSale}
+                                        >
+                                            <MdOutlineCancel />
+                                            Cancelar Atendimento
+                                        </Button>
                                         <Button
                                             className="gap-x-3 w-full justify-between"
                                             variant="outline"

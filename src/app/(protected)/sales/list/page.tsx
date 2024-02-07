@@ -1,6 +1,6 @@
 "use client";
 
-import { getSales } from "@/actions/sales";
+import { cancelSale, getPendingSales } from "@/actions/sales";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { FaEye } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
 import { toast } from "sonner";
 import PaymentInfoSale from "./_components/paymentinfosale";
 import ServiceSale from "./_components/servicesale";
@@ -30,7 +31,7 @@ const SalesListPage = () => {
     useEffect(() => {
         const intervalId = setInterval(() => {
             startTransition(() => {
-                getSales().then((data) => {
+                getPendingSales().then((data) => {
                     if (data?.error) {
                         toast.error(data.error);
                     }
@@ -58,6 +59,19 @@ const SalesListPage = () => {
         return () => clearInterval(intervalId);
     }, []); // Array de dependências vazio significa que o useEffect rodará apenas uma vez após o componente montar
 
+    const handleCancelSale = (saleId: string) => {
+        startTransition(() => {
+            cancelSale(saleId).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+
+                if (data?.success) {
+                    toast.success(data.success);
+                }
+            })
+        })
+    }
 
     return (
         <>
@@ -105,11 +119,11 @@ const SalesListPage = () => {
                                                                 <Separator />
                                                                 <VehicleSale sale={sale} />
                                                                 <Separator />
-                                                                <ServiceSale sale={sale}/>
+                                                                <ServiceSale sale={sale} />
                                                                 <Separator />
                                                                 <Label>Horário: {sale.pickupTime}</Label>
                                                                 <Separator />
-                                                                <PaymentInfoSale sale={sale}/>
+                                                                <PaymentInfoSale sale={sale} />
                                                                 <Separator />
                                                                 <Label>Observações</Label>
                                                                 <Textarea value={sale?.note || ''}></Textarea>
@@ -117,6 +131,14 @@ const SalesListPage = () => {
                                                                 <TotalPriceSale sale={sale} />
                                                             </CardContent>
                                                             <CardFooter className="items-center justify-between gap-x-3">
+                                                                <Button
+                                                                    className="gap-x-3"
+                                                                    variant="secondary"
+                                                                    onClick={() => handleCancelSale(sale.id)}
+                                                                >
+                                                                    <MdOutlineCancel />
+                                                                    Cancelar Atendimento
+                                                                </Button>
                                                                 <DialogClose asChild>
                                                                     <Button
                                                                         className="w-full"
