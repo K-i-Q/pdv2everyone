@@ -1,5 +1,5 @@
 import { auth } from '@/auth'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { SessionProvider } from 'next-auth/react'
 import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   title: 'PDV to Everyone',
   description: 'PDV para pequenos comércios',
+}
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF"
 }
 
 export default async function RootLayout({
