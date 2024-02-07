@@ -17,6 +17,7 @@ import { FaEye } from "react-icons/fa";
 import { toast } from "sonner";
 import PaymentInfoSale from "./_components/paymentinfosale";
 import ServiceSale from "./_components/servicesale";
+import TotalPriceSale from "./_components/totalpricesale";
 import VehicleSale from "./_components/vehiclesale";
 
 
@@ -113,7 +114,7 @@ const SalesListPage = () => {
                                                                 <Label>Observações</Label>
                                                                 <Textarea value={sale?.note || ''}></Textarea>
                                                                 <Separator />
-                                                                <Label>Total: R$ 100,00</Label>
+                                                                <TotalPriceSale sale={sale} />
                                                             </CardContent>
                                                             <CardFooter className="items-center justify-between gap-x-3">
                                                                 <DialogClose asChild>
