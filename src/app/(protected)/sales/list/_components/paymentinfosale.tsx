@@ -12,8 +12,8 @@ const PaymentInfoSale: React.FC<{ sale: Sale }> = ({ sale }) => {
         .join(', ');
     return (
         <div>
-            <Label>
-                Pagamento: {isDeferredAndUnpaid ? 'Não pagou ainda' : paymentMethodsUsed || 'N/A'}
+            <Label className="flex items-center justify-between">
+                Pagamento: <span>{isDeferredAndUnpaid ? 'Não pagou ainda' : paymentMethodsUsed || 'N/A'}</span>
             </Label>
         </div>
     );

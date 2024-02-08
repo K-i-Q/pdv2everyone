@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/co
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { formatPriceBRL } from "@/utils/mask";
@@ -25,7 +26,6 @@ import { toast } from "sonner";
 
 const SalesPage = () => {
     const router = useRouter();
-    const colors = ['#b89d04', '#d40423', '#0250cf']; // Exemplo de cores
     const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const [currentStep, setCurrentStep] = useState(0);
@@ -311,7 +311,7 @@ const SalesPage = () => {
     }
 
     return (
-        <div className="md:px-10 px-5 flex flex-col items-center justify-center">
+        <div className="min-h-screen w-full md:px-10 px-5 flex flex-col items-center justify-center">
             <>
                 {employees && (
                     <>
@@ -362,7 +362,7 @@ const SalesPage = () => {
                             </div>
                         )}
                         {currentStep === 2 && (//1 label e input com event change e 2 botões
-                            <Card className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"} pt-4`}>
+                            <Card className={` w-full ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"} pt-4`}>
                                 <CardContent>
                                     <Label>CPF</Label>
                                     <Input
@@ -377,14 +377,15 @@ const SalesPage = () => {
                                         disabled={isPending}
                                         value={customerName} />
                                 </CardContent>
-                                <CardFooter className="flex-row-reverse gap-x-5">
+                                <CardFooter className="gap-y-3 md:gap-x-5 md:flex-row flex-col-reverse">
                                     <Button
-                                        className="gap-x-3"
-                                        disabled={isPending || !customerName || !customerDocument}
-                                        onClick={handleSaveCustomer}
+                                        className="gap-x-3 w-full"
+                                        disabled={isPending}
+                                        variant="secondary"
+                                        onClick={handleCancelSale}
                                     >
-                                        Próximo
-                                        <GrLinkNext />
+                                        <MdOutlineCancel />
+                                        Cancelar Atendimento
                                     </Button>
                                     <Button
                                         className="w-full gap-x-3"
@@ -395,19 +396,18 @@ const SalesPage = () => {
                                         Voltar
                                     </Button>
                                     <Button
-                                        className="gap-x-3"
-                                        disabled={isPending}
-                                        variant="secondary"
-                                        onClick={handleCancelSale}
+                                        className="gap-x-3 w-full"
+                                        disabled={isPending || !customerName || !customerDocument}
+                                        onClick={handleSaveCustomer}
                                     >
-                                        <MdOutlineCancel />
-                                        Cancelar Atendimento
+                                        Próximo
+                                        <GrLinkNext />
                                     </Button>
                                 </CardFooter>
                             </Card>
                         )}
                         {currentStep === 3 && (//2 input; 1 grid col 4; 2 botões
-                            <div className="flex flex-col gap-x-4 gap-y-3">
+                            <div className="w-full flex flex-col gap-x-4 gap-y-3">
                                 <>
                                     <div className="col-span-4">
                                         <Card className={`pt-4 ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}`}>
@@ -456,9 +456,9 @@ const SalesPage = () => {
                                             ))
                                         }
                                     </div>
-                                    <div className="flex flex-row items-center justify-between gap-x-3">
+                                    <div className="flex md:flex-row md:gap-x-3 flex-col-reverse gap-y-3 items-center justify-between  ">
                                         <Button
-                                            className="gap-x-3"
+                                            className="gap-x-3 w-full"
                                             disabled={isPending}
                                             variant="secondary"
                                             onClick={handleCancelSale}
@@ -487,58 +487,65 @@ const SalesPage = () => {
                             </div>
                         )}
                         {currentStep === 4 && (//1 grid col 4;2 botões
-                            <div className="space-y-3">
-                                <div className="grid grid-cols-4 gap-4">
-                                    {
-                                        times?.map((time) => (
-                                            <Button
-                                                onClick={() => setSelectedTime(time)}
-                                                key={time}
-                                                disabled={isPending}
-                                                className={`${selectedTime === time ? 'bg-yellow-300/90' : ''} 
-                                                    ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
-                                                    py-6
-                                                    border-2
-                                                    border-zinc-50
-                                                    `}>
-                                                {time}
-                                            </Button>
-                                        ))
-                                    }
+                            <>
+                                <div className="flex">
+                                    <ScrollArea className="max-h-[300px] mb-4">
+                                        <div className="grid grid-cols-4 gap-4">
+                                            {
+                                                times?.map((time) => (
+                                                    <>
+                                                        <Button
+                                                            onClick={() => setSelectedTime(time)}
+                                                            key={time}
+                                                            disabled={isPending}
+                                                            className={`${selectedTime === time ? 'bg-yellow-300/90' : ''} 
+                                                            ${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
+                                                            py-6
+                                                            border-2
+                                                            border-zinc-50
+                                                            `}>
+                                                            {time}
+                                                        </Button>
+                                                    </>
+                                                ))
+                                            }
+                                        </div>
+                                    </ScrollArea>
                                 </div>
-
-                                <div className="flex gap-3 w-full justify-between">
-                                    <Button
-                                        className="gap-x-3"
-                                        disabled={isPending}
-                                        variant="secondary"
-                                        onClick={handleCancelSale}
-                                    >
-                                        <MdOutlineCancel />
-                                        Cancelar Atendimento
-                                    </Button>
-                                    <Button
-                                        className="gap-x-3 w-full  justify-between"
-                                        variant="outline"
-                                        disabled={isPending}
-                                        onClick={prevStep}>
-                                        <GrLinkPrevious />
-                                        Voltar
-                                    </Button>
-                                    <Button
-                                        className="gap-x-3 w-full  justify-between"
-                                        disabled={isPending || !selectedTime}
-                                        onClick={handleSaveTime}
-                                    >
-                                        Próximo
-                                        <GrLinkNext />
-                                    </Button>
+                                <div className="space-y-3 w-full">
+                                    <div className="flex md:flex-row flex-col-reverse gap-3 w-full justify-between">
+                                        <Button
+                                            className="gap-x-3 w-full"
+                                            disabled={isPending}
+                                            variant="secondary"
+                                            onClick={handleCancelSale}
+                                        >
+                                            <MdOutlineCancel />
+                                            Cancelar Atendimento
+                                        </Button>
+                                        <Button
+                                            className="gap-x-3 w-full  justify-between"
+                                            variant="outline"
+                                            disabled={isPending}
+                                            onClick={prevStep}>
+                                            <GrLinkPrevious />
+                                            Voltar
+                                        </Button>
+                                        <Button
+                                            className="gap-x-3 w-full  justify-between"
+                                            disabled={isPending || !selectedTime}
+                                            onClick={handleSaveTime}
+                                        >
+                                            Próximo
+                                            <GrLinkNext />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         )}
                         {currentStep === 5 && (//1 checkbox; 1 select; 2 botões
-                            <div className="flex items-center justify-center">
-                                <Card>
+                            <div className="flex items-center justify-center w-full">
+                                <Card className="w-full">
                                     <CardHeader>
                                         <div className="space-x-2">
                                             <Checkbox
@@ -584,13 +591,11 @@ const SalesPage = () => {
                                                     <Label>Total: {formatPriceBRL(totalPrice || 0)}</Label>
                                                 </div>
                                             </>
-                                        )
-
-                                        }
+                                        )}
                                     </CardContent>
-                                    <CardFooter className="flex gap-3 w-full justify-between">
+                                    <CardFooter className="flex md:flex-row flex-col-reverse gap-3 justify-between">
                                         <Button
-                                            className="gap-x-3"
+                                            className="gap-x-3  w-full"
                                             disabled={isPending}
                                             variant="secondary"
                                             onClick={handleCancelSale}
@@ -643,9 +648,9 @@ const SalesPage = () => {
                                                 value={note}></Textarea>
                                         </div>
                                     </CardContent>
-                                    <CardFooter className="flex gap-3 w-full justify-between">
+                                    <CardFooter className="flex gap-3 md:flex-row flex-col-reverse justify-between">
                                         <Button
-                                            className="gap-x-3"
+                                            className="gap-x-3 w-full"
                                             disabled={isPending}
                                             variant="secondary"
                                             onClick={handleCancelSale}
