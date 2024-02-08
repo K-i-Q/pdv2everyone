@@ -15,7 +15,7 @@ const ServiceSale: React.FC<{ sale: Sale }> = ({ sale }) => {
 
   return (
     <div>
-      <Label>Serviços: {servicesString || 'N/A'}</Label>
+      <Label className="flex items-center justify-between">Serviços: <span>{servicesString || 'N/A'}</span></Label>
     </div>
   );
 };
