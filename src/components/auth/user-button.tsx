@@ -12,7 +12,7 @@ const UserButton = () => {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger aria-label="Botão usuário">
                 <Avatar>
                     <AvatarImage src={user?.image || ""} />
                     <AvatarFallback className="bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-yellow-400 to-slate-950">

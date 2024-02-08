@@ -74,11 +74,11 @@ const SalesListPage = () => {
     }
 
     return (
-        <>
+        <div className="min-h-screen flex flex-col px-5 items-center justify-center">
             {sales && (
                 <>
                     {sales.length > 0 && (
-                        <ScrollArea className="h-[400px] w-full md:px-10">
+                        <ScrollArea className="h-[400px] w-full">
                             <Table className="bg-black text-white w-full">
                                 <TableHeader>
                                     <TableRow className="text-white">
@@ -105,34 +105,33 @@ const SalesListPage = () => {
                                             <TableCell className="flex items-center justify-center text-yellow-400">
                                                 <Dialog>
                                                     <DialogTrigger asChild>
-                                                        <Button>
+                                                        <Button aria-label="Visualizar resumo da Ordem de Serviço">
                                                             <FaEye />
                                                         </Button>
                                                     </DialogTrigger>
                                                     <DialogContent className="p-0 w-full bg-transparent boder-none">
-                                                        <Card>
+                                                        <Card className="w-full">
                                                             <CardHeader>
                                                                 Resumo
                                                             </CardHeader>
-                                                            <CardContent className="flex flex-col md:gap-y-3">
-                                                                <Label>Cliente: {sale.customer?.name} {sale.customer?.phone}</Label>
+                                                            <CardContent className="flex flex-col md:gap-y-3 space-y-2">
+                                                                <Label className="flex items-center justify-between">Cliente: <span>{sale.customer?.name} {sale.customer?.phone}</span></Label>
                                                                 <Separator />
                                                                 <VehicleSale sale={sale} />
                                                                 <Separator />
                                                                 <ServiceSale sale={sale} />
                                                                 <Separator />
-                                                                <Label>Horário: {sale.pickupTime}</Label>
+                                                                <Label className="flex items-center justify-between">Horário: <span>{sale.pickupTime}</span></Label>
                                                                 <Separator />
                                                                 <PaymentInfoSale sale={sale} />
                                                                 <Separator />
                                                                 <Label>Observações</Label>
                                                                 <Textarea value={sale?.note || ''}></Textarea>
-                                                                <Separator />
                                                                 <TotalPriceSale sale={sale} />
                                                             </CardContent>
-                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                            <CardFooter className="md:flex-row flex-col-reverse items-center justify-between gap-3">
                                                                 <Button
-                                                                    className="gap-x-3"
+                                                                    className="gap-x-3 w-full"
                                                                     variant="secondary"
                                                                     onClick={() => handleCancelSale(sale.id)}
                                                                 >
@@ -210,7 +209,7 @@ const SalesListPage = () => {
             >
                 Voltar
             </Button>
-        </>
+        </div>
     )
 }
 

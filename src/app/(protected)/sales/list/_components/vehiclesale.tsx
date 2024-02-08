@@ -18,7 +18,7 @@ const VehicleSale : React.FC<{ sale: Sale }> = ({ sale }) => {
 
   return (
     <div>
-      <Label>Veículo: {vehiclesString || 'N/A'}</Label>
+      <Label className="flex items-center justify-between">Veículo: <span>{vehiclesString || 'N/A'}</span></Label>
     </div>
   );
 };
