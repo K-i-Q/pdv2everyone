@@ -106,8 +106,8 @@ const ServicePage = () => {
                     <TooltipProvider>
                         {
                             services.length > 0 && (
-                                <div className="flex flex-col-reverse md:flex-col">
-                                    <div className="w-full h-full flex justify-end p-4">
+                                <div className="flex flex-col-reverse md:flex-col gap-y-3">
+                                    <div className="w-full h-full flex justify-end">
                                         <Dialog>
                                             <DialogClose asChild>
                                                 <Button id="close-dialog-create" className="hidden">
@@ -125,248 +125,250 @@ const ServicePage = () => {
                                             </DialogContent>
                                         </Dialog>
                                     </div>
-                                    <ScrollArea className="max-h-[400px] w-full pr-4">
-                                        <Table className="bg-black text-white">
-                                            <TableHeader>
-                                                <TableRow className="text-white">
-                                                    <TableHead className="w-[100px]">Nome</TableHead>
-                                                    <TableHead className="hidden md:table-cell">Descrição</TableHead>
-                                                    <TableHead className="hidden md:table-cell">Preço de custo</TableHead>
-                                                    <TableHead>Preço de Venda</TableHead>
-                                                    <TableHead className="text-right">Ações</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {services?.map((service, index) => (
-                                                    <TableRow key={service.id} className="group">
-                                                        <TableCell>{service.name}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{service.description}</TableCell>
-                                                        <TableCell className="hidden md:table-cell">{formatPriceBRL(service.costPrice)}</TableCell>
-                                                        <TableCell>{formatPriceBRL(service.salePrice)}</TableCell>
-                                                        <TableCell className="md:space-x-3 md:space-y-0 space-y-2 flex flex-col md:flex-row items-center justify-center">
-                                                            {onlyWidth < 768 && (
-                                                                <>
-
-                                                                    <DropdownMenu>
-                                                                        <DropdownMenuTrigger asChild>
-                                                                            <Button>
-                                                                                <BsThreeDots />
-                                                                            </Button>
-                                                                        </DropdownMenuTrigger>
-                                                                        <DropdownMenuContent className="w-56">
-                                                                            <DropdownMenuItem>
-                                                                                <Button
-                                                                                    className="w-full justify-between"
-                                                                                    onClick={() => openDialogEdit(index)}>
-                                                                                    Editar
-                                                                                    <FaEdit />
+                                    <div className="flex">
+                                        <ScrollArea className="max-h-[400px] w-full">
+                                            <Table className="bg-black text-white text-center">
+                                                <TableHeader>
+                                                    <TableRow className="text-white">
+                                                        <TableHead className="w-[100px] text-center">Nome</TableHead>
+                                                        <TableHead className="hidden md:table-cell ">Descrição</TableHead>
+                                                        <TableHead className="hidden md:table-cell text-center">Preço de custo</TableHead>
+                                                        <TableHead className="text-center">Preço de Venda</TableHead>
+                                                        <TableHead className="text-center">Ações</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {services?.map((service, index) => (
+                                                        <TableRow key={service.id} className="group">
+                                                            <TableCell>{service.name}</TableCell>
+                                                            <TableCell className="hidden md:table-cell">{service.description}</TableCell>
+                                                            <TableCell className="hidden md:table-cell">{formatPriceBRL(service.costPrice)}</TableCell>
+                                                            <TableCell>{formatPriceBRL(service.salePrice)}</TableCell>
+                                                            <TableCell className="md:space-x-3 md:space-y-0 space-y-2 flex flex-col md:flex-row items-center justify-center">
+                                                                {onlyWidth < 768 && (
+                                                                    <>
+                                                                        <DropdownMenu>
+                                                                            <DropdownMenuTrigger asChild>
+                                                                                <Button>
+                                                                                    <BsThreeDots />
                                                                                 </Button>
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuItem>
-                                                                                <Button
-                                                                                    className="w-full justify-between"
-                                                                                    onClick={() => openDialogDelete(index)}>
-                                                                                    Excluir
-                                                                                    <FaTrashAlt />
-                                                                                </Button>
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuItem>
-                                                                                <Button
-                                                                                    className="w-full justify-between"
-                                                                                    onClick={() => openDialogStatus(index)}>
-                                                                                    {service.status && (
-                                                                                        <>
-                                                                                            Ativado
-                                                                                            <FaCheckSquare />
-                                                                                        </>
-                                                                                    )}
-                                                                                    {!service.status && (
-                                                                                        <>
-                                                                                            Desativado
-                                                                                            <FaTimes />
-                                                                                        </>
-                                                                                    )}
-                                                                                </Button>
-                                                                            </DropdownMenuItem>
-                                                                        </DropdownMenuContent>
-                                                                    </DropdownMenu>
-                                                                    <Dialog>
-                                                                        <DialogClose asChild>
-                                                                            <Button id={`close-dialog-update${index}`} className="hidden">
-                                                                                Close
-                                                                            </Button>
-                                                                        </DialogClose>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button id={`edit${index}`} className="hidden">
-                                                                                Editar
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent className="p-0 w-ful bg-transparent boder-none">
-                                                                            <CardService service={service} onServiceUpdate={() => handleServiceUpdate(index)} />
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button id={`delete${index}`} className="hidden">
-                                                                                Excluir
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent>
-                                                                            <DialogHeader>
-                                                                                <DialogTitle>Confirmar</DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    Excluir serviço
-                                                                                </DialogDescription>
-                                                                            </DialogHeader>
-                                                                            <div>
-                                                                                Você tem certeza que deseja excluir o serviço {service.name}?
-                                                                            </div>
-                                                                            <DialogFooter className="gap-y-3">
-                                                                                <DialogClose className="border-none">
-                                                                                    <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
-                                                                                </DialogClose>
-                                                                                <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
-                                                                            </DialogFooter>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button id={`status${index}`} className="hidden">
-                                                                                Status
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent>
-                                                                            <DialogClose asChild>
-                                                                                <Button id={`close-dialog-activate${index}`} className="hidden">
-                                                                                    Close
-                                                                                </Button>
-                                                                            </DialogClose>
-                                                                            <DialogHeader>
-                                                                                <DialogTitle>Confirmar</DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    {service.status ? 'Desativar' : 'Ativar'}
-                                                                                </DialogDescription>
-                                                                            </DialogHeader>
-                                                                            <div>
-                                                                                {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
-                                                                            </div>
-                                                                            <DialogFooter className="gap-y-3">
-                                                                                <DialogClose asChild className="border-none">
-                                                                                    <Button className="px-2 py-0 hover:underline text-white" variant="outline">Cancelar</Button>
-                                                                                </DialogClose>
-                                                                                <Button onClick={() => handleAtivarStatus(service.id, index)} disabled={isPending} type="button">Confirmar</Button>
-                                                                            </DialogFooter>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                </>
-                                                            )}
-                                                            {onlyWidth > 768 && (
-                                                                <>
-                                                                    <Dialog>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <DialogTrigger asChild>
-                                                                                    <Button className="md:text-2xl">
-                                                                                        {service.status ? <FaCheckSquare /> : <FaTimes />}
-                                                                                    </Button>
-                                                                                </DialogTrigger>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent>
-                                                                                {service.status ? 'Desativar' : 'Ativar'} serviço {service.name}
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                        <DialogContent>
-                                                                            <DialogClose asChild>
-                                                                                <Button id={`close-dialog-activate${index}`} className="hidden">
-                                                                                    Close
-                                                                                </Button>
-                                                                            </DialogClose>
-                                                                            <DialogHeader>
-                                                                                <DialogTitle>Confirmar</DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    {service.status ? 'Desativar' : 'Ativar'}
-                                                                                </DialogDescription>
-                                                                            </DialogHeader>
-                                                                            <div>
-                                                                                {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
-                                                                            </div>
-                                                                            <DialogFooter className="gap-y-3">
-                                                                                <DialogClose asChild className="border-none">
-                                                                                    <Button className="px-2 py-0 hover:underline text-white" variant="outline">Cancelar</Button>
-                                                                                </DialogClose>
-                                                                                <Button onClick={() => handleAtivarStatus(service.id, index)} disabled={isPending} type="button">Confirmar</Button>
-                                                                            </DialogFooter>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                    <Dialog>
-                                                                        <DialogClose asChild>
-                                                                            <Button id={`close-dialog-update${index}`} className="hidden">
-                                                                                Close
-                                                                            </Button>
-                                                                        </DialogClose>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <DialogTrigger asChild>
-                                                                                    <Button className="md:text-2xl">
+                                                                            </DropdownMenuTrigger>
+                                                                            <DropdownMenuContent className="w-56 bg-black active:bg-black">
+                                                                                <DropdownMenuItem>
+                                                                                    <Button
+                                                                                        className="w-full justify-between"
+                                                                                        onClick={() => openDialogEdit(index)}>
+                                                                                        Editar
                                                                                         <FaEdit />
                                                                                     </Button>
-                                                                                </DialogTrigger>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent>
-                                                                                <p>Editar serviço {service.name}</p>
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-
-                                                                        <DialogContent className="p-0 w-ful bg-transparent boder-none">
-                                                                            <CardService service={service} onServiceUpdate={() => handleServiceUpdate(index)} />
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                    <Dialog>
-                                                                        <Tooltip>
-                                                                            <TooltipTrigger asChild>
-                                                                                <DialogTrigger asChild>
-                                                                                    <Button className="md:text-2xl">
+                                                                                </DropdownMenuItem>
+                                                                                <DropdownMenuItem>
+                                                                                    <Button
+                                                                                        className="w-full justify-between"
+                                                                                        onClick={() => openDialogDelete(index)}>
+                                                                                        Excluir
                                                                                         <FaTrashAlt />
                                                                                     </Button>
-                                                                                </DialogTrigger>
-                                                                            </TooltipTrigger>
-                                                                            <TooltipContent>
-                                                                                <p>Excluir serviço {service.name}</p>
-                                                                            </TooltipContent>
-                                                                        </Tooltip>
-                                                                        <DialogContent>
-                                                                            <DialogHeader>
-                                                                                <DialogTitle>Confirmar</DialogTitle>
-                                                                                <DialogDescription>
-                                                                                    Excluir serviço
-                                                                                </DialogDescription>
-                                                                            </DialogHeader>
-                                                                            <div>
-                                                                                Você tem certeza que deseja excluir o serviço {service.name}?
-                                                                            </div>
-                                                                            <DialogFooter className="gap-y-3">
-                                                                                <DialogClose className="border-none">
-                                                                                    <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
+                                                                                </DropdownMenuItem>
+                                                                                <DropdownMenuItem>
+                                                                                    <Button
+                                                                                        className="w-full justify-between"
+                                                                                        onClick={() => openDialogStatus(index)}>
+                                                                                        {service.status && (
+                                                                                            <>
+                                                                                                Ativado
+                                                                                                <FaCheckSquare />
+                                                                                            </>
+                                                                                        )}
+                                                                                        {!service.status && (
+                                                                                            <>
+                                                                                                Desativado
+                                                                                                <FaTimes />
+                                                                                            </>
+                                                                                        )}
+                                                                                    </Button>
+                                                                                </DropdownMenuItem>
+                                                                            </DropdownMenuContent>
+                                                                        </DropdownMenu>
+                                                                        <Dialog>
+                                                                            <DialogClose asChild>
+                                                                                <Button id={`close-dialog-update${index}`} className="hidden">
+                                                                                    Close
+                                                                                </Button>
+                                                                            </DialogClose>
+                                                                            <DialogTrigger asChild>
+                                                                                <Button id={`edit${index}`} className="hidden">
+                                                                                    Editar
+                                                                                </Button>
+                                                                            </DialogTrigger>
+                                                                            <DialogContent className="p-0 w-ful bg-transparent boder-none">
+                                                                                <CardService service={service} onServiceUpdate={() => handleServiceUpdate(index)} />
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                        <Dialog>
+                                                                            <DialogTrigger asChild>
+                                                                                <Button id={`delete${index}`} className="hidden">
+                                                                                    Excluir
+                                                                                </Button>
+                                                                            </DialogTrigger>
+                                                                            <DialogContent>
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>Confirmar</DialogTitle>
+                                                                                    <DialogDescription>
+                                                                                        Excluir serviço
+                                                                                    </DialogDescription>
+                                                                                </DialogHeader>
+                                                                                <div>
+                                                                                    Você tem certeza que deseja excluir o serviço {service.name}?
+                                                                                </div>
+                                                                                <DialogFooter className="gap-y-3">
+                                                                                    <DialogClose className="border-none">
+                                                                                        <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
+                                                                                    </DialogClose>
+                                                                                    <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
+                                                                                </DialogFooter>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                        <Dialog>
+                                                                            <DialogTrigger asChild>
+                                                                                <Button id={`status${index}`} className="hidden">
+                                                                                    Status
+                                                                                </Button>
+                                                                            </DialogTrigger>
+                                                                            <DialogContent>
+                                                                                <DialogClose asChild>
+                                                                                    <Button id={`close-dialog-activate${index}`} className="hidden">
+                                                                                        Close
+                                                                                    </Button>
                                                                                 </DialogClose>
-                                                                                <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
-                                                                            </DialogFooter>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                </>
-                                                            )}
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>Confirmar</DialogTitle>
+                                                                                    <DialogDescription>
+                                                                                        {service.status ? 'Desativar' : 'Ativar'}
+                                                                                    </DialogDescription>
+                                                                                </DialogHeader>
+                                                                                <div>
+                                                                                    {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
+                                                                                </div>
+                                                                                <DialogFooter className="gap-y-3">
+                                                                                    <DialogClose asChild className="border-none">
+                                                                                        <Button className="px-2 py-0 hover:underline text-white" variant="outline">Cancelar</Button>
+                                                                                    </DialogClose>
+                                                                                    <Button onClick={() => handleAtivarStatus(service.id, index)} disabled={isPending} type="button">Confirmar</Button>
+                                                                                </DialogFooter>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                    </>
+                                                                )}
+                                                                {onlyWidth > 768 && (
+                                                                    <>
+                                                                        <Dialog>
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <DialogTrigger asChild>
+                                                                                        <Button className="md:text-2xl">
+                                                                                            {service.status ? <FaCheckSquare /> : <FaTimes />}
+                                                                                        </Button>
+                                                                                    </DialogTrigger>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    {service.status ? 'Desativar' : 'Ativar'} serviço {service.name}
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
+                                                                            <DialogContent>
+                                                                                <DialogClose asChild>
+                                                                                    <Button id={`close-dialog-activate${index}`} className="hidden">
+                                                                                        Close
+                                                                                    </Button>
+                                                                                </DialogClose>
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>Confirmar</DialogTitle>
+                                                                                    <DialogDescription>
+                                                                                        {service.status ? 'Desativar' : 'Ativar'}
+                                                                                    </DialogDescription>
+                                                                                </DialogHeader>
+                                                                                <div>
+                                                                                    {service.status ? 'Desativar' : 'Ativar'} o serviço {service.name}?
+                                                                                </div>
+                                                                                <DialogFooter className="gap-y-3">
+                                                                                    <DialogClose asChild className="border-none">
+                                                                                        <Button className="px-2 py-0 hover:underline text-white" variant="outline">Cancelar</Button>
+                                                                                    </DialogClose>
+                                                                                    <Button onClick={() => handleAtivarStatus(service.id, index)} disabled={isPending} type="button">Confirmar</Button>
+                                                                                </DialogFooter>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                        <Dialog>
+                                                                            <DialogClose asChild>
+                                                                                <Button id={`close-dialog-update${index}`} className="hidden">
+                                                                                    Close
+                                                                                </Button>
+                                                                            </DialogClose>
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <DialogTrigger asChild>
+                                                                                        <Button className="md:text-2xl">
+                                                                                            <FaEdit />
+                                                                                        </Button>
+                                                                                    </DialogTrigger>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    <p>Editar serviço {service.name}</p>
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
 
-                                                        </TableCell>
+                                                                            <DialogContent className="p-0 w-ful bg-transparent boder-none">
+                                                                                <CardService service={service} onServiceUpdate={() => handleServiceUpdate(index)} />
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                        <Dialog>
+                                                                            <Tooltip>
+                                                                                <TooltipTrigger asChild>
+                                                                                    <DialogTrigger asChild>
+                                                                                        <Button className="md:text-2xl">
+                                                                                            <FaTrashAlt />
+                                                                                        </Button>
+                                                                                    </DialogTrigger>
+                                                                                </TooltipTrigger>
+                                                                                <TooltipContent>
+                                                                                    <p>Excluir serviço {service.name}</p>
+                                                                                </TooltipContent>
+                                                                            </Tooltip>
+                                                                            <DialogContent>
+                                                                                <DialogHeader>
+                                                                                    <DialogTitle>Confirmar</DialogTitle>
+                                                                                    <DialogDescription>
+                                                                                        Excluir serviço
+                                                                                    </DialogDescription>
+                                                                                </DialogHeader>
+                                                                                <div>
+                                                                                    Você tem certeza que deseja excluir o serviço {service.name}?
+                                                                                </div>
+                                                                                <DialogFooter className="gap-y-3">
+                                                                                    <DialogClose className="border-none">
+                                                                                        <div className="w-full px-2 py-0 hover:underline">Cancelar</div>
+                                                                                    </DialogClose>
+                                                                                    <Button disabled={isPending} type="button" onClick={() => handleDeleteService(service.id)}>Excluir</Button>
+                                                                                </DialogFooter>
+                                                                            </DialogContent>
+                                                                        </Dialog>
+                                                                    </>
+                                                                )}
+
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                                <TableFooter>
+                                                    <TableRow>
+                                                        <TableCell colSpan={colSpan}>Quantidade serviços</TableCell>
+                                                        <TableCell className="text-right">{services?.length}</TableCell>
                                                     </TableRow>
-                                                ))}
-                                            </TableBody>
-                                            <TableFooter>
-                                                <TableRow>
-                                                    <TableCell colSpan={colSpan}>Quantidade serviços</TableCell>
-                                                    <TableCell className="text-right">{services?.length}</TableCell>
-                                                </TableRow>
-                                            </TableFooter>
-                                        </Table>
-                                    </ScrollArea>
+                                                </TableFooter>
+                                            </Table>
+                                        </ScrollArea>
+                                    </div>
+
                                 </div>
                             )
                         }
