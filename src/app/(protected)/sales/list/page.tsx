@@ -1,6 +1,6 @@
 "use client";
 
-import { cancelSale, getPendingSales } from "@/actions/sales";
+import { cancelSale, finalizeSale, getPendingSales } from "@/actions/sales";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -59,7 +59,7 @@ const SalesListPage = () => {
         return () => clearInterval(intervalId);
     }, []); // Array de dependências vazio significa que o useEffect rodará apenas uma vez após o componente montar
 
-    const handleCancelSale = (saleId: string) => {
+    const handleCancelSale = (saleId: string, index: number) => {
         startTransition(() => {
             cancelSale(saleId).then((data) => {
                 if (data?.error) {
@@ -68,9 +68,29 @@ const SalesListPage = () => {
 
                 if (data?.success) {
                     toast.success(data.success);
+                    closeResumeDialog(index);
                 }
             })
         })
+    }
+
+    const handleFinalizeSale = (saleId: string, index: number) => {
+        startTransition(() => {
+            finalizeSale(saleId).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+                if (data?.success) {
+                    toast.success(data.success);
+                    closeResumeDialog(index);
+                }
+            })
+        })
+    }
+
+    const closeResumeDialog = (index: number) => {
+        const dialogResume = document.getElementById('close-resume' + index);
+        if (dialogResume) dialogResume.click();
     }
 
     return (
@@ -82,14 +102,14 @@ const SalesListPage = () => {
                             <Table className="bg-black text-white w-full">
                                 <TableHeader>
                                     <TableRow className="text-white">
-                                        <TableHead className="w-[100px]">Horário</TableHead>
-                                        <TableHead className="w-[100px]">Cliente</TableHead>
-                                        <TableHead className="w-[100px]">Placa</TableHead>
-                                        <TableHead className="w-[100px] text-right">Ações</TableHead>
+                                        <TableHead className="w-[100px] text-center">Horário</TableHead>
+                                        <TableHead className="w-[100px] text-center">Cliente</TableHead>
+                                        <TableHead className="w-[100px] text-center">Placa</TableHead>
+                                        <TableHead className="w-[100px] text-center">Ações</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody>
-                                    {sales.map((sale) => (
+                                <TableBody className="text-center">
+                                    {sales.map((sale, index) => (
                                         <TableRow
                                             key={sale.id}
                                         >
@@ -126,22 +146,57 @@ const SalesListPage = () => {
                                                                 <PaymentInfoSale sale={sale} />
                                                                 <Separator />
                                                                 <Label>Observações</Label>
-                                                                <Textarea value={sale?.note || ''}></Textarea>
+                                                                <Textarea disabled={isPending} value={sale?.note || ''}></Textarea>
                                                                 <TotalPriceSale sale={sale} />
                                                             </CardContent>
                                                             <CardFooter className="md:flex-row flex-col-reverse items-center justify-between gap-3">
-                                                                <Button
-                                                                    className="gap-x-3 w-full"
-                                                                    variant="secondary"
-                                                                    onClick={() => handleCancelSale(sale.id)}
-                                                                >
-                                                                    <MdOutlineCancel />
-                                                                    Cancelar Atendimento
-                                                                </Button>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild>
+                                                                        <Button
+                                                                            className="gap-x-3 w-full"
+                                                                            variant="secondary"
+                                                                            disabled={isPending}
+                                                                        >
+                                                                            <MdOutlineCancel />
+                                                                            Cancelar Atendimento
+                                                                        </Button>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                        <Card>
+                                                                            <CardHeader>
+                                                                                Confirmar Cancelamento
+                                                                            </CardHeader>
+                                                                            <CardContent className="flex flex-col md:gap-y-3">
+                                                                                <Label>Tem certeza que deseja CANCELAR a ordem de servio do João da Silva?</Label>
+                                                                            </CardContent>
+                                                                            <CardFooter className="items-center justify-between gap-x-3">
+                                                                                <DialogClose asChild>
+                                                                                    <Button
+                                                                                        className="w-full"
+                                                                                        variant="outline"
+                                                                                        disabled={isPending}
+                                                                                    >
+                                                                                        Voltar
+                                                                                    </Button>
+                                                                                </DialogClose>
+                                                                                <DialogClose asChild>
+                                                                                    <Button
+                                                                                        className="w-full"
+                                                                                        onClick={() => handleCancelSale(sale.id, index)}
+                                                                                        disabled={isPending}
+                                                                                    >
+                                                                                        Cancelar
+                                                                                    </Button>
+                                                                                </DialogClose>
+                                                                            </CardFooter>
+                                                                        </Card>
+                                                                    </DialogContent>
+                                                                </Dialog>
                                                                 <DialogClose asChild>
                                                                     <Button
                                                                         className="w-full"
                                                                         variant="outline"
+                                                                        disabled={isPending}
                                                                     >
                                                                         Fechar
                                                                     </Button>
@@ -150,6 +205,7 @@ const SalesListPage = () => {
                                                                     <DialogTrigger asChild>
                                                                         <Button
                                                                             className="w-full"
+                                                                            disabled={isPending}
                                                                         >Finalizar</Button>
                                                                     </DialogTrigger>
                                                                     <DialogContent className="p-0 w-full bg-transparent boder-none">
@@ -158,13 +214,14 @@ const SalesListPage = () => {
                                                                                 Confirmar Entrega
                                                                             </CardHeader>
                                                                             <CardContent className="flex flex-col md:gap-y-3">
-                                                                                <Label>Tem certeza que deseja finalizar a ordem de servio do João da Silva?</Label>
+                                                                                <Label>Tem certeza que deseja FINALIZAR a ordem de servio do João da Silva?</Label>
                                                                             </CardContent>
                                                                             <CardFooter className="items-center justify-between gap-x-3">
                                                                                 <DialogClose asChild>
                                                                                     <Button
                                                                                         className="w-full"
                                                                                         variant="outline"
+                                                                                        disabled={isPending}
                                                                                     >
                                                                                         Cancelar
                                                                                     </Button>
@@ -172,6 +229,8 @@ const SalesListPage = () => {
 
                                                                                 <Button
                                                                                     className="w-full"
+                                                                                    disabled={isPending}
+                                                                                    onClick={() => handleFinalizeSale(sale.id, index)}
                                                                                 >Confirmar</Button>
                                                                             </CardFooter>
                                                                         </Card>
@@ -180,8 +239,13 @@ const SalesListPage = () => {
                                                             </CardFooter>
                                                         </Card>
                                                     </DialogContent>
+                                                    <DialogClose asChild>
+                                                        <Button
+                                                            className="hidden"
+                                                            id={`close-resume${index}`}
+                                                        ></Button>
+                                                    </DialogClose>
                                                 </Dialog>
-
                                             </TableCell>
                                         </TableRow>
                                     ))}
