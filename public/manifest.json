@@ -3,14 +3,14 @@
     "name": "Lava Car Central",
     "icons": [
       {
-        "src": "/icons/icon-192x192.png",
+        "src": "./assets/192x192.png",
         "type": "image/png",
         "sizes": "192x192"
       },
       {
-        "src": "/icons/icon-256x256.png",
+        "src": "./assets/384x384.png",
         "type": "image/png",
-        "sizes": "256x256"
+        "sizes": "384x384"
       }
     ],
     "start_url": "/",
