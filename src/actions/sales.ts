@@ -276,11 +276,7 @@ export const getPendingSales = async (): Promise<any> => {
 };
 
 export const cancelSale = async (saleId: string) => {
-  const existingSale = await db.sale.findUnique({
-    where: {
-      id: saleId,
-    },
-  });
+  const existingSale = await getSaleById(saleId);
 
   if (!existingSale) {
     return { error: "Ordem de serviço não foi encontrada" };
@@ -306,6 +302,34 @@ export const cancelSale = async (saleId: string) => {
   });
 
   return { success: "Ordem de serviço cancelada" };
+};
+
+export const finalizeSale = async (saleId: string) => {
+  const existingSale = await getSaleById(saleId);
+
+  if (!existingSale) {
+    return { error: "Ordem de serviço não foi encontrada" };
+  }
+
+  const statusSale = await db.statusSale.findFirst({
+    where: {
+      description: "Finalizada",
+    },
+  });
+
+  if (!statusSale) {
+    return { error: "Status não encontrado na ordem de serviço" };
+  }
+
+  await db.sale.update({
+    where: {
+      id: existingSale.id,
+    },
+    data: {
+      statusSaleId: statusSale.id,
+    },
+  });
+  return { success: "Ordem de serviço finalizada" };
 };
 const updateCustomerOnSale = async (saleId: string, customerId: string) => {
   const sale = await db.sale.update({
