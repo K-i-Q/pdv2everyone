@@ -19,14 +19,16 @@ export const LoginButton = ({ children, mode = "redirect", asChild }: LoginButto
 
     if (mode === 'modal') {
         return (
-            <Dialog>
-                <DialogTrigger asChild={asChild}>
-                    {children}
-                </DialogTrigger>
-                <DialogContent className="p-0 w-auto bg-transparent boder-none">
-                    <LoginForm />
-                </DialogContent>
-            </Dialog>
+            <div className="w-full">
+                <Dialog>
+                    <DialogTrigger asChild={asChild}>
+                        {children}
+                    </DialogTrigger>
+                    <DialogContent className="p-0 w-full bg-transparent boder-none">
+                        <LoginForm />
+                    </DialogContent>
+                </Dialog>
+            </div>
         )
     }
 
