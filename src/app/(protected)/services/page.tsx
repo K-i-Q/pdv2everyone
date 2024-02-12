@@ -21,7 +21,7 @@ const ServicePage = () => {
     const [services, setServices] = useState<Service[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const [colSpan, setColSpan] = useState(5);
-    const onlyWidth = useWindowWidth()
+    const onlyWidth = useWindowWidth();
 
     useEffect(() => {
         getAllServices();
@@ -101,6 +101,7 @@ const ServicePage = () => {
 
     return (
         <>
+            <h1 className="text-2xl text-center bg-yellow-400 p-3 text-black mb-3">Gerenciamento dos Serviços Prestados</h1>
             {
                 services && (
                     <TooltipProvider>
@@ -115,9 +116,9 @@ const ServicePage = () => {
                                                 </Button>
                                             </DialogClose>
                                             <DialogTrigger asChild>
-                                                <Button className="text-2xl p-4 flex flex-col h-full">
+                                                <Button className="text-2xl p-4 gap-x-2 flex h-full">
                                                     <MdAddToPhotos />
-                                                    Adicionar
+                                                    Novo Serviço
                                                 </Button>
                                             </DialogTrigger>
                                             <DialogContent className="p-0 w-full bg-transparent boder-none">
@@ -389,8 +390,7 @@ const ServicePage = () => {
                                     <CardService onServiceUpdate={handleServiceUpdate} />
                                 </DialogContent>
                             </Dialog>
-                        )
-                        }
+                        )}
                     </TooltipProvider>
                 )}
             {
