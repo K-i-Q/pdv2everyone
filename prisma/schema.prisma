@@ -249,13 +249,12 @@ model Customer {
   birthday DateTime?
   nickname String?
   gender   String?
-  document String           @unique
   phone    String?
   Sales    Sale[]
   credits  CustomerCredit[]
   Vehicles Vehicle[]
 
-  @@unique([id, document])
+  @@unique([id])
 }
 
 model CustomerCredit {

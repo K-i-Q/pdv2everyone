@@ -13,3 +13,17 @@ export const getCustomerById = async (id: string) => {
     return null;
   }
 };
+
+export const getCustomerByPhone = async (phone: string) => {
+  try {
+    const customer = await db.customer.findFirst({
+      where: {
+        phone,
+      },
+    });
+
+    return customer;
+  } catch (error) {
+    return null;
+  }
+};
