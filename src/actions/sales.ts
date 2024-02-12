@@ -7,12 +7,13 @@ import { SalesSchema } from "@/schemas";
 import { Vehicle } from "@prisma/client";
 import * as z from "zod";
 
-export const createSale = async (values: z.infer<typeof SalesSchema>) => {
+export const createSale = async (values: z.infer<typeof SalesSchema>, totalPrice: number) => {
   const validateFields = SalesSchema.safeParse(values);
 
   if (!validateFields.success) {
     return { error: "Campos inválidos" };
   }
+
   const {
     name,
     phone,
@@ -24,7 +25,6 @@ export const createSale = async (values: z.infer<typeof SalesSchema>) => {
     note,
     paymentMethod,
   } = validateFields.data;
-
 
   const statusSale = await db.statusSale.findFirst({
     where: {

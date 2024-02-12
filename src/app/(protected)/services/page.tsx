@@ -21,7 +21,7 @@ const ServicePage = () => {
     const [services, setServices] = useState<Service[] | undefined>();
     const [isPending, startTransition] = useTransition();
     const [colSpan, setColSpan] = useState(5);
-    const onlyWidth = useWindowWidth()
+    const onlyWidth = useWindowWidth();
 
     useEffect(() => {
         getAllServices();

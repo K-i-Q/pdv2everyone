@@ -1,7 +1,6 @@
 "use client"
 import { createEmployees, getEmployees } from "@/actions/employees";
 import { createPaymentMethods, getPayments } from "@/actions/payments";
-import { getProducts } from "@/actions/products";
 import { cancelSale, createSale, finalizeSale, getPendingSales } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import { createStatusSales } from "@/actions/status-sale";
@@ -21,8 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { SalesSchema } from "@/schemas";
 import { formatPriceBRL } from "@/utils/mask";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Employee, PaymentMethod, Product, Service } from "@prisma/client";
-import { useRouter } from "next/navigation";
+import { Employee, PaymentMethod, Service } from "@prisma/client";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { BsPlus } from "react-icons/bs";
@@ -41,29 +39,16 @@ interface Time {
 }
 
 const SalesPage = () => {
-    const router = useRouter();
     const [sales, setSales] = useState<Sale[] | undefined>();
     const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [isPending, startTransition] = useTransition();
-    const [currentStep, setCurrentStep] = useState(0);
-    const [slideDirection, setSlideDirection] = useState("left-to-right");
 
     const [services, setServices] = useState<Service[] | undefined>();
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[] | undefined>();
-    const [products, setProducts] = useState<Product[] | undefined>();
-    const [totalPrice, setTotalPrice] = useState<number | undefined>();
-    const [saleId, setSaleId] = useState<string>('');
-    const [customerDocument, setCustomerDocument] = useState<string>('');
-    const [customerName, setCustomerName] = useState<string>('');
-    const [model, setModel] = useState<string>('');
-    const [plate, setPlate] = useState<string>('');
+    const [totalPrice, setTotalPrice] = useState<number>(0);
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [times, setTimes] = useState<Time[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
-    const [isPaymentLater, setIsPaymentLater] = useState<boolean>(true);
-    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>();
-    const [celPhone, setCelPhone] = useState<string>();
-    const [note, setNote] = useState<string>();
 
     const form = useForm<z.infer<typeof SalesSchema>>({
         resolver: zodResolver(SalesSchema),
@@ -83,7 +68,7 @@ const SalesPage = () => {
     const onSubmit = (values: z.infer<typeof SalesSchema>) => {
         console.log('values', values)
         startTransition(() => {
-            createSale(values).then((data) => {
+            createSale(values, totalPrice).then((data) => {
 
             }).catch(() => toast.error("Algo deu errado"))
         })
@@ -91,7 +76,6 @@ const SalesPage = () => {
 
     useEffect(() => {
         getAllServices();
-        getAllProducts();
         getAllEmployees();
         populateTimes();
         getAllPaymentMethods();
@@ -179,17 +163,6 @@ const SalesPage = () => {
         });
     }
 
-    const getAllProducts = () => {
-        getProducts().then((data) => {
-            if (data?.error) {
-                toast.error(data.error)
-            }
-            if (data?.success) {
-                setProducts(data.services)
-            }
-        });
-    }
-
     const handleCreateEmployeesPaymentMethodAndStatusMock = () => {
         startTransition(() => {
             createEmployees().then((data) => {
@@ -267,10 +240,11 @@ const SalesPage = () => {
         if (dialogResume) dialogResume.click();
     }
 
-    const handleDialogClose = ()=>{
+    const handleDialogClose = () => {
         form.reset();
         setSelectedTime('');
         setSelectedServices([]);
+        setTotalPrice(0);
     }
 
     return (
@@ -452,9 +426,9 @@ const SalesPage = () => {
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="flex flex-col">
-                                <ScrollArea className="h-[500px] space-y-3">
+                                <ScrollArea className="h-[500px]">
                                     <Form {...form}>
-                                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                                        <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
                                             <FormField
                                                 control={form.control}
                                                 name="services"
@@ -475,9 +449,8 @@ const SalesPage = () => {
                                                                                 size="lg"
                                                                                 key={service.id}
                                                                                 variant={selectedServices.includes(service.id) ? 'selected' : 'default'}
-                                                                                className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
-                                                                                flex-col
-                                                                                `}>
+                                                                                className="slide-left flex-col"
+                                                                            >
                                                                                 <Label className="font-semibold">{service.name}</Label>
                                                                                 <span className="text-sm">{formatPriceBRL(service.salePrice)}</span>
                                                                                 <Input {...field} className="hidden" />
@@ -491,6 +464,7 @@ const SalesPage = () => {
                                                     </FormItem>
                                                 )}
                                             />
+                                            <Label>Total: {formatPriceBRL(totalPrice!)}</Label>
                                             <FormField
                                                 control={form.control}
                                                 name="time"
@@ -510,8 +484,7 @@ const SalesPage = () => {
                                                                                 key={time.id}
                                                                                 disabled={isPending}
                                                                                 variant={selectedTime === time.value ? 'selected' : 'default'}
-                                                                                className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
-                                                                                `}>
+                                                                                className="left-to-right">
                                                                                 {time.value}
                                                                                 <Input {...field} className="hidden" />
                                                                             </Button>
