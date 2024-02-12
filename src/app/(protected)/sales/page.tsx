@@ -74,9 +74,8 @@ const SalesPage = () => {
                 }
                 if (data?.success) {
                     toast.success(data.success);
-                    refreshingPage();
-                    const dialog = document.getElementById('dialog-create-sale');
-                    if (dialog) dialog.click();
+                    handleDialogClose();
+                    getAllDataToSale();
                 }
             }).catch(() => toast.error("Algo deu errado"))
         })
@@ -212,7 +211,7 @@ const SalesPage = () => {
                 if (data?.success) {
                     toast.success(data.success);
                     closeResumeDialog(index);
-                    refreshingPage();
+                    getAllDataToSale();
                 }
             })
         })
@@ -227,7 +226,7 @@ const SalesPage = () => {
                 if (data?.success) {
                     toast.success(data.success);
                     closeResumeDialog(index);
-                    refreshingPage();
+                    getAllDataToSale();
                 }
             })
         })
@@ -238,7 +237,7 @@ const SalesPage = () => {
         if (dialogResume) dialogResume.click();
     }
 
-    const refreshingPage = () => {
+    const getAllDataToSale = () => {
         setRefreshPage(!refreshPage);
     }
 
