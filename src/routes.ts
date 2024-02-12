@@ -27,4 +27,4 @@ export const apiAuthPrefix = "/api/auth";
  * Rota de redirecionamento padrão após a autenticação do usuário no sistema
  * @type {string}
  */
-export const DEFAULT_LOGIN_REDIRECT = "/services";
+export const DEFAULT_LOGIN_REDIRECT = "/sales";
