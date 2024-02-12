@@ -1,5 +1,5 @@
 "use client"
-import { createEmployees, getEmployees } from "@/actions/employees";
+import { createEmployees } from "@/actions/employees";
 import { createPaymentMethods, getPayments } from "@/actions/payments";
 import { cancelSale, createSale, finalizeSale, getPendingSales } from "@/actions/sales";
 import { getServices } from "@/actions/services";
@@ -49,6 +49,7 @@ const SalesPage = () => {
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [times, setTimes] = useState<Time[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
+    const [refreshPage, setRefreshPage] = useState(false);
 
     const form = useForm<z.infer<typeof SalesSchema>>({
         resolver: zodResolver(SalesSchema),
@@ -66,21 +67,27 @@ const SalesPage = () => {
     });
 
     const onSubmit = (values: z.infer<typeof SalesSchema>) => {
-        console.log('values', values)
         startTransition(() => {
             createSale(values, totalPrice).then((data) => {
-
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+                if (data?.success) {
+                    toast.success(data.success);
+                    refreshingPage();
+                    const dialog = document.getElementById('dialog-create-sale');
+                    if (dialog) dialog.click();
+                }
             }).catch(() => toast.error("Algo deu errado"))
         })
     }
 
     useEffect(() => {
         getAllServices();
-        getAllEmployees();
         populateTimes();
         getAllPaymentMethods();
         getAllPendingSales();
-    }, [])
+    }, [refreshPage])
 
     const populateTimes = () => {
         const currentTime = new Date();
@@ -137,17 +144,6 @@ const SalesPage = () => {
             }
             if (data?.success) {
                 setPaymentMethods(data.paymentMethods)
-            }
-        })
-    }
-
-    const getAllEmployees = () => {
-        getEmployees().then((data) => {
-            if (data?.error) {
-                toast.error(data?.error)
-            }
-            if (data?.success) {
-                setEmployees(data.employees)
             }
         })
     }
@@ -216,6 +212,7 @@ const SalesPage = () => {
                 if (data?.success) {
                     toast.success(data.success);
                     closeResumeDialog(index);
+                    refreshingPage();
                 }
             })
         })
@@ -230,6 +227,7 @@ const SalesPage = () => {
                 if (data?.success) {
                     toast.success(data.success);
                     closeResumeDialog(index);
+                    refreshingPage();
                 }
             })
         })
@@ -238,6 +236,10 @@ const SalesPage = () => {
     const closeResumeDialog = (index: number) => {
         const dialogResume = document.getElementById('close-resume' + index);
         if (dialogResume) dialogResume.click();
+    }
+
+    const refreshingPage = () => {
+        setRefreshPage(!refreshPage);
     }
 
     const handleDialogClose = () => {
@@ -250,174 +252,178 @@ const SalesPage = () => {
     return (
         <div className="min-h-screen w-full md:px-10 px-5 flex flex-col items-center justify-center">
             <>
-
-                {sales && (
+                {isPending && (
                     <>
-                        {sales.length > 0 && (
-                            <ScrollArea className="h-[400px] w-full">
-                                <Table className="bg-black text-white w-full">
-                                    <TableHeader>
-                                        <TableRow className="text-white">
-                                            <TableHead className="text-center">Horário</TableHead>
-                                            <TableHead className="text-center">Cliente</TableHead>
-                                            <TableHead className="text-center">Placa</TableHead>
-                                            <TableHead className="text-center">Ações</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody className="text-center">
-                                        {sales.map((sale, index) => (
-                                            <TableRow
-                                                key={sale.id}
-                                            >
-                                                <TableCell>
-                                                    {sale.pickupTime}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {sale.customer?.name}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
-                                                </TableCell>
-                                                <TableCell className="flex items-center justify-center text-yellow-400">
-                                                    <Dialog>
-                                                        <DialogTrigger asChild>
-                                                            <Button aria-label="Visualizar resumo da Ordem de Serviço">
-                                                                <FaEye />
-                                                            </Button>
-                                                        </DialogTrigger>
-                                                        <DialogContent className="p-0 w-full bg-transparent boder-none">
-                                                            <Card className="w-full">
-                                                                <CardHeader>
-                                                                    Resumo
-                                                                </CardHeader>
-                                                                <CardContent className="flex flex-col md:gap-y-3 space-y-2">
-                                                                    <Label className="flex items-center justify-between">Cliente: <span>{sale.customer?.name} {sale.customer?.phone}</span></Label>
-                                                                    <Separator />
-                                                                    <VehicleSale sale={sale} />
-                                                                    <Separator />
-                                                                    <ServiceSale sale={sale} />
-                                                                    <Separator />
-                                                                    <Label className="flex items-center justify-between">Horário: <span>{sale.pickupTime}</span></Label>
-                                                                    <Separator />
-                                                                    <PaymentInfoSale sale={sale} />
-                                                                    <Separator />
-                                                                    <Label>Observações</Label>
-                                                                    <Textarea disabled={isPending} value={sale?.note || ''}></Textarea>
-                                                                    <TotalPriceSale sale={sale} />
-                                                                </CardContent>
-                                                                <CardFooter className="md:flex-row flex-col-reverse items-center justify-between gap-3">
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button
-                                                                                className="gap-x-3 w-full"
-                                                                                variant="secondary"
-                                                                                disabled={isPending}
-                                                                            >
-                                                                                <MdOutlineCancel />
-                                                                                Cancelar Atendimento
-                                                                            </Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent className="p-0 w-full bg-transparent boder-none">
-                                                                            <Card>
-                                                                                <CardHeader>
-                                                                                    Confirmar Cancelamento
-                                                                                </CardHeader>
-                                                                                <CardContent className="flex flex-col md:gap-y-3">
-                                                                                    <Label>Tem certeza que deseja CANCELAR a ordem de servio do João da Silva?</Label>
-                                                                                </CardContent>
-                                                                                <CardFooter className="items-center justify-between gap-x-3">
-                                                                                    <DialogClose asChild>
-                                                                                        <Button
-                                                                                            className="w-full"
-                                                                                            variant="outline"
-                                                                                            disabled={isPending}
-                                                                                        >
-                                                                                            Voltar
-                                                                                        </Button>
-                                                                                    </DialogClose>
-                                                                                    <DialogClose asChild>
-                                                                                        <Button
-                                                                                            className="w-full"
-                                                                                            onClick={() => handleCancelSale(sale.id, index)}
-                                                                                            disabled={isPending}
-                                                                                        >
-                                                                                            Cancelar
-                                                                                        </Button>
-                                                                                    </DialogClose>
-                                                                                </CardFooter>
-                                                                            </Card>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                    <DialogClose asChild>
-                                                                        <Button
-                                                                            className="w-full"
-                                                                            variant="outline"
-                                                                            disabled={isPending}
-                                                                        >
-                                                                            Fechar
-                                                                        </Button>
-                                                                    </DialogClose>
-                                                                    <Dialog>
-                                                                        <DialogTrigger asChild>
-                                                                            <Button
-                                                                                className="w-full"
-                                                                                disabled={isPending}
-                                                                            >Finalizar</Button>
-                                                                        </DialogTrigger>
-                                                                        <DialogContent className="p-0 w-full bg-transparent boder-none">
-                                                                            <Card>
-                                                                                <CardHeader>
-                                                                                    Confirmar Entrega
-                                                                                </CardHeader>
-                                                                                <CardContent className="flex flex-col md:gap-y-3">
-                                                                                    <Label>Tem certeza que deseja FINALIZAR a ordem de servio do João da Silva?</Label>
-                                                                                </CardContent>
-                                                                                <CardFooter className="items-center justify-between gap-x-3">
-                                                                                    <DialogClose asChild>
-                                                                                        <Button
-                                                                                            className="w-full"
-                                                                                            variant="outline"
-                                                                                            disabled={isPending}
-                                                                                        >
-                                                                                            Cancelar
-                                                                                        </Button>
-                                                                                    </DialogClose>
-
+                        <LoadingAnimation />
+                    </>
+                )}
+                {!isPending && (
+                    <>
+                        {sales && (
+                            <>
+                                {sales.length > 0 && (
+                                    <ScrollArea className="h-[400px] w-full">
+                                        <Table className="bg-black text-white w-full">
+                                            <TableHeader>
+                                                <TableRow className="text-white">
+                                                    <TableHead className="text-center">Horário</TableHead>
+                                                    <TableHead className="text-center">Cliente</TableHead>
+                                                    <TableHead className="text-center">Placa</TableHead>
+                                                    <TableHead className="text-center">Ações</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody className="text-center">
+                                                {sales.map((sale, index) => (
+                                                    <TableRow
+                                                        key={sale.id}
+                                                    >
+                                                        <TableCell>
+                                                            {sale.pickupTime}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {sale.customer?.name}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
+                                                        </TableCell>
+                                                        <TableCell className="flex items-center justify-center text-yellow-400">
+                                                            <Dialog>
+                                                                <DialogTrigger asChild>
+                                                                    <Button aria-label="Visualizar resumo da Ordem de Serviço">
+                                                                        <FaEye />
+                                                                    </Button>
+                                                                </DialogTrigger>
+                                                                <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                    <Card className="w-full">
+                                                                        <CardHeader>
+                                                                            Resumo
+                                                                        </CardHeader>
+                                                                        <CardContent className="flex flex-col md:gap-y-3 space-y-2">
+                                                                            <Label className="flex items-center justify-between">Cliente: <span>{sale.customer?.name} {sale.customer?.phone}</span></Label>
+                                                                            <Separator />
+                                                                            <VehicleSale sale={sale} />
+                                                                            <Separator />
+                                                                            <ServiceSale sale={sale} />
+                                                                            <Separator />
+                                                                            <Label className="flex items-center justify-between">Horário: <span>{sale.pickupTime}</span></Label>
+                                                                            <Separator />
+                                                                            <PaymentInfoSale sale={sale} />
+                                                                            <Separator />
+                                                                            <Label>Observações</Label>
+                                                                            <Textarea disabled={isPending} value={sale?.note || ''}></Textarea>
+                                                                            <TotalPriceSale sale={sale} />
+                                                                        </CardContent>
+                                                                        <CardFooter className="md:flex-row flex-col-reverse items-center justify-between gap-3">
+                                                                            <Dialog>
+                                                                                <DialogTrigger asChild>
+                                                                                    <Button
+                                                                                        className="gap-x-3 w-full"
+                                                                                        variant="secondary"
+                                                                                        disabled={isPending}
+                                                                                    >
+                                                                                        <MdOutlineCancel />
+                                                                                        Cancelar Atendimento
+                                                                                    </Button>
+                                                                                </DialogTrigger>
+                                                                                <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                                    <Card>
+                                                                                        <CardHeader>
+                                                                                            Confirmar Cancelamento
+                                                                                        </CardHeader>
+                                                                                        <CardContent className="flex flex-col md:gap-y-3">
+                                                                                            <Label>Tem certeza que deseja CANCELAR a ordem de servio do {sale.customer?.name}?</Label>
+                                                                                        </CardContent>
+                                                                                        <CardFooter className="items-center justify-between gap-x-3">
+                                                                                            <DialogClose asChild>
+                                                                                                <Button
+                                                                                                    className="w-full"
+                                                                                                    variant="outline"
+                                                                                                    disabled={isPending}
+                                                                                                >
+                                                                                                    Voltar
+                                                                                                </Button>
+                                                                                            </DialogClose>
+                                                                                            <DialogClose asChild>
+                                                                                                <Button
+                                                                                                    className="w-full"
+                                                                                                    onClick={() => handleCancelSale(sale.id, index)}
+                                                                                                    disabled={isPending}
+                                                                                                >
+                                                                                                    Cancelar
+                                                                                                </Button>
+                                                                                            </DialogClose>
+                                                                                        </CardFooter>
+                                                                                    </Card>
+                                                                                </DialogContent>
+                                                                            </Dialog>
+                                                                            <DialogClose asChild>
+                                                                                <Button
+                                                                                    className="w-full"
+                                                                                    variant="outline"
+                                                                                    disabled={isPending}
+                                                                                >
+                                                                                    Fechar
+                                                                                </Button>
+                                                                            </DialogClose>
+                                                                            <Dialog>
+                                                                                <DialogTrigger asChild>
                                                                                     <Button
                                                                                         className="w-full"
                                                                                         disabled={isPending}
-                                                                                        onClick={() => handleFinalizeSale(sale.id, index)}
-                                                                                    >Confirmar</Button>
-                                                                                </CardFooter>
-                                                                            </Card>
-                                                                        </DialogContent>
-                                                                    </Dialog>
-                                                                </CardFooter>
-                                                            </Card>
-                                                        </DialogContent>
-                                                        <DialogClose asChild>
-                                                            <Button
-                                                                className="hidden"
-                                                                id={`close-resume${index}`}
-                                                            ></Button>
-                                                        </DialogClose>
-                                                    </Dialog>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </ScrollArea>
-                        )}
-                        {sales.length === 0 && (
-                            <>
-                                Nenhuma Ordem de serviço encontrada
+                                                                                    >Finalizar</Button>
+                                                                                </DialogTrigger>
+                                                                                <DialogContent className="p-0 w-full bg-transparent boder-none">
+                                                                                    <Card>
+                                                                                        <CardHeader>
+                                                                                            Confirmar Entrega
+                                                                                        </CardHeader>
+                                                                                        <CardContent className="flex flex-col md:gap-y-3">
+                                                                                            <Label>Tem certeza que deseja FINALIZAR a ordem de servio do {sale.customer?.name}?</Label>
+                                                                                        </CardContent>
+                                                                                        <CardFooter className="items-center justify-between gap-x-3">
+                                                                                            <DialogClose asChild>
+                                                                                                <Button
+                                                                                                    className="w-full"
+                                                                                                    variant="outline"
+                                                                                                    disabled={isPending}
+                                                                                                >
+                                                                                                    Cancelar
+                                                                                                </Button>
+                                                                                            </DialogClose>
+
+                                                                                            <Button
+                                                                                                className="w-full"
+                                                                                                disabled={isPending}
+                                                                                                onClick={() => handleFinalizeSale(sale.id, index)}
+                                                                                            >Confirmar</Button>
+                                                                                        </CardFooter>
+                                                                                    </Card>
+                                                                                </DialogContent>
+                                                                            </Dialog>
+                                                                        </CardFooter>
+                                                                    </Card>
+                                                                </DialogContent>
+                                                                <DialogClose asChild>
+                                                                    <Button
+                                                                        className="hidden"
+                                                                        id={`close-resume${index}`}
+                                                                    ></Button>
+                                                                </DialogClose>
+                                                            </Dialog>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </ScrollArea>
+                                )}
+                                {sales.length === 0 && (
+                                    <>
+                                        Nenhuma Ordem de serviço encontrada
+                                    </>
+                                )}
                             </>
                         )}
-                    </>
-                )}
-                {employees && (
-                    <>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button>
@@ -438,7 +444,7 @@ const SalesPage = () => {
                                                             Serviços
                                                         </FormLabel>
                                                         <FormControl>
-                                                            <ScrollArea className="h-[200px] my-3">
+                                                            <ScrollArea className="max-h-[200px] my-3">
                                                                 <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
                                                                     {
                                                                         services?.map((service) => (
@@ -474,7 +480,7 @@ const SalesPage = () => {
                                                             Horário
                                                         </FormLabel>
                                                         <FormControl>
-                                                            <ScrollArea className="h-[200px] my-3">
+                                                            <ScrollArea className="max-h-[200px] my-3">
                                                                 <div className="grid grid-cols-4 gap-3">
                                                                     {
                                                                         times?.map((time) => (
@@ -645,9 +651,10 @@ const SalesPage = () => {
                                                     </FormItem>
                                                 )}
                                             />
-                                            <DialogFooter className="my-5 flex-row items-center justify-around">
+                                            <DialogFooter className="flex-row items-center justify-around">
                                                 <DialogClose asChild>
                                                     <Button
+                                                        id="dialog-create-sale"
                                                         type="button"
                                                         variant="outline"
                                                         className="rounded-full px-3 py-6"
@@ -669,21 +676,13 @@ const SalesPage = () => {
                                 </ScrollArea>
                             </DialogContent>
                         </Dialog>
+                        <Button
+                            disabled={isPending}
+                            onClick={handleCreateEmployeesPaymentMethodAndStatusMock}
+                            className="hidden"
+                        >Colaboradores, Formas de pagamento e Status</Button>
                     </>
                 )}
-                {
-                    !employees && (
-                        <LoadingAnimation />
-                    )
-                }
-                {
-                    (!employees || employees?.length === 0) && (
-                        <>
-                            <Button disabled={isPending} onClick={handleCreateEmployeesPaymentMethodAndStatusMock}>Colaboradores, Formas de pagamento e Status</Button>
-                        </>
-                    )
-                }
-
             </>
         </div>
     )

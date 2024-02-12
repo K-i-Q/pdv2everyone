@@ -7,7 +7,10 @@ import { SalesSchema } from "@/schemas";
 import { Vehicle } from "@prisma/client";
 import * as z from "zod";
 
-export const createSale = async (values: z.infer<typeof SalesSchema>, totalPrice: number) => {
+export const createSale = async (
+  values: z.infer<typeof SalesSchema>,
+  totalPrice: number
+) => {
   const validateFields = SalesSchema.safeParse(values);
 
   if (!validateFields.success) {
@@ -36,54 +39,55 @@ export const createSale = async (values: z.infer<typeof SalesSchema>, totalPrice
     return { error: "Erro ao busca status da OS" };
   }
 
+  const payment = await getPaymentMethodById(paymentMethod!);
+
+  if (!payment && !isDeferredPayment) {
+    return { error: "Forma de pagamento inválida" };
+  }
+
+  const customer = await getOrCreateCustomer(name, phone);
+  const vehicle = await getOrCreateVehicle(licensePlate, model, customer.id);
+
   const createAt = new Date();
-  const sale = await db.sale.create({
-    data: {
-      createAt,
-      grossPrice: 0,
-      netPrice: 0,
-      statusSaleId: statusSale.id,
-    },
-  });
-
-  return { success: "Venda concluída com sucesso", saleId: sale.id };
-};
-
-export const saveCustomer = async (
-  saleId: string,
-  customerDocument: string,
-  customerName: string
-) => {
-  if (!saleId || !customerDocument || !customerName) {
-    return { error: "Campos invalidos" };
-  }
-  const existingSale = await getSaleById(saleId);
-
-  if (!existingSale) {
-    return { error: "Ordem de serviço não foi encontradas" };
-  }
-
-  const existingCustomer = await db.customer.findUnique({
-    where: {
-      document: customerDocument,
-    },
-  });
-  if (!existingCustomer) {
-    const customer = await db.customer.create({
+  const sale = await db.$transaction(async (trans) => {
+    const createdSale = await trans.sale.create({
       data: {
-        document: customerDocument,
-        name: customerName,
+        createAt,
+        grossPrice: 0, // Assumindo que você irá calcular depois ou atualizar
+        netPrice: totalPrice, // Assumindo que isso será calculado com base nos serviços
+        statusSaleId: statusSale.id,
+        customerId: customer.id,
+        note,
+        pickupTime: time,
+        isDeferredPayment,
       },
     });
 
-    await updateCustomerOnSale(saleId, customer.id);
+    // Crie itens da venda dentro da mesma transação
+    for (const serviceId of services) {
+      await trans.itemSale.create({
+        data: {
+          saleId: createdSale.id,
+          serviceId: serviceId,
+          quantity: 1,
+          vehicleId: vehicle.id,
+        },
+      });
+    }
+    if (!isDeferredPayment) {
+      await trans.salePaymentMethod.create({
+        data: {
+          saleId: createdSale.id,
+          paymentMethodId: payment!.id, // Assumindo que `payment` tem o ID da forma de pagamento
+          amount: totalPrice, // Ou qualquer lógica específica para determinar o valor
+        },
+      });
+    }
 
-    return { success: "Cliente adicionado" };
-  }
+    return createdSale;
+  });
 
-  await updateCustomerOnSale(saleId, existingCustomer.id);
-
-  return { success: "Cliente adicionado" };
+  return { success: "Venda concluída com sucesso", saleId: sale.id };
 };
 
 export const saveServices = async (
@@ -153,7 +157,6 @@ export const saveServices = async (
 
   return { success: "Inserção de veículo com sucesso", prices };
 };
-
 export const saveTime = async (saleId: string, pickupTime: string) => {
   if (!saleId || !pickupTime) {
     return { error: "Dados inválidos" };
@@ -366,4 +369,36 @@ const createItemsOnSale = async (
       },
     });
   }
+};
+
+const getOrCreateCustomer = async (name: string, phone: string) => {
+  const existingCustomer = await db.customer.findFirst({
+    where: { phone },
+  });
+
+  if (existingCustomer) {
+    return existingCustomer;
+  }
+
+  return db.customer.create({
+    data: { name, phone },
+  });
+};
+
+const getOrCreateVehicle = async (
+  licensePlate: string,
+  model: string,
+  customerId: string
+) => {
+  const existingVehicle = await db.vehicle.findUnique({
+    where: { licensePlate },
+  });
+
+  if (existingVehicle) {
+    return existingVehicle;
+  }
+
+  return db.vehicle.create({
+    data: { licensePlate, model, customerId },
+  });
 };
