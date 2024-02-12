@@ -259,8 +259,7 @@ const SalesListPage = () => {
                         </>
                     )}
                 </>
-            )
-            }
+            )}
             {
                 !sales && (
                     <>
