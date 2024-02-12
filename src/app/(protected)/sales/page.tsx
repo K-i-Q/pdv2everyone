@@ -8,10 +8,12 @@ import { createStatusSales } from "@/actions/status-sale";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,7 +50,7 @@ const SalesPage = () => {
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [times, setTimes] = useState<string[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
-    const [isPaymentLater, setIsPaymentLater] = useState<boolean>(false);
+    const [isPaymentLater, setIsPaymentLater] = useState<boolean>(true);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>();
     const [celPhone, setCelPhone] = useState<string>();
     const [note, setNote] = useState<string>();
@@ -609,6 +611,54 @@ const SalesPage = () => {
                                                 onChange={(event) => setNote(event.target.value)}
                                                 disabled={isPending}
                                                 value={note}></Textarea>
+                                        </div>
+                                    </div>
+                                    <div className="w-full flex flex-col my-3">
+                                        <Label className="text-lg space-y-3">Pagamento</Label>
+                                        <div className="space-y-2">
+                                            <div className="flex flex-row-reverse items-center justify-between my-3">
+                                                <Checkbox
+                                                    className="border-gray-50 mx-3 h-7 w-7"
+                                                    id="isPaymentLater"
+                                                    checked={isPaymentLater}
+                                                    disabled={isPending}
+                                                    onCheckedChange={() => setIsPaymentLater(!isPaymentLater)} />
+                                                <Label
+                                                    htmlFor="isPaymentLater"
+                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                >
+                                                    Pagar depois?
+                                                </Label>
+                                            </div>
+                                            {paymentMethods && paymentMethods?.length > 0 && !isPaymentLater && (
+                                                <>
+                                                    <Select
+                                                        onValueChange={(value) => setSelectedPaymentMethod(value)}
+                                                        disabled={isPending}
+                                                        defaultValue={selectedPaymentMethod}>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Selecione uma forma de pagamento" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectGroup>
+                                                                <SelectLabel>Forma de Pagamento</SelectLabel>
+                                                                {
+                                                                    paymentMethods.map((paymentMethod) => (
+                                                                        <SelectItem
+                                                                            key={paymentMethod.id}
+                                                                            value={paymentMethod.id}>
+                                                                            {paymentMethod.description}
+                                                                        </SelectItem>
+                                                                    ))
+                                                                }
+                                                            </SelectGroup>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <div>
+                                                        <Label>Total: {formatPriceBRL(totalPrice || 0)}</Label>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="w-full flex flex-col my-3">
