@@ -2,7 +2,7 @@
 import { createEmployees, getEmployees } from "@/actions/employees";
 import { createPaymentMethods, getPayments } from "@/actions/payments";
 import { getProducts } from "@/actions/products";
-import { cancelSale, createSale, finalizeSale, getPendingSales, saveContact, saveCustomer, savePaymentMethod, saveServices, saveTime } from "@/actions/sales";
+import { cancelSale, finalizeSale, getPendingSales } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import { createStatusSales } from "@/actions/status-sale";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
@@ -10,25 +10,35 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { SalesSchema } from "@/schemas";
 import { formatPriceBRL } from "@/utils/mask";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Employee, PaymentMethod, Product, Service } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { BsPlus } from "react-icons/bs";
 import { FaCheckCircle, FaEye } from "react-icons/fa";
 import { MdOutlineCancel } from "react-icons/md";
 import { toast } from "sonner";
+import * as z from "zod";
 import PaymentInfoSale from "./list/_components/paymentinfosale";
 import ServiceSale from "./list/_components/servicesale";
 import TotalPriceSale from "./list/_components/totalpricesale";
 import VehicleSale from "./list/_components/vehiclesale";
+
+interface Time {
+    value: string;
+    id: number;
+}
 
 const SalesPage = () => {
     const router = useRouter();
@@ -48,12 +58,36 @@ const SalesPage = () => {
     const [model, setModel] = useState<string>('');
     const [plate, setPlate] = useState<string>('');
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
-    const [times, setTimes] = useState<string[]>([]);
+    const [times, setTimes] = useState<Time[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [isPaymentLater, setIsPaymentLater] = useState<boolean>(true);
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>();
     const [celPhone, setCelPhone] = useState<string>();
     const [note, setNote] = useState<string>();
+
+    const form = useForm<z.infer<typeof SalesSchema>>({
+        resolver: zodResolver(SalesSchema),
+        defaultValues: {
+            name: '',
+            isDeferredPayment: true,
+            licensePlate: '',
+            model: '',
+            note: '',
+            paymentMethod: undefined,
+            phone: '',
+            services: [],
+            time: ''
+        }
+    });
+
+    const onSubmit = (values: z.infer<typeof SalesSchema>) => {
+        console.log('values', values)
+        startTransition(() => {
+            // createSale(values).then((data) => {
+
+            // }).catch(() => toast.error("Algo deu errado"))
+        })
+    }
 
     useEffect(() => {
         getAllServices();
@@ -64,31 +98,6 @@ const SalesPage = () => {
         getAllPendingSales();
     }, [])
 
-    useEffect(() => {
-        if (currentStep === 7) {
-            setTimeout(() => {
-                setCurrentStep(0);
-                setSlideDirection("right-to-left");
-                resetForm();
-            }, 3000)
-        }
-    }, [currentStep])
-
-    const resetForm = () => {
-        setTotalPrice(undefined);
-        setSaleId('');
-        setCustomerDocument('');
-        setCustomerName('');
-        setModel('');
-        setPlate('');
-        setSelectedServices([]);
-        setSelectedTime(undefined);
-        setIsPaymentLater(false);
-        setSelectedPaymentMethod(undefined);
-        setCelPhone(undefined);
-        setNote(undefined);
-    };
-
     const populateTimes = () => {
         const currentTime = new Date();
         const currentHours = currentTime.getHours();
@@ -97,18 +106,21 @@ const SalesPage = () => {
         const startHour = 7;
         const endHour = 21;
         let newTimes = [];
+        let key = 0; // Inicializa um contador de chave
 
         for (let hour = startHour; hour <= endHour; hour++) {
             for (let minutes = 0; minutes < 60; minutes += 30) {
                 if (hour > currentHours || (hour === currentHours && minutes >= currentMinutes)) {
                     const timeString = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                    newTimes.push(timeString);
+                    newTimes.push({ id: key++, value: timeString }); // Cria um objeto com chave e valor e adiciona ao array
                 }
             }
         }
 
-        setTimes(newTimes);
+        setTimes(newTimes); // Atualiza o estado com o novo array de objetos
     };
+
+
 
     const getAllPendingSales = () => {
         startTransition(() => {
@@ -180,48 +192,6 @@ const SalesPage = () => {
         });
     }
 
-    const handleStartSale = (employeeId: string) => {
-        startTransition(() => {
-            createSale(employeeId).then((data) => {
-                if (data.error) {
-                    toast.error(data.error)
-                }
-                if (data.success) {
-                    nextStep();
-                    setSaleId(data.saleId)
-                }
-            }).catch(() => toast.error("Algo deu errado"))
-        })
-    }
-
-    const nextStep = () => {
-        setCurrentStep(currentStep + 1);
-        setSlideDirection("left-to-right");
-    }
-
-    const prevStep = () => {
-        setCurrentStep(currentStep - 1);
-        setSlideDirection("right-to-left");
-    }
-
-    const handleSaveCustomer = () => {
-        if (!saleId || !customerDocument || !customerName) {
-            return
-        }
-
-        startTransition(() => {
-            saveCustomer(saleId, customerDocument, customerName).then((data) => {
-                if (data?.error) {
-                    toast.error(data.error);
-                }
-
-                if (data?.success) {
-                    nextStep();
-                }
-            })
-        })
-    }
-
     const handleCreateEmployeesPaymentMethodAndStatusMock = () => {
         startTransition(() => {
             createEmployees().then((data) => {
@@ -251,80 +221,18 @@ const SalesPage = () => {
     const handleServiceClick = (serviceId: string, serviceSalePrice: number) => {
         if (selectedServices.includes(serviceId)) {
             setSelectedServices(selectedServices.filter(id => id !== serviceId));
+            form.setValue('services', form.getValues('services').filter((id) => id !== serviceId))
             setTotalPrice((totalPrice || 0) - serviceSalePrice);
         } else {
             setSelectedServices([...selectedServices, serviceId]);
+            form.setValue('services', [...form.getValues('services'), serviceId])
             setTotalPrice((totalPrice || 0) + serviceSalePrice);
         }
     };
 
-    const handleSaveServices = () => {
-        startTransition(() => {
-            saveServices(saleId, selectedServices, model, plate).then((data) => {
-                if (data?.error) {
-                    toast.error(data.error)
-                }
-                if (data?.success) {
-                    nextStep();
-                    const sumOfPrices = data.prices.reduce((acc, currentValue) => acc + currentValue.salePrice, 0);
-                    setTotalPrice(sumOfPrices)
-                }
-            })
-        })
-    }
-
-    const handleSaveTime = () => {
-        if (!selectedTime) {
-            return
-        }
-        startTransition(() => {
-            saveTime(saleId, selectedTime).then((data) => {
-                if (data?.error) {
-                    toast.error(data.error)
-                }
-
-                if (data?.success) {
-                    nextStep();
-                }
-            })
-        })
-    }
-
-    const handleSavePaymentMethod = () => {
-        if (!isPaymentLater && !selectedPaymentMethod && !totalPrice) {
-            return
-        }
-
-        startTransition(() => {
-            savePaymentMethod(saleId, selectedPaymentMethod || '', totalPrice || 0)
-                .then((data) => {
-                    if (data?.error) {
-                        toast.error(data.error);
-                    }
-
-                    if (data?.success) {
-                        setCurrentStep(currentStep + 1);
-                        setSlideDirection("left-to-right");
-                    }
-                })
-        })
-    }
-
-    const handleSaveContact = () => {
-        if (!celPhone) {
-            return
-        }
-        startTransition(() => {
-            saveContact(saleId, celPhone, note).then((data) => {
-                if (data?.error) {
-                    toast.error(data.error)
-                }
-                if (data?.success) {
-                    nextStep();
-                    //TODO: enviar resumo do pedido para o whats do cliente
-                }
-            })
-        })
+    const handleSetTime = (time: Time) => {
+        setSelectedTime(time.value);
+        form.setValue('time', time.value);
     }
 
     const handleCancelSale = (saleId: string, index: number) => {
@@ -359,6 +267,13 @@ const SalesPage = () => {
     const closeResumeDialog = (index: number) => {
         const dialogResume = document.getElementById('close-resume' + index);
         if (dialogResume) dialogResume.click();
+    }
+
+
+    const handleDialogClose = ()=>{
+        form.reset();
+        setSelectedTime('');
+        setSelectedServices([]);
     }
 
     return (
@@ -539,160 +454,248 @@ const SalesPage = () => {
                                     Novo Atendimento
                                 </Button>
                             </DialogTrigger>
-                            <DialogContent className="flex">
-                                <ScrollArea className="h-[400px] space-y-3">
-                                    <div className="w-full flex flex-col gap-x-4">
-                                        <Label className="text-lg">Serviços</Label>
-                                        <ScrollArea className="h-[200px] my-3">
-                                            <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
-                                                {
-                                                    services?.map((service) => (
-                                                        <Button
-                                                            onClick={() => handleServiceClick(service.id, service.salePrice)}
-                                                            key={service.id}
-                                                            disabled={isPending}
-                                                            size="lg"
-                                                            variant={selectedServices.includes(service.id) ? 'selected' : 'default'}
-                                                            className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
-                                                            flex-col
-                                                            `}>
-                                                            <Label className="font-semibold">{service.name}</Label>
-                                                            <span className="text-sm">{formatPriceBRL(service.salePrice)}</span>
-                                                        </Button>
-                                                    ))
-                                                }
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
-                                    <div className="w-full flex flex-col">
-                                        <Label className="text-lg">Horário</Label>
-                                        <ScrollArea className="max-h-[200px] my-3">
-                                            <div className="grid grid-cols-4 gap-4">
-                                                {
-                                                    times?.map((time) => (
-                                                        <>
-                                                            <Button
-                                                                onClick={() => setSelectedTime(time)}
-                                                                key={time}
+                            <DialogContent className="flex flex-col">
+                                <ScrollArea className="h-[500px] space-y-3">
+                                    <Form {...form}>
+                                        <form onSubmit={form.handleSubmit(onSubmit)}>
+                                            <FormField
+                                                control={form.control}
+                                                name="services"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Serviços
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <ScrollArea className="h-[200px] my-3">
+                                                                <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
+                                                                    {
+                                                                        services?.map((service) => (
+                                                                            <Button
+                                                                                type="button"
+                                                                                onClick={() => handleServiceClick(service.id, service.salePrice)}
+                                                                                disabled={isPending}
+                                                                                size="lg"
+                                                                                key={service.id}
+                                                                                variant={selectedServices.includes(service.id) ? 'selected' : 'default'}
+                                                                                className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
+                                                                                flex-col
+                                                                                `}>
+                                                                                <Label className="font-semibold">{service.name}</Label>
+                                                                                <span className="text-sm">{formatPriceBRL(service.salePrice)}</span>
+                                                                                <Input {...field} className="hidden" />
+                                                                            </Button>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </ScrollArea>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="time"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Horário
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <ScrollArea className="h-[200px] my-3">
+                                                                <div className="grid grid-cols-4 gap-3">
+                                                                    {
+                                                                        times?.map((time) => (
+                                                                            <Button
+                                                                                type="button"
+                                                                                onClick={() => handleSetTime(time)}
+                                                                                key={time.id}
+                                                                                disabled={isPending}
+                                                                                variant={selectedTime === time.value ? 'selected' : 'default'}
+                                                                                className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
+                                                                                `}>
+                                                                                {time.value}
+                                                                                <Input {...field} className="hidden" />
+                                                                            </Button>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </ScrollArea>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="name"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Cliente
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                placeholder="Nome do Cliente"
                                                                 disabled={isPending}
-                                                                variant={selectedTime === time ? 'selected' : 'default'}
-                                                                className={`${slideDirection === "left-to-right" ? "slide-left" : "slide-right"}
-                                                            `}>
-                                                                {time}
-                                                            </Button>
-                                                        </>
-                                                    ))
-                                                }
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
-                                    <div className="w-full flex flex-col">
-                                        <Label className="text-lg">Contato</Label>
-                                        <div className="space-y-2">
-                                            <Label>Nome</Label>
-                                            <Input
-                                                placeholder="Digite aqui o Nome do cliente"
-                                                onChange={(event) => setCustomerName(event.target.value)}
-                                                disabled={isPending}
-                                                value={customerName} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>WhatsApp</Label>
-                                            <Input
-                                                placeholder="Digite aqui o WhatsApp do cliente"
-                                                onChange={(event) => setCelPhone(event.target.value)}
-                                                disabled={isPending}
-                                                value={celPhone} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Observações</Label>
-                                            <Textarea
-                                                placeholder="Digite aqui alguma observação (opcional)"
-                                                onChange={(event) => setNote(event.target.value)}
-                                                disabled={isPending}
-                                                value={note}></Textarea>
-                                        </div>
-                                    </div>
-                                    <div className="w-full flex flex-col my-3">
-                                        <Label className="text-lg space-y-3">Pagamento</Label>
-                                        <div className="space-y-2">
-                                            <div className="flex flex-row-reverse items-center justify-between my-3">
-                                                <Checkbox
-                                                    className="border-gray-50 mx-3 h-7 w-7"
-                                                    id="isPaymentLater"
-                                                    checked={isPaymentLater}
-                                                    disabled={isPending}
-                                                    onCheckedChange={() => setIsPaymentLater(!isPaymentLater)} />
-                                                <Label
-                                                    htmlFor="isPaymentLater"
-                                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                                >
-                                                    Pagar depois?
-                                                </Label>
-                                            </div>
-                                            {paymentMethods && paymentMethods?.length > 0 && !isPaymentLater && (
-                                                <>
-                                                    <Select
-                                                        onValueChange={(value) => setSelectedPaymentMethod(value)}
-                                                        disabled={isPending}
-                                                        defaultValue={selectedPaymentMethod}>
-                                                        <SelectTrigger className="w-full">
-                                                            <SelectValue placeholder="Selecione uma forma de pagamento" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectGroup>
-                                                                <SelectLabel>Forma de Pagamento</SelectLabel>
-                                                                {
-                                                                    paymentMethods.map((paymentMethod) => (
-                                                                        <SelectItem
-                                                                            key={paymentMethod.id}
-                                                                            value={paymentMethod.id}>
-                                                                            {paymentMethod.description}
-                                                                        </SelectItem>
-                                                                    ))
-                                                                }
-                                                            </SelectGroup>
-                                                        </SelectContent>
-                                                    </Select>
-                                                    <div>
-                                                        <Label>Total: {formatPriceBRL(totalPrice || 0)}</Label>
-                                                    </div>
-                                                </>
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="phone"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            WhatsApp
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                placeholder="WhatsApp do Cliente"
+                                                                disabled={isPending}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="note"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Observações
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Textarea
+                                                                {...field}
+                                                                placeholder="Observações"
+                                                                disabled={isPending}
+                                                            ></Textarea>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="isDeferredPayment"
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                                                        <div className="space-y-1 leading-none">
+                                                            <FormLabel>
+                                                                Pagar depois?
+                                                            </FormLabel>
+                                                            <FormDescription>
+                                                                Pergunte ao cliente se ele prefere pagar depois
+                                                            </FormDescription>
+                                                        </div>
+                                                        <FormControl>
+                                                            <Checkbox
+                                                                className="h-7 w-7"
+                                                                checked={field.value}
+                                                                onCheckedChange={field.onChange}
+                                                            />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            {paymentMethods && paymentMethods?.length > 0 && !form.getValues('isDeferredPayment') && (
+                                                <FormField
+                                                    control={form.control}
+                                                    name="paymentMethod"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Forma de Pagamento</FormLabel>
+                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                                <FormControl>
+                                                                    <SelectTrigger className="w-full">
+                                                                        <SelectValue placeholder="Selecione uma forma de pagamento" />
+                                                                    </SelectTrigger>
+                                                                </FormControl>
+                                                                <SelectContent>
+                                                                    {
+                                                                        paymentMethods.map((paymentMethod) => (
+                                                                            <SelectItem
+                                                                                key={paymentMethod.id}
+                                                                                value={paymentMethod.id}>
+                                                                                {paymentMethod.description}
+                                                                            </SelectItem>
+                                                                        ))
+                                                                    }
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
                                             )}
-                                        </div>
-                                    </div>
-                                    <div className="w-full flex flex-col my-3">
-                                        <Label className="text-lg space-y-3">Veículo</Label>
-                                        <div className="space-y-2">
-                                            <Label>Placa</Label>
-                                            <Input
-                                                placeholder="Digite aqui a Placa do veículo"
-                                                onChange={(event) => setPlate(event.target.value)}
-                                                disabled={isPending}
-                                                value={plate} />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Modelo</Label>
-                                            <Input
-                                                placeholder="Digite aqui o Modelo do veículo"
-                                                onChange={(event) => setModel(event.target.value)}
-                                                disabled={isPending}
-                                                value={model} />
-                                        </div>
-                                    </div>
-                                    <DialogFooter className="my-5 flex-row items-center justify-around">
-                                        <Button
-                                            variant="outline"
-                                            className="rounded-full px-3 py-6"
-                                        >
-                                            <MdOutlineCancel className="w-7 h-7" />
-                                        </Button>
-                                        <Button
-                                            className="rounded-full px-3 py-6"
-                                        >
-                                            <FaCheckCircle className="w-7 h-7" />
-                                        </Button>
-                                    </DialogFooter>
+                                            <FormField
+                                                control={form.control}
+                                                name="licensePlate"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Placa
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                placeholder="Placa do Veículo"
+                                                                disabled={isPending}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="model"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Modelo
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <Input
+                                                                {...field}
+                                                                placeholder="Model do Veículo"
+                                                                disabled={isPending}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <DialogFooter className="my-5 flex-row items-center justify-around">
+                                                <DialogClose asChild>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        className="rounded-full px-3 py-6"
+                                                        onClick={handleDialogClose}
+                                                    >
+                                                        <MdOutlineCancel className="w-7 h-7" />
+                                                    </Button>
+                                                </DialogClose>
+                                                <Button
+                                                    type="submit"
+                                                    className="rounded-full px-3 py-6"
+                                                >
+                                                    <FaCheckCircle className="w-7 h-7" />
+                                                </Button>
+                                            </DialogFooter>
+                                        </form>
+                                    </Form>
+
                                 </ScrollArea>
                             </DialogContent>
                         </Dialog>
