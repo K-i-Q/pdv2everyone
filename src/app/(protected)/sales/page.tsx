@@ -2,7 +2,7 @@
 import { createEmployees, getEmployees } from "@/actions/employees";
 import { createPaymentMethods, getPayments } from "@/actions/payments";
 import { getProducts } from "@/actions/products";
-import { cancelSale, finalizeSale, getPendingSales } from "@/actions/sales";
+import { cancelSale, createSale, finalizeSale, getPendingSales } from "@/actions/sales";
 import { getServices } from "@/actions/services";
 import { createStatusSales } from "@/actions/status-sale";
 import LoadingAnimation from "@/components/custom/LoadingAnimation";
@@ -83,9 +83,9 @@ const SalesPage = () => {
     const onSubmit = (values: z.infer<typeof SalesSchema>) => {
         console.log('values', values)
         startTransition(() => {
-            // createSale(values).then((data) => {
+            createSale(values).then((data) => {
 
-            // }).catch(() => toast.error("Algo deu errado"))
+            }).catch(() => toast.error("Algo deu errado"))
         })
     }
 
@@ -119,8 +119,6 @@ const SalesPage = () => {
 
         setTimes(newTimes); // Atualiza o estado com o novo array de objetos
     };
-
-
 
     const getAllPendingSales = () => {
         startTransition(() => {
@@ -268,7 +266,6 @@ const SalesPage = () => {
         const dialogResume = document.getElementById('close-resume' + index);
         if (dialogResume) dialogResume.click();
     }
-
 
     const handleDialogClose = ()=>{
         form.reset();

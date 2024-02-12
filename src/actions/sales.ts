@@ -3,12 +3,29 @@ import { getCustomerById } from "@/data/customer";
 import { getPaymentMethodById } from "@/data/paymentMethod";
 import { getSaleById } from "@/data/sale";
 import { db } from "@/lib/db";
+import { SalesSchema } from "@/schemas";
 import { Vehicle } from "@prisma/client";
+import * as z from "zod";
 
-export const createSale = async (employeeId: string) => {
-  if (!employeeId) {
-    return { error: "Colaborador não foi selecionado" };
+export const createSale = async (values: z.infer<typeof SalesSchema>) => {
+  const validateFields = SalesSchema.safeParse(values);
+
+  if (!validateFields.success) {
+    return { error: "Campos inválidos" };
   }
+  const {
+    name,
+    phone,
+    services,
+    time,
+    isDeferredPayment,
+    model,
+    licensePlate,
+    note,
+    paymentMethod,
+  } = validateFields.data;
+
+
   const statusSale = await db.statusSale.findFirst({
     where: {
       description: "Em atendimento",
@@ -26,14 +43,6 @@ export const createSale = async (employeeId: string) => {
       grossPrice: 0,
       netPrice: 0,
       statusSaleId: statusSale.id,
-      employees: {
-        create: [
-          {
-            employeeId: employeeId,
-            initiatedByEmployee: true,
-          },
-        ],
-      },
     },
   });
 
