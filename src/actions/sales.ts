@@ -87,7 +87,7 @@ export const createSale = async (
     return createdSale;
   });
 
-  return { success: "Venda concluída com sucesso", saleId: sale.id };
+  return { success: "Veículo Inserido na Lista de Atendimento Pendente", saleId: sale.id };
 };
 
 export const saveServices = async (

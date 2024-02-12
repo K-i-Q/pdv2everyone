@@ -369,7 +369,7 @@ const SalesPage = () => {
                                                                                     <Button
                                                                                         className="w-full"
                                                                                         disabled={isPending}
-                                                                                    >Finalizar</Button>
+                                                                                    >Entregar</Button>
                                                                                 </DialogTrigger>
                                                                                 <DialogContent className="p-0 w-full bg-transparent boder-none">
                                                                                     <Card>
@@ -417,9 +417,9 @@ const SalesPage = () => {
                                     </ScrollArea>
                                 )}
                                 {sales.length === 0 && (
-                                    <>
-                                        Nenhuma Ordem de serviço encontrada
-                                    </>
+                                    <h1 className="text-2xl text-center bg-yellow-400 p-3 text-black mb-3">
+                                        Nenhum Atendimento Pendente
+                                    </h1>
                                 )}
                             </>
                         )}
