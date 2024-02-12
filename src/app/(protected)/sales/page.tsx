@@ -309,7 +309,7 @@ const SalesPage = () => {
                                                                             <PaymentInfoSale sale={sale} />
                                                                             <Separator />
                                                                             <Label>Observações</Label>
-                                                                            <Textarea disabled={isPending} value={sale?.note || ''}></Textarea>
+                                                                            <Textarea readOnly disabled={isPending} value={sale?.note || ''}></Textarea>
                                                                             <TotalPriceSale sale={sale} />
                                                                         </CardContent>
                                                                         <CardFooter className="md:flex-row flex-col-reverse items-center justify-between gap-3">
@@ -563,7 +563,7 @@ const SalesPage = () => {
                                                 control={form.control}
                                                 name="isDeferredPayment"
                                                 render={({ field }) => (
-                                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                                                    <FormItem className="flex flex-row items-start justify-between space-x-3 space-y-0 rounded-md border p-4 shadow">
                                                         <div className="space-y-1 leading-none">
                                                             <FormLabel>
                                                                 Pagar depois?
@@ -650,7 +650,7 @@ const SalesPage = () => {
                                                     </FormItem>
                                                 )}
                                             />
-                                            <DialogFooter className="flex-row items-center justify-around">
+                                            <DialogFooter className="flex-row items-center justify-around sm:justify-around">
                                                 <DialogClose asChild>
                                                     <Button
                                                         id="dialog-create-sale"
