@@ -268,6 +268,7 @@ const SalesPage = () => {
                                                     <TableHead className="text-center">Horário</TableHead>
                                                     <TableHead className="text-center">Cliente</TableHead>
                                                     <TableHead className="text-center">Placa</TableHead>
+                                                    <TableHead className="text-center">Modelo</TableHead>
                                                     <TableHead className="text-center">Ações</TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -284,6 +285,9 @@ const SalesPage = () => {
                                                         </TableCell>
                                                         <TableCell>
                                                             {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.model : 'N/A'}
                                                         </TableCell>
                                                         <TableCell className="flex items-center justify-center text-yellow-400">
                                                             <Dialog>
@@ -472,38 +476,6 @@ const SalesPage = () => {
                                             <Label>Total: {formatPriceBRL(totalPrice!)}</Label>
                                             <FormField
                                                 control={form.control}
-                                                name="time"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Horário
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <ScrollArea className="max-h-[200px] my-3">
-                                                                <div className="grid grid-cols-4 gap-3">
-                                                                    {
-                                                                        times?.map((time) => (
-                                                                            <Button
-                                                                                type="button"
-                                                                                onClick={() => handleSetTime(time)}
-                                                                                key={time.id}
-                                                                                disabled={isPending}
-                                                                                variant={selectedTime === time.value ? 'selected' : 'default'}
-                                                                                className="left-to-right">
-                                                                                {time.value}
-                                                                                <Input {...field} className="hidden" />
-                                                                            </Button>
-                                                                        ))
-                                                                    }
-                                                                </div>
-                                                            </ScrollArea>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
                                                 name="name"
                                                 render={({ field }) => (
                                                     <FormItem>
@@ -535,6 +507,38 @@ const SalesPage = () => {
                                                                 placeholder="WhatsApp do Cliente"
                                                                 disabled={isPending}
                                                             />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name="time"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>
+                                                            Horário
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                            <ScrollArea className="max-h-[200px] my-3">
+                                                                <div className="grid grid-cols-4 gap-3">
+                                                                    {
+                                                                        times?.map((time) => (
+                                                                            <Button
+                                                                                type="button"
+                                                                                onClick={() => handleSetTime(time)}
+                                                                                key={time.id}
+                                                                                disabled={isPending}
+                                                                                variant={selectedTime === time.value ? 'selected' : 'default'}
+                                                                                className="left-to-right">
+                                                                                {time.value}
+                                                                                <Input {...field} className="hidden" />
+                                                                            </Button>
+                                                                        ))
+                                                                    }
+                                                                </div>
+                                                            </ScrollArea>
                                                         </FormControl>
                                                         <FormMessage />
                                                     </FormItem>
