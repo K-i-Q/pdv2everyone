@@ -50,7 +50,6 @@ const SalesPage = () => {
     const [times, setTimes] = useState<Time[]>([]);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [refreshPage, setRefreshPage] = useState(false);
-
     const form = useForm<z.infer<typeof SalesSchema>>({
         resolver: zodResolver(SalesSchema),
         defaultValues: {
@@ -70,14 +69,19 @@ const SalesPage = () => {
         startTransition(() => {
             createSale(values, totalPrice).then((data) => {
                 if (data?.error) {
-                    toast.error(data.error);
+                    const errorMessage = typeof data.error === 'object' && data.error !== null
+                        ? (data.error as any).message || JSON.stringify(data.error)
+                        : data.error;
+                    const btnNewSale = document.getElementById('new-sale') as HTMLElement;
+                    if (btnNewSale) btnNewSale.click();
+                    toast.error(errorMessage);
                 }
                 if (data?.success) {
                     toast.success(data.success);
                     handleDialogClose();
                     getAllDataToSale();
                 }
-            }).catch(() => toast.error("Algo deu errado"))
+            }).catch((error) => toast.error(error.message || "Algo deu errado"))
         })
     }
 
@@ -427,258 +431,6 @@ const SalesPage = () => {
                                 )}
                             </>
                         )}
-                        <Dialog>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <BsPlus />
-                                    Novo Atendimento
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="flex flex-col">
-                                <ScrollArea className="h-[500px]">
-                                    <Form {...form}>
-                                        <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
-                                            <FormField
-                                                control={form.control}
-                                                name="services"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Serviços
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <ScrollArea className="max-h-[200px] my-3">
-                                                                <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
-                                                                    {
-                                                                        services?.map((service) => (
-                                                                            <Button
-                                                                                type="button"
-                                                                                onClick={() => handleServiceClick(service.id, service.salePrice)}
-                                                                                disabled={isPending}
-                                                                                size="lg"
-                                                                                key={service.id}
-                                                                                variant={selectedServices.includes(service.id) ? 'selected' : 'default'}
-                                                                                className="slide-left flex-col"
-                                                                            >
-                                                                                <Label className="font-semibold">{service.name}</Label>
-                                                                                <span className="text-sm">{formatPriceBRL(service.salePrice)}</span>
-                                                                                <Input {...field} className="hidden" />
-                                                                            </Button>
-                                                                        ))
-                                                                    }
-                                                                </div>
-                                                            </ScrollArea>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <Label>Total: {formatPriceBRL(totalPrice!)}</Label>
-                                            <FormField
-                                                control={form.control}
-                                                name="name"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Cliente
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Input
-                                                                {...field}
-                                                                placeholder="Nome do Cliente"
-                                                                disabled={isPending}
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="phone"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            WhatsApp
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Input
-                                                                {...field}
-                                                                placeholder="WhatsApp do Cliente"
-                                                                disabled={isPending}
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="time"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Horário
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <ScrollArea className="max-h-[200px] my-3">
-                                                                <div className="grid grid-cols-4 gap-3">
-                                                                    {
-                                                                        times?.map((time) => (
-                                                                            <Button
-                                                                                type="button"
-                                                                                onClick={() => handleSetTime(time)}
-                                                                                key={time.id}
-                                                                                disabled={isPending}
-                                                                                variant={selectedTime === time.value ? 'selected' : 'default'}
-                                                                                className="left-to-right">
-                                                                                {time.value}
-                                                                                <Input {...field} className="hidden" />
-                                                                            </Button>
-                                                                        ))
-                                                                    }
-                                                                </div>
-                                                            </ScrollArea>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="note"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Observações
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Textarea
-                                                                {...field}
-                                                                placeholder="Observações"
-                                                                disabled={isPending}
-                                                            ></Textarea>
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="isDeferredPayment"
-                                                render={({ field }) => (
-                                                    <FormItem className="flex flex-row items-start justify-between space-x-3 space-y-0 rounded-md border p-4 shadow">
-                                                        <div className="space-y-1 leading-none">
-                                                            <FormLabel>
-                                                                Pagar depois?
-                                                            </FormLabel>
-                                                            <FormDescription>
-                                                                Pergunte ao cliente se ele prefere pagar depois
-                                                            </FormDescription>
-                                                        </div>
-                                                        <FormControl>
-                                                            <Checkbox
-                                                                className="h-7 w-7"
-                                                                checked={field.value}
-                                                                onCheckedChange={field.onChange}
-                                                            />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            {paymentMethods && paymentMethods?.length > 0 && !form.getValues('isDeferredPayment') && (
-                                                <FormField
-                                                    control={form.control}
-                                                    name="paymentMethod"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Forma de Pagamento</FormLabel>
-                                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                                <FormControl>
-                                                                    <SelectTrigger className="w-full">
-                                                                        <SelectValue placeholder="Selecione uma forma de pagamento" />
-                                                                    </SelectTrigger>
-                                                                </FormControl>
-                                                                <SelectContent>
-                                                                    {
-                                                                        paymentMethods.map((paymentMethod) => (
-                                                                            <SelectItem
-                                                                                key={paymentMethod.id}
-                                                                                value={paymentMethod.id}>
-                                                                                {paymentMethod.description}
-                                                                            </SelectItem>
-                                                                        ))
-                                                                    }
-                                                                </SelectContent>
-                                                            </Select>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            )}
-                                            <FormField
-                                                control={form.control}
-                                                name="licensePlate"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Placa
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Input
-                                                                {...field}
-                                                                placeholder="Placa do Veículo"
-                                                                disabled={isPending}
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="model"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>
-                                                            Modelo
-                                                        </FormLabel>
-                                                        <FormControl>
-                                                            <Input
-                                                                {...field}
-                                                                placeholder="Model do Veículo"
-                                                                disabled={isPending}
-                                                            />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <DialogFooter className="flex-row items-center justify-around sm:justify-around">
-                                                <DialogClose asChild>
-                                                    <Button
-                                                        id="dialog-create-sale"
-                                                        type="button"
-                                                        variant="outline"
-                                                        className="rounded-full px-3 py-6"
-                                                        onClick={handleDialogClose}
-                                                    >
-                                                        <MdOutlineCancel className="w-7 h-7" />
-                                                    </Button>
-                                                </DialogClose>
-                                                <Button
-                                                    type="submit"
-                                                    className="rounded-full px-3 py-6"
-                                                >
-                                                    <FaCheckCircle className="w-7 h-7" />
-                                                </Button>
-                                            </DialogFooter>
-                                        </form>
-                                    </Form>
-
-                                </ScrollArea>
-                            </DialogContent>
-                        </Dialog>
                         <Button
                             disabled={isPending}
                             onClick={handleCreateEmployeesPaymentMethodAndStatusMock}
@@ -686,6 +438,260 @@ const SalesPage = () => {
                         >Colaboradores, Formas de pagamento e Status</Button>
                     </>
                 )}
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button id="new-sale" className={isPending ? `hidden` : ''}>
+                            <BsPlus />
+                            Novo Atendimento
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="flex flex-col">
+                        <ScrollArea className="h-[500px]">
+                            <Form {...form}>
+                                <form className="space-y-3" onSubmit={form.handleSubmit(onSubmit)}>
+                                    <FormField
+                                        control={form.control}
+                                        name="services"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Serviços
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <ScrollArea className="max-h-[200px] my-3">
+                                                        <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
+                                                            {
+                                                                services?.map((service) => (
+                                                                    <Button
+                                                                        type="button"
+                                                                        onClick={() => handleServiceClick(service.id, service.salePrice)}
+                                                                        disabled={isPending}
+                                                                        size="lg"
+                                                                        key={service.id}
+                                                                        variant={selectedServices.includes(service.id) ? 'selected' : 'default'}
+                                                                        className="slide-left flex-col"
+                                                                    >
+                                                                        <Label className="font-semibold">{service.name}</Label>
+                                                                        <span className="text-sm">{formatPriceBRL(service.salePrice)}</span>
+                                                                        <Input {...field} className="hidden" />
+                                                                    </Button>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                    </ScrollArea>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Label>Total: {formatPriceBRL(totalPrice!)}</Label>
+                                    <FormField
+                                        control={form.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Cliente
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        placeholder="Nome do Cliente"
+                                                        disabled={isPending}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="phone"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    WhatsApp
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        placeholder="WhatsApp do Cliente"
+                                                        disabled={isPending}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="time"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Horário
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <ScrollArea className="max-h-[200px] my-3">
+                                                        <div className="grid grid-cols-4 gap-3">
+                                                            {
+                                                                times?.map((time) => (
+                                                                    <Button
+                                                                        type="button"
+                                                                        onClick={() => handleSetTime(time)}
+                                                                        key={time.id}
+                                                                        disabled={isPending}
+                                                                        variant={selectedTime === time.value ? 'selected' : 'default'}
+                                                                        className="left-to-right">
+                                                                        {time.value}
+                                                                        <Input {...field} className="hidden" />
+                                                                    </Button>
+                                                                ))
+                                                            }
+                                                        </div>
+                                                    </ScrollArea>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="note"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Observações
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Textarea
+                                                        {...field}
+                                                        placeholder="Observações"
+                                                        disabled={isPending}
+                                                    ></Textarea>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="isDeferredPayment"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-start justify-between space-x-3 space-y-0 rounded-md border p-4 shadow">
+                                                <div className="space-y-1 leading-none">
+                                                    <FormLabel>
+                                                        Pagar depois?
+                                                    </FormLabel>
+                                                    <FormDescription>
+                                                        Pergunte ao cliente se ele prefere pagar depois
+                                                    </FormDescription>
+                                                </div>
+                                                <FormControl>
+                                                    <Checkbox
+                                                        className="h-7 w-7"
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    {paymentMethods && paymentMethods?.length > 0 && !form.getValues('isDeferredPayment') && (
+                                        <FormField
+                                            control={form.control}
+                                            name="paymentMethod"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Forma de Pagamento</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Selecione uma forma de pagamento" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {
+                                                                paymentMethods.map((paymentMethod) => (
+                                                                    <SelectItem
+                                                                        key={paymentMethod.id}
+                                                                        value={paymentMethod.id}>
+                                                                        {paymentMethod.description}
+                                                                    </SelectItem>
+                                                                ))
+                                                            }
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    )}
+                                    <FormField
+                                        control={form.control}
+                                        name="licensePlate"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Placa
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        placeholder="Placa do Veículo"
+                                                        disabled={isPending}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="model"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>
+                                                    Modelo
+                                                </FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        {...field}
+                                                        placeholder="Model do Veículo"
+                                                        disabled={isPending}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <DialogFooter className="flex-row items-center justify-around sm:justify-around">
+                                        <DialogClose asChild>
+                                            <Button
+                                                id="dialog-create-sale"
+                                                type="button"
+                                                variant="outline"
+                                                className="rounded-full px-3 py-6"
+                                                onClick={handleDialogClose}
+                                            >
+                                                <MdOutlineCancel className="w-7 h-7" />
+                                            </Button>
+                                        </DialogClose>
+                                        <DialogClose asChild>
+                                            <Button
+                                                type="submit"
+                                                className="rounded-full px-3 py-6"
+                                            >
+                                                <FaCheckCircle className="w-7 h-7" />
+                                            </Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </form>
+                            </Form>
+
+                        </ScrollArea>
+                    </DialogContent>
+                </Dialog>
             </>
         </div>
     )

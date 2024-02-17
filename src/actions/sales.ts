@@ -28,65 +28,73 @@ export const createSale = async (
     paymentMethod,
   } = validateFields.data;
 
-  const statusSale = await db.statusSale.findFirst({
-    where: {
-      description: "Em atendimento",
-    },
-  });
-
-  if (!statusSale) {
-    return { error: "Erro ao busca status da OS" };
-  }
-
-  const payment = await getPaymentMethodById(paymentMethod!);
-
-  if (!payment && !isDeferredPayment) {
-    return { error: "Forma de pagamento inválida" };
-  }
-
-  const customer = await getOrCreateCustomer(name, phone);
-  const vehicle = await getOrCreateVehicle(licensePlate, model, customer.id);
-
-  const createAt = new Date();
-  const sale = await db.$transaction(async (trans) => {
-    const createdSale = await trans.sale.create({
-      data: {
-        createAt,
-        grossPrice: 0, // Assumindo que você irá calcular depois ou atualizar
-        netPrice: totalPrice, // Assumindo que isso será calculado com base nos serviços
-        statusSaleId: statusSale.id,
-        customerId: customer.id,
-        note,
-        pickupTime: time,
-        isDeferredPayment,
+  try {
+    const customer = await getOrCreateCustomer(name, phone);
+    
+    const statusSale = await db.statusSale.findFirst({
+      where: {
+        description: "Em atendimento",
       },
     });
 
-    // Crie itens da venda dentro da mesma transação
-    for (const serviceId of services) {
-      await trans.itemSale.create({
-        data: {
-          saleId: createdSale.id,
-          serviceId: serviceId,
-          quantity: 1,
-          vehicleId: vehicle.id,
-        },
-      });
-    }
-    if (!isDeferredPayment) {
-      await trans.salePaymentMethod.create({
-        data: {
-          saleId: createdSale.id,
-          paymentMethodId: payment!.id, // Assumindo que `payment` tem o ID da forma de pagamento
-          amount: totalPrice, // Ou qualquer lógica específica para determinar o valor
-        },
-      });
+    if (!statusSale) {
+      return { error: "Erro ao busca status da OS" };
     }
 
-    return createdSale;
-  });
+    const payment = await getPaymentMethodById(paymentMethod!);
 
-  return { success: "Veículo Inserido na Lista de Atendimento Pendente", saleId: sale.id };
+    if (!payment && !isDeferredPayment) {
+      return { error: "Forma de pagamento inválida" };
+    }
+
+    const vehicle = await getOrCreateVehicle(licensePlate, model, customer.id);
+
+    const createAt = new Date();
+    const sale = await db.$transaction(async (trans) => {
+      const createdSale = await trans.sale.create({
+        data: {
+          createAt,
+          grossPrice: 0, // Assumindo que você irá calcular depois ou atualizar
+          netPrice: totalPrice, // Assumindo que isso será calculado com base nos serviços
+          statusSaleId: statusSale.id,
+          customerId: customer.id,
+          note,
+          pickupTime: time,
+          isDeferredPayment,
+        },
+      });
+
+      // Crie itens da venda dentro da mesma transação
+      for (const serviceId of services) {
+        await trans.itemSale.create({
+          data: {
+            saleId: createdSale.id,
+            serviceId: serviceId,
+            quantity: 1,
+            vehicleId: vehicle.id,
+          },
+        });
+      }
+      if (!isDeferredPayment) {
+        await trans.salePaymentMethod.create({
+          data: {
+            saleId: createdSale.id,
+            paymentMethodId: payment!.id, // Assumindo que `payment` tem o ID da forma de pagamento
+            amount: totalPrice, // Ou qualquer lógica específica para determinar o valor
+          },
+        });
+      }
+
+      return createdSale;
+    });
+
+    return {
+      success: "Veículo Inserido na Lista de Atendimento Pendente",
+      saleId: sale.id,
+    };
+  } catch (error) {
+    return { error: (error as any).message };
+  }
 };
 
 export const saveServices = async (
@@ -377,6 +385,9 @@ const getOrCreateCustomer = async (name: string, phone: string) => {
 
   if (existingCustomer) {
     return existingCustomer;
+  }
+  if (!name) {
+    throw new Error("Para novos clientes é necessário preencher o campo Nome");
   }
 
   return db.customer.create({
