@@ -12,7 +12,6 @@ export const createSale = async (
   totalPrice: number
 ) => {
   const validateFields = SalesSchema.safeParse(values);
-
   if (!validateFields.success) {
     return { error: "Campos inválidos" };
   }
