@@ -6,7 +6,9 @@ export const SalesSchema = z.object({
   services: z.array(z.string()),
   isDeferredPayment: z.boolean(),
   name: z.string({ required_error: "Campo obrigatório" }),
-  phone: z.string({ required_error: "Campo obrigatório" }),
+  phone: z.string({ required_error: "Campo obrigatório" }).min(9,{
+    message: "Preencha um telefone válido"
+  }),
   note: z.optional(z.string()),
   time: z.string({ required_error: "Campo obrigatório" }),
   paymentMethod: z.optional(z.string()),
