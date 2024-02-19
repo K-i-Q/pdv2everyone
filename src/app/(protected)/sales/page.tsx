@@ -271,8 +271,7 @@ const SalesPage = () => {
                                                 <TableRow className="text-white">
                                                     <TableHead className="text-center">Horário</TableHead>
                                                     <TableHead className="text-center">Cliente</TableHead>
-                                                    <TableHead className="text-center">Placa</TableHead>
-                                                    <TableHead className="text-center">Modelo</TableHead>
+                                                    <TableHead className="text-center">Modelo/Placa</TableHead>
                                                     <TableHead className="text-center">Ações</TableHead>
                                                 </TableRow>
                                             </TableHeader>
@@ -288,10 +287,8 @@ const SalesPage = () => {
                                                             {sale.customer?.name}
                                                         </TableCell>
                                                         <TableCell>
+                                                            {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.model : 'N/A'}/
                                                             {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.licensePlate : 'N/A'}
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.model : 'N/A'}
                                                         </TableCell>
                                                         <TableCell className="flex items-center justify-center text-yellow-400">
                                                             <Dialog>
