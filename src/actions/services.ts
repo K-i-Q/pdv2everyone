@@ -68,11 +68,35 @@ export const updateService = async (values: z.infer<typeof ServicesSchema>) => {
 
   return { error: `Serviço ${name} não foi encontradoF` };
 };
+
 export const getServices = async () => {
   const services = await db.service.findMany();
 
   if (!services) {
     return { error: "Nenhum serviço cadastrado" };
+  }
+
+  return { success: "Serviços encontrados", services: services };
+};
+
+export const getServicesByDate = async (date: Date) => {
+  const startOfDay = date;
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = date;
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const services = await db.service.findMany({
+    where: {
+      createAt: {
+        gte: startOfDay,
+        lt: endOfDay,
+      },
+    },
+  });
+
+  if (!services) {
+    return { error: "Nenhum serviço cadastrado para data selecionada" };
   }
 
   return { success: "Serviços encontrados", services: services };

@@ -43,7 +43,7 @@ type Service = {
   salePrice: number;
   createAt: Date;
   status: boolean;
-  itemSales: ItemSale[]; // Assumindo que você tem um tipo definido para ItemSale
+  itemSales?: ItemSale[]; // Assumindo que você tem um tipo definido para ItemSale
 };
 
 type Product = {
