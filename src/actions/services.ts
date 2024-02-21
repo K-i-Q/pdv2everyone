@@ -79,31 +79,6 @@ export const getServices = async () => {
   return { success: "Serviços encontrados", services: services };
 };
 
-export const getServicesByDate = async (date: Date) => {
-   const startOfLocalDay = new Date(date);
-   startOfLocalDay.setHours(0, 0, 0, 0);
-   const startOfUTC = new Date(Date.UTC(startOfLocalDay.getFullYear(), startOfLocalDay.getMonth(), startOfLocalDay.getDate()));
- 
-   const endOfLocalDay = new Date(date);
-   endOfLocalDay.setHours(23, 59, 59, 999);
-   const endOfUTC = new Date(Date.UTC(endOfLocalDay.getFullYear(), endOfLocalDay.getMonth(), endOfLocalDay.getDate(), 23, 59, 59, 999));
- 
-  const services = await db.sale.findMany({
-    where: {
-      createAt: {
-        gte: startOfUTC,
-        lt: endOfUTC
-      }
-    }
-  });
-  
-  if (services.length === 0) {
-    return { error: "Nenhum serviço cadastrado para a data selecionada" };
-  }
-  return { success: "Serviços encontrados", services: services };
-};
-
-
 export const getServiceById = async (id: string) => {
   const service = await db.service.findUnique({
     where: {

@@ -2,25 +2,27 @@ import { Label } from '@/components/ui/label';
 import { formatPriceBRL } from '@/utils/mask';
 import React from 'react';
 
-const TotalPriceSale: React.FC<{ sale: Sale, showLabel?: boolean }> = ({ sale }, showLabel: boolean = true) => {
-  // Calcula o preço total dos produtos
+const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ sale, employee }) => {
+  // Supondo que a comissão do funcionário está em uma taxa percentual sobre o preço total da venda
+  // e que o total da venda já foi calculado em outro lugar e passado para esse componente
   const totalProductsPrice = sale.items
     .filter(item => item.product)
     .reduce((acc, item) => acc + ((item.product?.salePrice || 0) * item.quantity), 0);
 
-  // Calcula o preço total dos serviços
   const totalServicesPrice = sale.items
     .filter(item => item.service)
     .reduce((acc, item) => acc + ((item.service?.salePrice || 0) * item.quantity), 0);
 
-  // Soma os preços dos produtos e serviços para obter o preço total da venda
   const totalPrice = totalProductsPrice + totalServicesPrice;
+
+  // Calcula a comissão do funcionário
+  const commission = totalPrice * employee.commission; // Supondo que a comissão está armazenada como um percentual
 
   return (
     <div>
-      <Label>{showLabel ? "Total:" : ''} {formatPriceBRL(totalPrice)}</Label>
+      <Label>{formatPriceBRL(commission)}</Label>
     </div>
   );
 };
 
-export default TotalPriceSale;
+export default EmployeeCommissionSale;

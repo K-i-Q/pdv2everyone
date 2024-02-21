@@ -3,7 +3,7 @@ import React from 'react';
 
 // Supondo que as interfaces acima estejam definidas e importadas corretamente
 
-const ServiceSale: React.FC<{ sale: Sale }> = ({ sale }) => {
+const ServiceSale: React.FC<{ sale: Sale, showLabel?:boolean }> = ({ sale }, showLabel: boolean = true) => {
   // Extrair nomes de serviços únicos
   const uniqueServiceNames = sale.items
     .flatMap(item => item.service) // Cria um array plano de todos os serviços
@@ -15,7 +15,7 @@ const ServiceSale: React.FC<{ sale: Sale }> = ({ sale }) => {
 
   return (
     <div>
-      <Label className="flex items-center justify-between">Serviços: <span>{servicesString || 'N/A'}</span></Label>
+      <Label className="flex items-center justify-between">{showLabel ? 'Serviços:' : ''} <span>{servicesString || 'N/A'}</span></Label>
     </div>
   );
 };
