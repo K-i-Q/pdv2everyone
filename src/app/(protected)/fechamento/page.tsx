@@ -9,7 +9,7 @@ import { Dialog, DialogClose, DialogContent, DialogTrigger } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import ServiceSale from "../sales/list/_components/servicesale";
@@ -50,8 +50,8 @@ const DailyClosePage = () => {
     useEffect(() => {
         getServices();
         getEmployess();
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); 
+        //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
 
     const handleDateSelect = (date: Date | undefined) => {
@@ -142,6 +142,13 @@ const DailyClosePage = () => {
                             </>
                         )}
                     </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TableCell className="text-right" colSpan={4 + (employees?.length || 0)}>
+                                <Button variant="secondary">Confirmar</Button>
+                            </TableCell>
+                        </TableRow>
+                    </TableFooter>
                 </Table>
             </ScrollArea>
         </div>

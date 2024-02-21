@@ -1,8 +1,11 @@
 import { Label } from '@/components/ui/label';
 import { formatPriceBRL } from '@/utils/mask';
-import React from 'react';
 
-const TotalPriceSale: React.FC<{ sale: Sale, showLabel?: boolean }> = ({ sale }, showLabel: boolean = true) => {
+type TotalPriceSaleProps = {
+  sale: Sale;
+  showLabel?: boolean;
+}
+const TotalPriceSale = ({sale, showLabel}: TotalPriceSaleProps) => {
   // Calcula o preço total dos produtos
   const totalProductsPrice = sale.items
     .filter(item => item.product)

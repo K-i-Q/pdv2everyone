@@ -1,5 +1,4 @@
-import { Label } from '@/components/ui/label';
-import { formatPriceBRL } from '@/utils/mask';
+import CurrencyInput from '@/components/custom/CurrencyInput';
 import React from 'react';
 
 const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ sale, employee }) => {
@@ -20,7 +19,13 @@ const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ 
 
   return (
     <div>
-      <Label>{formatPriceBRL(commission)}</Label>
+      {/* <Label>{formatPriceBRL(commission)}</Label> */}
+      {/* <Input defaultValue={formatPriceBRL(commission)} /> */}
+      <CurrencyInput
+        defaultValue={commission}
+        placeholder="R$ 100,00"
+        autoComplete="off"
+      />
     </div>
   );
 };
