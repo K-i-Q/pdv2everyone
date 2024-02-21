@@ -19,8 +19,6 @@ const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ 
 
   return (
     <div>
-      {/* <Label>{formatPriceBRL(commission)}</Label> */}
-      {/* <Input defaultValue={formatPriceBRL(commission)} /> */}
       <CurrencyInput
         defaultValue={commission}
         placeholder="R$ 100,00"

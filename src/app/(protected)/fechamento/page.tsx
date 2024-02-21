@@ -15,12 +15,15 @@ import { toast } from "sonner";
 import ServiceSale from "../sales/list/_components/servicesale";
 import TotalPriceSale from "../sales/list/_components/totalpricesale";
 import EmployeeCommissionSale from "./_components/employeecomissionsale";
+import TotalNetPrice from "./_components/totalnetprice";
 
 const DailyClosePage = () => {
     //TODO: fazer filtro de serviços por data
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [sales, setSales] = useState<Sale[] | undefined>();
     const [employees, setEmployees] = useState<Employee[] | undefined>();
+    const [billing, setBilling]= useState<Number>(0);
+    const [totalPaments, setTotalPayments]= useState<Number>(0);
 
     const getServices = () => {
         getSaleByDate(selectedDate!).then((data) => {
@@ -88,6 +91,9 @@ const DailyClosePage = () => {
                         </DialogContent>
                     </Dialog>
                     <Button className="w-full md:w-auto">Pesquisar</Button>
+                </CardHeader>
+                <CardHeader>
+                    <TotalNetPrice sales={sales || []} />
                 </CardHeader>
             </Card>
             <ScrollArea className="h-[400px] w-full">
