@@ -9,26 +9,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
 
 const DailyClosePage = () => {
     //TODO: fazer filtro de serviços por data
-    const [date, setDate] = useState<Date>(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [services, setServices] = useState<Service[] | undefined>();
 
     const getServices = () => {
-        getServicesByDate(date!).then((data) => {
+        getServicesByDate(selectedDate!).then((data) => {
             if (data?.error) {
                 toast.error(data.error)
             }
             if (data?.success) {
                 toast.success(data.success)
-                setServices(data.services)
+                setServices(data.services as Service[])
             }
         });
     }
+
+    useEffect(() => {
+        // Chama a função getServices assim que o componente é montado
+        getServices();
+      }, []); // O array vazio como segundo argumento significa que este efeito será executado apenas uma vez, quando o componente for montado.
+      
+
+    const handleDateSelect = (date: Date | undefined) => {
+        if (!date) return;
+        setSelectedDate(date);
+    };
 
 
     return (
@@ -41,14 +51,14 @@ const DailyClosePage = () => {
                             <Input
                                 readOnly
                                 className="text-center"
-                                value={date?.toLocaleDateString('pt-BR')}
+                                value={selectedDate?.toLocaleDateString('pt-BR')}
                             />
                         </DialogTrigger>
                         <DialogContent className="items-center justify-center">
                             <Calendar
                                 mode="single"
-                                selected={date}
-                                onSelect={setDate}
+                                selected={selectedDate}
+                                onSelect={handleDateSelect}
                                 initialFocus
                             />
                             <DialogClose asChild>

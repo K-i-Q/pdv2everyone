@@ -37,12 +37,20 @@ type ItemSale = {
 
 type Service = {
   id: string;
+  grossPrice: number;
+  netPrice: number;
+  discount?: number; // O '?' torna o campo opcional
+  createAt: Date;
+  isDeferredPayment?: boolean;
+  pickupTime?: string;
+  note?: string;
+  customerId?: string;
+  statusSaleId: string;
   description: string;
   name: string;
   costPrice: number;
   salePrice: number;
-  createAt: Date;
-  status: boolean;
+  status: string;
   itemSales?: ItemSale[]; // Assumindo que você tem um tipo definido para ItemSale
 };
 
