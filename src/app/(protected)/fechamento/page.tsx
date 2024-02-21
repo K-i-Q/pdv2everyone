@@ -48,10 +48,10 @@ const DailyClosePage = () => {
     }
 
     useEffect(() => {
-        // Chama a função getServices assim que o componente é montado
         getServices();
         getEmployess();
-    }, []); // O array vazio como segundo argumento significa que este efeito será executado apenas uma vez, quando o componente for montado.
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); 
 
 
     const handleDateSelect = (date: Date | undefined) => {
@@ -122,7 +122,7 @@ const DailyClosePage = () => {
                                             {sale.items.length > 0 && sale.items[0].vehicle ? sale.items[0].vehicle.model : 'N/A'}
                                         </TableCell>
                                         <TableCell>
-                                            <ServiceSale sale={sale} showLabel={false}/>
+                                            <ServiceSale sale={sale} showLabel={false} />
                                         </TableCell>
                                         <TableCell>
                                             <TotalPriceSale sale={sale} showLabel={false} />
