@@ -1,7 +1,12 @@
 import CurrencyInput from '@/components/custom/CurrencyInput';
-import React from 'react';
 
-const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ sale, employee }) => {
+type EmployeeCommissionSaleProps ={
+  sale: Sale;
+  employee: Employee;
+  justNumber?:boolean
+}
+
+const EmployeeCommissionSale = ({ sale, employee, justNumber = false }: EmployeeCommissionSaleProps) => {
   // Supondo que a comissão do funcionário está em uma taxa percentual sobre o preço total da venda
   // e que o total da venda já foi calculado em outro lugar e passado para esse componente
   const totalProductsPrice = sale.items
@@ -17,6 +22,9 @@ const EmployeeCommissionSale: React.FC<{ sale: Sale; employee: Employee }> = ({ 
   // Calcula a comissão do funcionário
   const commission = totalPrice * employee.commission; // Supondo que a comissão está armazenada como um percentual
 
+  if(justNumber){
+    return commission;
+  }
   return (
     <div>
       <CurrencyInput

@@ -1,6 +1,7 @@
 "use client"
 
 import { getEmployees } from "@/actions/employees";
+import { saveSalary } from "@/actions/salary";
 import { getSaleByDate } from "@/actions/sales";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -10,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import ServiceSale from "../sales/list/_components/servicesale";
 import TotalPriceSale from "../sales/list/_components/totalpricesale";
@@ -18,6 +19,10 @@ import EmployeeCommissionSale from "./_components/employeecomissionsale";
 import TotalCommissions from "./_components/totalcomissions";
 import TotalNetPrice from "./_components/totalnetprice";
 
+type SalaryEmployee = {
+    id: string;
+    amount: number;
+}
 const DailyClosePage = () => {
     //TODO: fazer filtro de serviços por data
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -25,6 +30,7 @@ const DailyClosePage = () => {
     const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [billing, setBilling] = useState<Number>(0);
     const [totalPaments, setTotalPayments] = useState<Number>(0);
+    const [isPending, startTransition] = useTransition();
 
     const getServices = () => {
         getSaleByDate(selectedDate!).then((data) => {
@@ -62,6 +68,30 @@ const DailyClosePage = () => {
         if (!date) return;
         setSelectedDate(date);
     };
+
+    const handleSaveDailyClose = () => {
+        const salarys:SalaryEmployee[] = [];
+        let total = 0;
+        sales?.forEach((sale)=>{
+            employees?.forEach((employee)=>{
+                let retorno = EmployeeCommissionSale({ sale, employee, justNumber: true });
+                total +=  (retorno as number);
+            })
+        })
+
+
+        startTransition(()=>{
+            saveSalary().then((data)=>{
+                if(data?.error){
+                    toast.error(data.error);
+                }
+
+                if(data?.success){
+                    toast.success(data.success);
+                }
+            })
+        })
+    }
 
 
     return (
@@ -153,7 +183,11 @@ const DailyClosePage = () => {
                     <TableFooter>
                         <TableRow>
                             <TableCell className="text-right" colSpan={4 + (employees?.length || 0)}>
-                                <Button variant="secondary">Confirmar</Button>
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleSaveDailyClose}>
+                                    Confirmar
+                                </Button>
                             </TableCell>
                         </TableRow>
                     </TableFooter>
