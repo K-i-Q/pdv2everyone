@@ -70,18 +70,20 @@ const DailyClosePage = () => {
     };
 
     const handleSaveDailyClose = () => {
-        const salarys:SalaryEmployee[] = [];
-        let total = 0;
+        let arrayemployee:any = [];
         sales?.forEach((sale)=>{
             employees?.forEach((employee)=>{
-                let retorno = EmployeeCommissionSale({ sale, employee, justNumber: true });
-                total +=  (retorno as number);
+                arrayemployee.push({
+                    id: employee.id,
+                    comission: sale.netPrice * employee.commission
+                })
             })
         })
+        const arrayEmployeeUnique = somarComissoesPorFuncionario(arrayemployee);
 
 
         startTransition(()=>{
-            saveSalary().then((data)=>{
+            saveSalary(arrayEmployeeUnique).then((data)=>{
                 if(data?.error){
                     toast.error(data.error);
                 }
@@ -91,6 +93,28 @@ const DailyClosePage = () => {
                 }
             })
         })
+    }
+
+    const somarComissoesPorFuncionario = (arrayemployee :any[]) => {
+        const comissoesPorFuncionario:any = {};
+    
+        // Calcula as comissões por funcionário
+        arrayemployee.forEach((item) => {
+            const { id, comission } = item;
+            if (comissoesPorFuncionario[id]) {
+                comissoesPorFuncionario[id] += comission;
+            } else {
+                comissoesPorFuncionario[id] = comission;
+            }
+        });
+    
+        // Converte o objeto de comissões por funcionário de volta para um array
+        const resultado = Object.keys(comissoesPorFuncionario).map((id) => ({
+            id: id,
+            comission: comissoesPorFuncionario[id],
+        }));
+    
+        return resultado;
     }
 
 
@@ -169,7 +193,7 @@ const DailyClosePage = () => {
                                             <>
                                                 {employees.map((employee) => (
                                                     <TableCell key={employee.id}>
-                                                        <EmployeeCommissionSale sale={sale} employee={employee} />
+                                                        <EmployeeCommissionSale sale={sale} employee={employee} disabled={isPending} />
                                                     </TableCell>
                                                 ))
                                                 }
@@ -185,6 +209,7 @@ const DailyClosePage = () => {
                             <TableCell className="text-right" colSpan={4 + (employees?.length || 0)}>
                                 <Button
                                     variant="secondary"
+                                    disabled={isPending}
                                     onClick={handleSaveDailyClose}>
                                     Confirmar
                                 </Button>

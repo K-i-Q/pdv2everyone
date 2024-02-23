@@ -3,10 +3,10 @@ import CurrencyInput from '@/components/custom/CurrencyInput';
 type EmployeeCommissionSaleProps ={
   sale: Sale;
   employee: Employee;
-  justNumber?:boolean
+  disabled: boolean;
 }
 
-const EmployeeCommissionSale = ({ sale, employee, justNumber = false }: EmployeeCommissionSaleProps) => {
+const EmployeeCommissionSale = ({ sale, employee, disabled }: EmployeeCommissionSaleProps) => {
   // Supondo que a comissão do funcionário está em uma taxa percentual sobre o preço total da venda
   // e que o total da venda já foi calculado em outro lugar e passado para esse componente
   const totalProductsPrice = sale.items
@@ -22,15 +22,13 @@ const EmployeeCommissionSale = ({ sale, employee, justNumber = false }: Employee
   // Calcula a comissão do funcionário
   const commission = totalPrice * employee.commission; // Supondo que a comissão está armazenada como um percentual
 
-  if(justNumber){
-    return commission;
-  }
   return (
     <div>
       <CurrencyInput
         defaultValue={commission}
         placeholder="R$ 100,00"
         autoComplete="off"
+        disabled={disabled}
       />
     </div>
   );
