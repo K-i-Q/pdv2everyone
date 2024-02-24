@@ -30,7 +30,7 @@ export const createSale = async (
 
   try {
     const customer = await getOrCreateCustomer(name, phone);
-    
+
     const statusSale = await db.statusSale.findFirst({
       where: {
         description: "Em atendimento",
@@ -218,6 +218,54 @@ export const savePaymentMethod = async (
   return { success: "Forma de pagamento adicionada com sucesso" };
 };
 
+export const getSaleByDate = async (date: Date) => {
+  const startOfLocalDay = new Date(date);
+  startOfLocalDay.setHours(0, 0, 0, 0);
+  const startOfUTC = new Date(
+    Date.UTC(
+      startOfLocalDay.getFullYear(),
+      startOfLocalDay.getMonth(),
+      startOfLocalDay.getDate()
+    )
+  );
+
+  const endOfLocalDay = new Date(date);
+  endOfLocalDay.setHours(23, 59, 59, 999);
+  const endOfUTC = new Date(
+    Date.UTC(
+      endOfLocalDay.getFullYear(),
+      endOfLocalDay.getMonth(),
+      endOfLocalDay.getDate(),
+      23,
+      59,
+      59,
+      999
+    )
+  );
+
+  const sales = await db.sale.findMany({
+    where: {
+      createAt: {
+        gte: startOfUTC,
+        lt: endOfUTC,
+      },
+    },
+    include: {
+      items: {
+        include: {
+          vehicle: true,
+          service: true,
+          product: true,
+        },
+      },
+    },
+  });
+
+  if (sales.length === 0) {
+    return { error: "Nenhum serviço cadastrado para a data selecionada" };
+  }
+  return { success: "Serviços encontrados", sales: sales };
+};
 export const saveContact = async (
   saleId: string,
   phone: string,
