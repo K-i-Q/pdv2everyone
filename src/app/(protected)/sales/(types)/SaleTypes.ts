@@ -43,7 +43,7 @@ type Service = {
   salePrice: number;
   createAt: Date;
   status: boolean;
-  itemSales: ItemSale[]; // Assumindo que você tem um tipo definido para ItemSale
+  itemSales?: ItemSale[]; // Assumindo que você tem um tipo definido para ItemSale
 };
 
 type Product = {
@@ -87,6 +87,25 @@ type Customer = {
   Vehicles: Vehicle[];
 };
 
+type Employee = {
+  id: string;
+  name: string;
+  document: string;
+  nickname?: string | null;
+  gender: string;
+  phone: string;
+  createAt: Date;
+  birthday: Date;
+  status: boolean;
+  commission: number;
+  // Os seguintes campos são relações e você precisa definir tipos separados para cada um deles também.
+  // stores: EmployeeStore[];
+  // sales: EmployeeSale[];
+  // salaries: Salary[];
+  // advances: Advance[];
+  // user?: User | null; // Presumindo que User é um tipo já definido em algum lugar no seu código.
+};
+
 type Sale = {
   id: string;
   grossPrice: number;
@@ -100,5 +119,19 @@ type Sale = {
   items: ItemSale[];
   salePayments: SalePaymentMethod[];
   customerId: string | null;
-  customer: Customer | null; // Este campo reflete o relacionamento opcional com Customer
+  customer: Customer | null;
+  statusSaleId: string;
+  statusSale: StatusSale; // Parece que essa propriedade está faltando na sua tentativa de atribuição
 };
+
+type StatusSale = {
+  id: string;
+  description: string;
+  createAt: Date;
+  status: boolean;
+  // A propriedade 'sales' indica uma relação com a model 'Sale'.
+  // Você precisaria definir o type 'Sale' se ainda não o fez.
+  sales: Sale[];
+};
+
+
