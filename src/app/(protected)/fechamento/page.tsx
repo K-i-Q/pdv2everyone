@@ -6,11 +6,12 @@ import { getSaleByDate } from "@/actions/sales";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Dialog, DialogClose, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatPriceBRL } from "@/utils/mask";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import ServiceSale from "../sales/list/_components/servicesale";
@@ -19,18 +20,20 @@ import EmployeeCommissionSale from "./_components/employeecomissionsale";
 import TotalCommissions from "./_components/totalcomissions";
 import TotalNetPrice from "./_components/totalnetprice";
 
-type SalaryEmployee = {
-    id: string;
-    amount: number;
+export type SalaryEmployee = {
+    [key: string]: {
+        [key: string]: number;
+    };
 }
 const DailyClosePage = () => {
     //TODO: fazer filtro de serviços por data
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
     const [sales, setSales] = useState<Sale[] | undefined>();
     const [employees, setEmployees] = useState<Employee[] | undefined>();
-    const [billing, setBilling] = useState<Number>(0);
-    const [totalPaments, setTotalPayments] = useState<Number>(0);
+    const [billing, setBilling] = useState<number>(0);
+    const [totalPaments, setTotalPayments] = useState<number>(0);
     const [isPending, startTransition] = useTransition();
+    const [salary, setSalary] = useState<SalaryEmployee>({});
 
     const getServices = () => {
         getSaleByDate(selectedDate!).then((data) => {
@@ -63,6 +66,26 @@ const DailyClosePage = () => {
         //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        setTotalPayments(calculateMatrixSum(salary));
+    }, [salary]);
+
+    const calculateMatrixSum = (matrix: SalaryEmployee): number => {
+        if (!matrix) return 0;
+        let sum = 0;
+
+        // Iterar sobre as chaves externas da matriz (id do funcionário)
+        Object.keys(matrix).forEach(employeeId => {
+            // Iterar sobre as chaves internas da matriz (id da venda)
+            Object.keys(matrix[employeeId]).forEach(saleId => {
+                // Somar o valor da comissão ao total
+                sum += matrix[employeeId][saleId];
+            });
+        });
+
+        return sum;
+    };
+
 
     const handleDateSelect = (date: Date | undefined) => {
         if (!date) return;
@@ -70,34 +93,34 @@ const DailyClosePage = () => {
     };
 
     const handleSaveDailyClose = () => {
-        let arrayemployee:any = [];
-        sales?.forEach((sale)=>{
-            employees?.forEach((employee)=>{
+        //TODO: alterar função para contemplar total de comissões calculadas em cima da matriz
+        let arrayemployee: any = [];
+        sales?.forEach((sale) => {
+            employees?.forEach((employee) => {
                 arrayemployee.push({
                     id: employee.id,
                     comission: sale.netPrice * employee.commission
                 })
-            })
-        })
+            });
+        });
         const arrayEmployeeUnique = somarComissoesPorFuncionario(arrayemployee);
 
-
-        startTransition(()=>{
-            saveSalary(arrayEmployeeUnique).then((data)=>{
-                if(data?.error){
+        startTransition(() => {
+            saveSalary(arrayEmployeeUnique).then((data) => {
+                if (data?.error) {
                     toast.error(data.error);
                 }
 
-                if(data?.success){
+                if (data?.success) {
                     toast.success(data.success);
                 }
             })
         })
     }
 
-    const somarComissoesPorFuncionario = (arrayemployee :any[]) => {
-        const comissoesPorFuncionario:any = {};
-    
+    const somarComissoesPorFuncionario = (arrayemployee: any[]) => {
+        const comissoesPorFuncionario: any = {};
+
         // Calcula as comissões por funcionário
         arrayemployee.forEach((item) => {
             const { id, comission } = item;
@@ -107,13 +130,13 @@ const DailyClosePage = () => {
                 comissoesPorFuncionario[id] = comission;
             }
         });
-    
+
         // Converte o objeto de comissões por funcionário de volta para um array
         const resultado = Object.keys(comissoesPorFuncionario).map((id) => ({
             id: id,
             comission: comissoesPorFuncionario[id],
         }));
-    
+
         return resultado;
     }
 
@@ -149,7 +172,10 @@ const DailyClosePage = () => {
                 </CardHeader>
                 <CardHeader>
                     <TotalNetPrice sales={sales || []} />
-                    <TotalCommissions sales={sales || []} employees={employees || []} />
+                    <div className="hidden">
+                        <TotalCommissions setSalary={setSalary} sales={sales || []} employees={employees || []} />
+                    </div>
+                    Total comissões: {formatPriceBRL(totalPaments)}
                 </CardHeader>
             </Card>
             <ScrollArea className="h-[400px] w-full">
@@ -163,7 +189,7 @@ const DailyClosePage = () => {
                             {employees && employees.length > 0 && (
                                 <>
                                     {employees.map((employee) => (
-                                        <TableHead key={employee.id}>
+                                        <TableHead className="w-[100px]" key={employee.id}>
                                             {employee.name}
                                         </TableHead>
                                     ))
@@ -193,7 +219,7 @@ const DailyClosePage = () => {
                                             <>
                                                 {employees.map((employee) => (
                                                     <TableCell key={employee.id}>
-                                                        <EmployeeCommissionSale sale={sale} employee={employee} disabled={isPending} />
+                                                        <EmployeeCommissionSale salary={salary} setSalary={setSalary} sale={sale} employee={employee} disabled={isPending} />
                                                     </TableCell>
                                                 ))
                                                 }
@@ -207,12 +233,32 @@ const DailyClosePage = () => {
                     <TableFooter>
                         <TableRow>
                             <TableCell className="text-right" colSpan={4 + (employees?.length || 0)}>
-                                <Button
-                                    variant="secondary"
-                                    disabled={isPending}
-                                    onClick={handleSaveDailyClose}>
-                                    Confirmar
-                                </Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="secondary">
+                                            Confirmar
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            Resumo do Fechamento
+                                        </DialogHeader>
+                                        <Label>Confirmar total de faturamento: {formatPriceBRL(billing)}</Label>
+                                        <Label>Pagamento:</Label>
+                                        <Label>Func1: R$ 50,00</Label>
+                                        <Label>Func2: R$ 50,00</Label>
+                                        <Label>Func3: R$ 50,00</Label>
+                                        <Label>Func4: R$ 50,00</Label>
+                                        <DialogFooter>
+                                            <Button
+                                                variant="secondary"
+                                                disabled={isPending}
+                                                onClick={handleSaveDailyClose}>
+                                                Confirmar
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                             </TableCell>
                         </TableRow>
                     </TableFooter>
