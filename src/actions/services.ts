@@ -68,6 +68,7 @@ export const updateService = async (values: z.infer<typeof ServicesSchema>) => {
 
   return { error: `Serviço ${name} não foi encontradoF` };
 };
+
 export const getServices = async () => {
   const services = await db.service.findMany();
 
