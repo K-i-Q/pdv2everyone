@@ -1,27 +1,60 @@
 "use server";
 
+import { EmployeeCommission } from "@/app/(protected)/fechamento/page";
 import { db } from "@/lib/db";
 
-export const saveSalary = async (employessComissions: any[]) => {
-  if (employessComissions.length <= 0) {
+export const saveSalary = async (employeeCommissions: EmployeeCommission) => {
+  if (!employeeCommissions || Object.keys(employeeCommissions).length === 0) {
     return { error: "Dados inválidos" };
   }
 
   try {
-    // Criar um array de objetos para inserção em lote
-    const salariesToCreate: any[] = employessComissions.map(item => ({
-      amount: item.comission, // Usando 'comission' como o valor do salário
-      createAt: new Date(), // Definindo a data do salário como agora
-      employeeId: item.id // Usando 'id' como o id do empregado
-    }));
+    const currentDate = new Date();
 
-    // Inserir salários na base de dados
-    await db.salary.createMany({
-      data: salariesToCreate,
-    });
+    await Promise.all(
+      Object.entries(employeeCommissions).map(async ([employeeId, salary]) => {
+        const existingSalary = await db.salary.findFirst({
+          where: {
+            employeeId: employeeId,
+            createAt: {
+              gte: new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate()
+              ),
+              lt: new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate() + 1
+              ),
+            },
+          },
+        });
+
+        if (existingSalary) {
+          await db.salary.update({
+            where: {
+              id: existingSalary.id,
+            },
+            data: {
+              amount: salary,
+              createAt: currentDate,
+            },
+          });
+        } else {
+          await db.salary.create({
+            data: {
+              amount: salary,
+              createAt: currentDate,
+              employeeId: employeeId,
+            },
+          });
+        }
+      })
+    );
 
     return { success: "Salários salvos com sucesso" };
   } catch (error) {
-    return { error: "Erro ao salvar os salários" };
+    return { error: "Erro ao salvar os salários " + error };
   }
 };

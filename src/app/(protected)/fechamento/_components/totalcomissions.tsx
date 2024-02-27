@@ -35,7 +35,6 @@ const TotalCommissions = ({ sales, employees, setSalary }: TotalCommissionsProps
         newSalaryMatrix[employee.id][sale.id] = commission;
       });
     });
-    console.log('newSalaryMatrix', newSalaryMatrix)
     setSalary(newSalaryMatrix);
     setTotalCommissions(total);
   };
