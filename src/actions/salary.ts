@@ -3,7 +3,10 @@
 import { EmployeeCommission } from "@/app/(protected)/fechamento/page";
 import { db } from "@/lib/db";
 
-export const saveSalary = async (employeeCommissions: EmployeeCommission, salaryDate: Date) => {
+export const saveSalary = async (
+  employeeCommissions: EmployeeCommission,
+  salaryDate: Date
+) => {
   if (!employeeCommissions || Object.keys(employeeCommissions).length === 0) {
     return { error: "Dados inválidos" };
   }
@@ -17,8 +20,16 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission, salary
           where: {
             employeeId: employeeId,
             salaryDate: {
-              gte: new Date(salaryDate.getFullYear(), salaryDate.getMonth(), salaryDate.getDate()), 
-              lt: new Date(salaryDate.getFullYear(), salaryDate.getMonth(), salaryDate.getDate() + 1) 
+              gte: new Date(
+                salaryDate.getFullYear(),
+                salaryDate.getMonth(),
+                salaryDate.getDate()
+              ),
+              lt: new Date(
+                salaryDate.getFullYear(),
+                salaryDate.getMonth(),
+                salaryDate.getDate() + 1
+              ),
             },
           },
         });
@@ -39,7 +50,7 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission, salary
               amount: salary,
               createAt: currentDate,
               employeeId: employeeId,
-              salaryDate: salaryDate
+              salaryDate: salaryDate,
             },
           });
         }
@@ -52,3 +63,40 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission, salary
   }
 };
 
+export const getPendingSalarys = async () => {
+  const existingPendingSalarys = await db.salary.findMany({
+    where: {
+      paid: false,
+    },
+  });
+  if (!existingPendingSalarys || existingPendingSalarys.length === 0) {
+    return { error: "Não existe salários pendentes" };
+  }
+  return {
+    success: "Salários pendentes encontrados",
+    salarys: existingPendingSalarys,
+  };
+};
+
+export const saveSalaryPaid = async (salaries: Salary[]) => {
+  if (salaries.length <= 0) {
+    return { error: "Dados inválidos" };
+  }
+
+  try {
+    await db.salary.updateMany({
+      where: {
+        id: {
+          in: salaries.map((salary) => salary.id),
+        },
+      },
+      data: {
+        paid: true,
+      },
+    });
+
+    return { success: "Salários atualizados." };
+  } catch (error) {
+    return { error: "Erro ao atualizar os salários." };
+  }
+};
