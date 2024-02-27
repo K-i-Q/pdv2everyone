@@ -3,7 +3,7 @@
 import { EmployeeCommission } from "@/app/(protected)/fechamento/page";
 import { db } from "@/lib/db";
 
-export const saveSalary = async (employeeCommissions: EmployeeCommission) => {
+export const saveSalary = async (employeeCommissions: EmployeeCommission, salaryDate: Date) => {
   if (!employeeCommissions || Object.keys(employeeCommissions).length === 0) {
     return { error: "Dados inválidos" };
   }
@@ -16,17 +16,9 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission) => {
         const existingSalary = await db.salary.findFirst({
           where: {
             employeeId: employeeId,
-            createAt: {
-              gte: new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
-                currentDate.getDate()
-              ),
-              lt: new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
-                currentDate.getDate() + 1
-              ),
+            salaryDate: {
+              gte: new Date(salaryDate.getFullYear(), salaryDate.getMonth(), salaryDate.getDate()), 
+              lt: new Date(salaryDate.getFullYear(), salaryDate.getMonth(), salaryDate.getDate() + 1) 
             },
           },
         });
@@ -47,6 +39,7 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission) => {
               amount: salary,
               createAt: currentDate,
               employeeId: employeeId,
+              salaryDate: salaryDate
             },
           });
         }
@@ -58,3 +51,4 @@ export const saveSalary = async (employeeCommissions: EmployeeCommission) => {
     return { error: "Erro ao salvar os salários " + error };
   }
 };
+

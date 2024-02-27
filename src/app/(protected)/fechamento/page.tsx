@@ -39,6 +39,7 @@ const DailyClosePage = () => {
     const [isPending, startTransition] = useTransition();
     const [salary, setSalary] = useState<SalaryEmployee>({});
     const [employeCommission, setEmployeeCommission] = useState<EmployeeCommission>();
+
     const getServices = () => {
         getSaleByDate(selectedDate!).then((data) => {
             if (data?.error) {
@@ -95,10 +96,10 @@ const DailyClosePage = () => {
 
     const handleSaveDailyClose = () => {
 
-        if (!employeCommission) return;
+        if (!employeCommission || !selectedDate) return;
 
         startTransition(() => {
-            saveSalary(employeCommission).then((data) => {
+            saveSalary(employeCommission, selectedDate).then((data) => {
                 if (data?.error) {
                     toast.error(data.error);
                 }
