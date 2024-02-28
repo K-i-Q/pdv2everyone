@@ -6,22 +6,22 @@ import { CardContent, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { formatPriceBRL } from "@/utils/mask";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 export default function PaymentList() {
-
+    //TODO: Refatorar componente para usar o Suspense
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [salarys, setSalarys] = useState<Salary[]>([]);
+    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
-        async function fetchData() {
+        startTransition(async () => {
             const employeesData = await getEmployees();
             const salarysData = await getPendingSalarys();
             setEmployees(employeesData.employees as Employee[]);
             setSalarys(salarysData.salarys as Salary[]);
-        }
-        fetchData();
+        })
     }, []);
 
     const calculateSalaries = (employees: Employee[], salaries: Salary[]) => {
@@ -64,47 +64,52 @@ export default function PaymentList() {
 
     return (
         <>
-            <CardContent>
-                <Suspense fallback={<>Carregando...</>}>
-                    {calculo?.employeesWithTotalSalaries && calculo?.employeesWithTotalSalaries.length > 0 && (
-                        <div className="flex flex-col space-y-4">
-                            {
-                                calculo?.employeesWithTotalSalaries.map((employeeSalary) => (
-                                    <Label className="flex items-center justify-between" key={employeeSalary.id}>
-                                        {employeeSalary.name}: <span>{formatPriceBRL(employeeSalary.salary)}</span>
-                                    </Label>
-                                ))
-                            }
-                            <Label className="flex items-center justify-between">Total: <span>{formatPriceBRL(calculo.totalSalary)}</span></Label>
-                        </div>
-                    )}
-                    {(!calculo?.employeesWithTotalSalaries || calculo?.employeesWithTotalSalaries.length <= 0) && (
-                        <div className="flex flex-col space-y-4">
-                            <Label className="flex items-center justify-between">Nenhum pagamento pendente</Label>
-                        </div>
-                    )}
-                </Suspense>
-            </CardContent>
-            <CardFooter className="flex item-center justify-end">
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button className={(!calculo?.employeesWithTotalSalaries || calculo?.employeesWithTotalSalaries.length <= 0) ? `hidden` : ''}>Pagar</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            Confirmar Pagamento
-                        </DialogHeader>
-                        <div>
-                            Confirmar pagamento de <span>{formatPriceBRL(calculo?.totalSalary || 0)}</span>?
-                        </div>
-                        <DialogFooter>
-                            <DialogClose asChild>
-                                <Button onClick={handleSave}>Confirmar</Button>
-                            </DialogClose>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </CardFooter>
+            {!isPending && (
+                <>
+                    <CardContent>
+                        {calculo?.employeesWithTotalSalaries && calculo?.employeesWithTotalSalaries.length > 0 && (
+                            <div className="flex flex-col space-y-4">
+                                {
+                                    calculo?.employeesWithTotalSalaries.map((employeeSalary) => (
+                                        <Label className="flex items-center justify-between" key={employeeSalary.id}>
+                                            {employeeSalary.name}: <span>{formatPriceBRL(employeeSalary.salary)}</span>
+                                        </Label>
+                                    ))
+                                }
+                                <Label className="flex items-center justify-between">Total: <span>{formatPriceBRL(calculo.totalSalary)}</span></Label>
+                            </div>
+                        )}
+                        {(!calculo?.employeesWithTotalSalaries || calculo?.employeesWithTotalSalaries.length <= 0) && (
+                            <div className="flex flex-col space-y-4">
+                                <Label className="flex items-center justify-between">Nenhum pagamento pendente</Label>
+                            </div>
+                        )}
+                    </CardContent>
+                    <CardFooter className="flex item-center justify-end">
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className={(!calculo?.employeesWithTotalSalaries || calculo?.employeesWithTotalSalaries.length <= 0) ? `hidden` : ''}>Pagar</Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    Confirmar Pagamento
+                                </DialogHeader>
+                                <div>
+                                    Confirmar pagamento de <span>{formatPriceBRL(calculo?.totalSalary || 0)}</span>?
+                                </div>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button onClick={handleSave}>Confirmar</Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </CardFooter>
+                </>
+            )}
+            {isPending && (
+                <>Carregando...</>
+            )}
         </>
     );
 }
