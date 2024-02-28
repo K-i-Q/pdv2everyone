@@ -231,6 +231,8 @@ model Salary {
   id         String   @id @default(cuid())
   amount     Float // Valor do salário do dia
   createAt   DateTime // Data do salário
+  paid       Boolean @default(false)
+  salaryDate DateTime
   employeeId String
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: SetDefault)
 }

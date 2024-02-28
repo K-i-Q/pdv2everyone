@@ -4,7 +4,8 @@ type TextInputProps = {
     placeholder: string;
     autoComplete: string;
     disabled?: boolean;
-    defaultValue: number
+    defaultValue: number;
+    onChange: (e:any) => void
   };
   
 // Configuração do formatador de moeda brasileira
@@ -14,7 +15,7 @@ const moneyFormatter = new Intl.NumberFormat('pt-BR', {
   minimumFractionDigits: 2,
 });
 
-export default function CurrencyInput({ placeholder, autoComplete, disabled, defaultValue }: TextInputProps) {
+export default function CurrencyInput({ placeholder, autoComplete, disabled, defaultValue, onChange }: TextInputProps) {
   const [displayValue, setDisplayValue] = useState('');
   const [realValue, setRealValue] = useState(defaultValue);
 
@@ -28,6 +29,7 @@ export default function CurrencyInput({ placeholder, autoComplete, disabled, def
     const digits = event.target.value.replace(/\D/g, '');
     const num = digits ? parseInt(digits, 10) / 100 : 0;
     setRealValue(num);
+    onChange(num);
   };
 
   return (
