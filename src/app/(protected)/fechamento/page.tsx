@@ -18,7 +18,6 @@ import ServiceSale from "../sales/list/_components/servicesale";
 import TotalPriceSale from "../sales/list/_components/totalpricesale";
 import EmployeeCommissionSale from "./_components/employeecomissionsale";
 import TotalCommissions from "./_components/totalcomissions";
-import TotalNetPrice from "./_components/totalnetprice";
 
 export type SalaryEmployee = {
     [key: string]: {
@@ -44,6 +43,7 @@ const DailyClosePage = () => {
         getSaleByDate(selectedDate!).then((data) => {
             if (data?.error) {
                 toast.error(data.error)
+                setSales([]);
             }
             if (data?.success) {
                 toast.success(data.success)
@@ -158,7 +158,6 @@ const DailyClosePage = () => {
                     <Button className="w-full md:w-auto">Pesquisar</Button>
                 </CardHeader>
                 <CardHeader>
-                    <TotalNetPrice sales={sales || []} setBilling={setBilling} />
                     <div className="hidden">
                         <TotalCommissions setSalary={setSalary} sales={sales || []} employees={employees || []} />
                     </div>

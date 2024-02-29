@@ -16,11 +16,25 @@ export default function PaymentList() {
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
-        startTransition(async () => {
-            const employeesData = await getEmployees();
-            const salarysData = await getPendingSalarys();
-            setEmployees(employeesData.employees as Employee[]);
-            setSalarys(salarysData.salarys as Salary[]);
+        startTransition(() => {
+            getEmployees().then((data) => {
+                if (data?.error) {
+                    toast.error(data.error)
+                }
+                if (data?.success) {
+                    toast.success(data.success)
+                    setEmployees(data.employees as Employee[]);
+                }
+            });
+            getPendingSalarys().then((data) => {
+                if (data?.error) {
+                    toast.error(data.error)
+                }
+                if (data?.success) {
+                    toast.success(data.success)
+                    setSalarys(data.salarys as Salary[]);
+                }
+            });
         })
     }, []);
 
@@ -50,14 +64,17 @@ export default function PaymentList() {
     };
 
     const handleSave = () => {
-        saveSalaryPaid(salarys).then((data) => {
-            if (data?.error) {
-                toast.error(data.error);
-            }
-            if (data?.success) {
-                toast.success(data.success);
-            }
-        });
+        startTransition(() => {
+            saveSalaryPaid(salarys).then((data) => {
+                if (data?.error) {
+                    toast.error(data.error);
+                }
+                if (data?.success) {
+                    toast.success(data.success);
+                    window.location.reload();
+                }
+            });
+        })
     };
 
     const calculo = calculateSalaries(employees, salarys);
