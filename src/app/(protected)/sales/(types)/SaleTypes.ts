@@ -106,6 +106,17 @@ type Employee = {
   // user?: User | null; // Presumindo que User é um tipo já definido em algum lugar no seu código.
 };
 
+type Salary = {
+  id: string;
+  amount: number;
+  createAt: Date;
+  paid: boolean;
+  salaryDate: Date;
+  employeeId: string;
+  employee: Employee; 
+}
+
+
 type Sale = {
   id: string;
   grossPrice: number;

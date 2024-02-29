@@ -5,7 +5,7 @@ type TotalPriceSaleProps = {
   sale: Sale;
   showLabel?: boolean;
 }
-const TotalPriceSale = ({sale, showLabel}: TotalPriceSaleProps) => {
+const TotalPriceSale = ({sale, showLabel = true}: TotalPriceSaleProps) => {
   // Calcula o preço total dos produtos
   const totalProductsPrice = sale.items
     .filter(item => item.product)
