@@ -43,6 +43,7 @@ const DailyClosePage = () => {
         getSaleByDate(selectedDate!).then((data) => {
             if (data?.error) {
                 toast.error(data.error)
+                setSales([]);
             }
             if (data?.success) {
                 toast.success(data.success)
