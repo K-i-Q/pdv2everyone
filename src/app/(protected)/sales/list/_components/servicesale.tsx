@@ -5,7 +5,7 @@ type ServiceSaleProps = {
   sale: Sale;
   showLabel?:boolean;
 }
-const ServiceSale= ({sale, showLabel}: ServiceSaleProps) => {
+const ServiceSale= ({sale, showLabel = true}: ServiceSaleProps) => {
   // Extrair nomes de serviços únicos
   const uniqueServiceNames = sale.items
     .flatMap(item => item.service) // Cria um array plano de todos os serviços
