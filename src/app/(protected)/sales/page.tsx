@@ -100,18 +100,18 @@ const SalesPage = () => {
         const startHour = 7;
         const endHour = 21;
         let newTimes = [];
-        let key = 0; // Inicializa um contador de chave
+        let key = 0;
 
         for (let hour = startHour; hour <= endHour; hour++) {
             for (let minutes = 0; minutes < 60; minutes += 30) {
                 if (hour > currentHours || (hour === currentHours && minutes >= currentMinutes)) {
                     const timeString = `${String(hour).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-                    newTimes.push({ id: key++, value: timeString }); // Cria um objeto com chave e valor e adiciona ao array
+                    newTimes.push({ id: key++, value: timeString }); 
                 }
             }
         }
 
-        setTimes(newTimes); // Atualiza o estado com o novo array de objetos
+        setTimes(newTimes); 
     };
 
     const getAllPendingSales = () => {
@@ -123,15 +123,12 @@ const SalesPage = () => {
 
                 if (data?.success && data?.sales) {
                     const formattedSales: Sale[] = data.sales.map((sale: any) => {
-                        // Assegure-se de incluir as propriedades faltantes com valores padrão ou mapeados
                         return {
                             ...sale,
                             employees: sale.employees || [],
                             salePayments: sale.salePayments || [],
-                            // Outras propriedades conforme necessário
                         };
                     }).sort((a: Sale, b: Sale) => {
-                        // Comparando as strings de pickupTime diretamente
                         return a.pickupTime?.localeCompare(b.pickupTime || '');
                     });
                     setSales(formattedSales);
