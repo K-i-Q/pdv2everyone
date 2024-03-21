@@ -40,7 +40,6 @@ interface Time {
 
 const SalesPage = () => {
     const [sales, setSales] = useState<Sale[] | undefined>();
-    const [employees, setEmployees] = useState<Employee[] | undefined>();
     const [isPending, startTransition] = useTransition();
 
     const [services, setServices] = useState<Service[] | undefined>();
@@ -454,7 +453,7 @@ const SalesPage = () => {
                                                 <FormControl>
                                                     <div className="flex">
                                                         <ScrollArea className="max-h-[200px] my-3">
-                                                            <div className="grid md:grid-cols-4 grid-cols-2 gap-3">
+                                                            <div className="grid grid-cols-2 gap-3">
                                                                 {
                                                                     services?.map((service) => (
                                                                         <Button
@@ -531,7 +530,7 @@ const SalesPage = () => {
                                                 <FormControl>
                                                     <div className="flex">
                                                         <ScrollArea className="max-h-[200px] my-3">
-                                                            <div className="grid grid-cols-4 gap-3">
+                                                            <div className="grid grid-cols-6 gap-3">
                                                                 {
                                                                     times?.map((time) => (
                                                                         <Button
