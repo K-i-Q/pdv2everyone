@@ -28,6 +28,10 @@ export const createSale = async (
     paymentMethod,
   } = validateFields.data;
 
+  if (!name || !phone || !services || !(services.length > 0) || !time || !model || !licensePlate) {
+    return { error: "Campos obrigatórios não foram preenchidos. Preencha todos os campos." }
+  }
+
   try {
     const customer = await getOrCreateCustomer(name, phone);
 

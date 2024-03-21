@@ -66,9 +66,8 @@ const DailyClosePage = () => {
     }
 
     useEffect(() => {
-        getServices();
         getEmployess();
-        //eslint-disable-next-line react-hooks/exhaustive-deps
+        getServices();
     }, []);
 
     useEffect(() => {
