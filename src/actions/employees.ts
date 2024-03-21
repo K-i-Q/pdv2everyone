@@ -2,7 +2,11 @@
 import { db } from "@/lib/db";
 
 export const getEmployees = async () => {
-  const employees = await db.employee.findMany();
+  const employees = await db.employee.findMany({
+    where:{
+      status: true
+    }
+  });
 
   if (!employees) {
     return { error: "Nenhum funcionário encontrado" };
