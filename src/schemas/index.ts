@@ -14,6 +14,10 @@ export const SalesSchema = z.object({
   paymentMethod: z.optional(z.string()),
 });
 
+export const SearchPlateSchema = z.object({
+  licensePlate: z.string({ required_error: "Campo obrigatório" }),
+})
+
 export const ServicesSchema = z.object({
   id: z.optional(z.string({ required_error: "Campo obrigatório" })),
   name: z.string({ required_error: "Campo obrigatório" }),
