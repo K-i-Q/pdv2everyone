@@ -38,26 +38,22 @@ const SalesListPage = () => {
 
                     if (data?.success && data?.sales) {
                         const formattedSales: Sale[] = data.sales.map((sale: any) => {
-                            // Assegure-se de incluir as propriedades faltantes com valores padrão ou mapeados
                             return {
                                 ...sale,
                                 employees: sale.employees || [],
                                 salePayments: sale.salePayments || [],
-                                // Outras propriedades conforme necessário
                             };
                         }).sort((a: Sale, b: Sale) => {
-                            // Comparando as strings de pickupTime diretamente
                             return a.pickupTime?.localeCompare(b.pickupTime || '');
                         });
                         setSales(formattedSales);
                     }
                 });
             });
-        }, 3000); // Chama a função a cada 3 segundos
+        }, 3000); 
 
-        // Limpeza: é chamada quando o componente é desmontado
         return () => clearInterval(intervalId);
-    }, []); // Array de dependências vazio significa que o useEffect rodará apenas uma vez após o componente montar
+    }, []); 
 
     const handleCancelSale = (saleId: string, index: number) => {
         startTransition(() => {
