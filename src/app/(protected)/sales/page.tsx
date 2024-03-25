@@ -74,15 +74,14 @@ const SalesPage = () => {
         }
     })
 
-    const onSubmitSale = (values: z.infer<typeof SalesSchema>) => {
+    const onSubmit = (values: z.infer<typeof SalesSchema>) => {
         startTransition(() => {
             createSale(values, totalPrice).then((data) => {
                 if (data?.error) {
+                    setSearchedPlate(true);
                     const errorMessage = typeof data.error === 'object' && data.error !== null
                         ? (data.error as any).message || JSON.stringify(data.error)
                         : data.error;
-                    const btnNewSale = document.getElementById('new-sale') as HTMLElement;
-                    if (btnNewSale) btnNewSale.click();
                     toast.error(errorMessage);
                 }
                 if (data?.success) {
@@ -111,7 +110,7 @@ const SalesPage = () => {
                     formSale.setValue('licensePlate', values.licensePlate);
                 }
                 setSearchedPlate(true);
-            })
+            }).catch((error) => toast.error('Sua solicitação teve insucesso, tente novamente'));
         })
     }
 
@@ -273,6 +272,8 @@ const SalesPage = () => {
     }
 
     const handleDialogClose = () => {
+        const dialog = document.getElementById('dialog-create-sale');
+        if (dialog) dialog.click();
         formSale.reset();
         setSelectedTime('');
         setSelectedServices([]);
@@ -280,7 +281,7 @@ const SalesPage = () => {
     }
 
     const handleDialogSaleClose = (event: Boolean) => {
-        if(!event){
+        if (!event) {
             setSearchedPlate(false);
             formSearchPlate.reset();
         }
@@ -504,7 +505,7 @@ const SalesPage = () => {
                         {searchedPlate && (
                             <ScrollArea className="h-[500px]">
                                 <Form {...formSale}>
-                                    <form className="space-y-3" onSubmit={formSale.handleSubmit(onSubmitSale)}>
+                                    <form className="space-y-3" onSubmit={formSale.handleSubmit(onSubmit)}>
                                         <FormField
                                             control={formSale.control}
                                             name="services"
@@ -738,14 +739,12 @@ const SalesPage = () => {
                                                     <MdOutlineCancel className="w-7 h-7" />
                                                 </Button>
                                             </DialogClose>
-                                            <DialogClose asChild>
-                                                <Button
-                                                    type="submit"
-                                                    className="rounded-full px-3 py-6"
-                                                >
-                                                    <FaCheckCircle className="w-7 h-7" />
-                                                </Button>
-                                            </DialogClose>
+                                            <Button
+                                                type="submit"
+                                                className="rounded-full px-3 py-6"
+                                            >
+                                                <FaCheckCircle className="w-7 h-7" />
+                                            </Button>
                                         </DialogFooter>
                                     </form>
                                 </Form>
