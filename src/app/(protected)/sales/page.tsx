@@ -107,7 +107,7 @@ const SalesPage = () => {
                     formSale.setValue('phone', customer.phone);
                     formSale.setValue('licensePlate', vehicle.licensePlate);
                     formSale.setValue('model', vehicle.model);
-                }else{
+                } else {
                     formSale.setValue('licensePlate', values.licensePlate);
                 }
                 setSearchedPlate(true);
@@ -277,6 +277,13 @@ const SalesPage = () => {
         setSelectedTime('');
         setSelectedServices([]);
         setTotalPrice(0);
+    }
+
+    const handleDialogSaleClose = (event: Boolean) => {
+        if(!event){
+            setSearchedPlate(false);
+            formSearchPlate.reset();
+        }
     }
 
     return (
@@ -462,7 +469,7 @@ const SalesPage = () => {
                         >Colaboradores, Formas de pagamento e Status</Button>
                     </>
                 )}
-                <Dialog>
+                <Dialog onOpenChange={handleDialogSaleClose}>
                     <DialogTrigger asChild>
                         <Button id="new-sale" className={isPending ? `hidden` : ''}>
                             <BsPlus />
