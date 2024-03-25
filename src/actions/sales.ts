@@ -3,7 +3,7 @@ import { getCustomerById } from "@/data/customer";
 import { getPaymentMethodById } from "@/data/paymentMethod";
 import { getSaleById } from "@/data/sale";
 import { db } from "@/lib/db";
-import { SalesSchema } from "@/schemas";
+import { SalesSchema, SearchPlateSchema } from "@/schemas";
 import { Vehicle } from "@prisma/client";
 import * as z from "zod";
 
@@ -100,6 +100,39 @@ export const createSale = async (
     return { error: (error as any).message };
   }
 };
+
+export const searchLicensePlate = async (values: z.infer<typeof SearchPlateSchema>) => {
+  const validateFields = SearchPlateSchema.safeParse(values);
+
+  if (!validateFields.success) {
+    return { error: "Campo inválido de pesquisa" };
+  }
+
+  const { licensePlate } = validateFields.data;
+
+  if (!licensePlate) {
+    return { error: "Campo de pesquisa de placa obrigatório" };
+  }
+
+  try {
+    const existingVehicle = await db.vehicle.findUnique({
+      where: {
+        licensePlate
+      },
+      include:{
+        customer: true
+      }
+    });
+
+    if (!existingVehicle) {
+      return { error: "Veículo não está cadastrado na base" }
+    }
+
+    return { success: "Cliente encontrado", vehicleCustomer: existingVehicle}
+  } catch (error) {
+    return { error: (error as any).message }
+  }
+}
 
 export const saveServices = async (
   saleId: string,
